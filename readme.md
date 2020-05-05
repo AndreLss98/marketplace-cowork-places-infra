@@ -1,6 +1,6 @@
 # Projeto de back-end do Placeet
 
-## Useful commands
+## Comando úteis
 
 Instala dependências do projeto
 
