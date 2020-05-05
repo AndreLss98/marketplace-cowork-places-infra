@@ -3,7 +3,7 @@ const {
     DB_PROD, DB_USER_PROD, DB_PASSWORD_PROD
 } = process.env;
 
-module.exports = {
+CONFIGS = {
     dev: {
         client: 'pg',
         connection: {
@@ -21,3 +21,6 @@ module.exports = {
         }
     }
 }
+
+const knex = require('knex')(CONFIGS[process.env.ENVIRONMENT]);
+module.exports = knex;
