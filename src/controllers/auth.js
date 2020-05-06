@@ -1,3 +1,4 @@
+require('../middlewares/passport');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const router = require('express').Router();
@@ -5,7 +6,7 @@ const router = require('express').Router();
 const shared = require('./../shared/functions');
 const Usuario = require('../repositorys/usuario');
 
-router.post('/login', async (req, res) => {
+router.post('/', async (req, res) => {
     const { email, senha } = req.body;
     const user = await Usuario.getByEmail(email);
 
@@ -19,9 +20,14 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/google', passport.authenticate('google', {
-    scope: ['profile']
+    scope: ['profile', 'email']
 }));
 
-router.post('/google/redirect', )
+router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
+    res.status(200).send({ user: req.user, token: shared.generateToken({ id: req.user.id }) });
+});
 
-module.exports = app => app.use('/auth', router);
+module.exports = app => {
+    app.use(passport.initialize());
+    app.use('/auth', router);
+};
