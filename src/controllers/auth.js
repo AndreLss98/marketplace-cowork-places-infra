@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const passport = require('passport');
 const router = require('express').Router();
 
 const shared = require('./../shared/functions');
@@ -17,8 +18,10 @@ router.post('/login', async (req, res) => {
     res.status(200).send({ user, token: shared.generateToken({ id: user.id }) });
 });
 
-router.post('/google', async (req, res, next) => {
+router.get('/google', passport.authenticate('google', {
+    scope: ['profile']
+}));
 
-});
+router.post('/google/redirect', )
 
 module.exports = app => app.use('/auth', router);
