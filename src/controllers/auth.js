@@ -17,8 +17,8 @@ router.post('/login', async (req, res) => {
     res.status(200).send({ user, token: shared.generateToken({ id: user.id }) });
 });
 
-router.post('/google', async (req, res, next)) {
+router.post('/google', async (req, res, next) => {
 
-}
+});
 
 module.exports = app => app.use('/auth', router);
