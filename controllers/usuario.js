@@ -1,15 +1,24 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const router = require('express').Router();
-const mdPagination = require('./../middlewares/pagination');
+
+const authMiddleware = require('./../middlewares/auth');
+const paginationMiddleware = require('./../middlewares/pagination');
 
 const Usuario = require('../repositorys/usuario');
 
-router.get('/', mdPagination(Usuario.getAll), async (req, res, next) => {
+function generateToken(params = {}) {
+    return jwt.sign(params, process.env.JWT_SECRET, {
+        expiresIn: 60
+    });
+}
+
+router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req, res, next) => {
     res.result.results.forEach(user => user.senha = undefined);
     res.send(res.result);
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authMiddleware, async (req, res, next) => {
     const { id } = req.params;
     const user = await Usuario.getById(id);
     if (!user) {
@@ -27,7 +36,7 @@ router.post('/create', async (req, res, next) => {
     try {
         const user = await Usuario.save(req.body);
         user.senha = undefined;
-        return res.status(200).send(user);
+        return res.status(200).send({ user, token: generateToken({ id: user.id }) });
     } catch (err) {
         return res.status(400).send({ error: "Registrarion Failed!" });
     }
@@ -43,7 +52,7 @@ router.post('/authenticate', async (req, res) => {
 
     user.senha = undefined;
 
-    res.status(200).send(user);
+    res.status(200).send({ user, token: generateToken({ id: user.id }) });
 });
 
 module.exports = app => app.use('/usuarios', router);
