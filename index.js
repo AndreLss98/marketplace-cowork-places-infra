@@ -8,6 +8,6 @@ const app_port = process.env.PORT || 3000;
 app.use(boydParser.json());
 app.use(boydParser.urlencoded({extended: false}));
 
-require('./src/controllers/usuario')(app);
+require('./src/controllers')(app);
 
 app.listen(app_port, () => console.log(`Server running on port ${app_port}`));
