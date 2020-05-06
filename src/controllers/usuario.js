@@ -2,8 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 
-const authMiddleware = require('./../middlewares/auth');
-const paginationMiddleware = require('./../middlewares/pagination');
+const authMiddleware = require('../middlewares/auth');
+const paginationMiddleware = require('../middlewares/pagination');
 
 const Usuario = require('../repositorys/usuario');
 
