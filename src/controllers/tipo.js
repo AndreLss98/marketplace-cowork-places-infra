@@ -13,7 +13,7 @@ router.post('/', async (req, res, next) => {
         const tipo = await Tipo.save(req.body);
         return res.status(200).send(tipo)
     } catch (error) {
-        return res.status(400).send({ error: "Registration Failed"});
+        return res.status(400).send({ error: "Registration failed"});
     }
 });
 
@@ -24,8 +24,8 @@ router.put('/:id', async (req, res, next) => {
 
     try {
         return res.status(200).send({ response: await Tipo.update(req.body) });
-    } catch(error) {
-        return res.status(400).send({ error });
+    } catch(err) {
+        return res.status(400).send({ error: "Name already exists" });
     }
 })
 

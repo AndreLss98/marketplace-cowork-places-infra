@@ -18,9 +18,9 @@ module.exports = {
     },
     async update(tipo) {
         try {
-            return await db(TABLE).where({ id: tipo.id }).update( tipo );
-        } catch (err) {
-            throw "Name already exists";
+            return await db(TABLE).where({ id: tipo.id }).update(tipo);
+        } catch (error) {
+            throw error;
         }
     },
     async delete(id) {
