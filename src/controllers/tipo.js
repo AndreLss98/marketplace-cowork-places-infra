@@ -29,10 +29,10 @@ router.put('/:id', async (req, res, next) => {
     }
 })
 
-router.delete('/:id', authMiddleware, async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     const { id } = req.params;
 
     res.status(200).send({ response: await Tipo.delete(id)});
 });
 
-module.exports = app => app.use('/tipos', router);
+module.exports = app => app.use('/tipos', authMiddleware, router);
