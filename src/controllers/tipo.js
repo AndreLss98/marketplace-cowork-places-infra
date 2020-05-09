@@ -8,6 +8,13 @@ router.get('/', async (req, res, next) => {
     res.status(200).send(await Tipo.getAll());
 });
 
+router.get('/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const tipo = await Tipo.getById(id);
+    if (!tipo) return res.status(404).send({ error: "Not found" });
+    res.status(200).send(tipo);
+});
+
 router.post('/', async (req, res, next) => {
     try {
         const tipo = await Tipo.save(req.body);
@@ -18,7 +25,7 @@ router.post('/', async (req, res, next) => {
 });
 
 router.put('/:id', async (req, res, next) => {
-    const tipo = await Tipo.getById(req.body.id);
+    const tipo = await Tipo.getById(req.params.id);
 
     if (!tipo) return res.status(404).send({ error: "Not found" });
 
