@@ -11,5 +11,11 @@ module.exports = {
     },
     async removerRelacionamento(alugavel_id, caracteristica_id) {
         return await db(TABLE).where({ alugavel_id, caracteristica_id }).delete();
+    },
+    async atualizarValor(alugavel_id, caracteristica_id, valor) {
+        return await db(TABLE).update({ valor }).where({ alugavel_id, caracteristica_id });
+    },
+    async getAllCaracteristicas(alugavel_id) {
+        return await db(TABLE).where({ alugavel_id });
     }
 }
