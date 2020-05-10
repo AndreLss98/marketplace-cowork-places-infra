@@ -2,6 +2,8 @@ const router  = require('express').Router();
 
 const Caracteristica = require('../repositorys/caracteristica');
 
+const authMiddleware = require('./../middlewares/auth');
+
 router.get('/', async (req, res, next) => {
     res.status(200).send(await Caracteristica.getAll());
 });
@@ -38,4 +40,4 @@ router.delete('/:id', async (req, res, next) => {
     return res.status(200).send({ response: await Caracteristica.delete(id) });
 });
 
-module.exports = app => app.use('/caracteristicas', router);
+module.exports = app => app.use('/caracteristicas', authMiddleware, router);

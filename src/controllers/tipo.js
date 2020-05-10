@@ -34,12 +34,6 @@ router.put('/:id', async (req, res, next) => {
     } catch(err) {
         return res.status(400).send({ error: "Name already exists" });
     }
-})
-
-router.delete('/:id', async (req, res, next) => {
-    const { id } = req.params;
-
-    res.status(200).send({ response: await Tipo.delete(id)});
 });
 
 module.exports = app => app.use('/tipos', authMiddleware, router);

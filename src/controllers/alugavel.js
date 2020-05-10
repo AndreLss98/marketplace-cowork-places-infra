@@ -2,6 +2,8 @@ const router = require('express').Router();
 
 const Alugavel = require('../repositorys/alugavel');
 
+const authMiddleware = require('./../middlewares/auth');
+
 router.get('/', async (req, res, next) => {
     res.status(200).send(await Alugavel.getAll());
 });
@@ -13,10 +15,15 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
+
+    const { caracteristicas, usuario_id, tipo_id, descricao, valor } = req.body;
+
+    const alugavel = { usuario_id, tipo_id, descricao, valor };
+
     try {
-        return res.status(200).send(await Alugavel.save(req.body));
+        return res.status(200).send(await Alugavel.save(alugavel, caracteristicas));
     } catch(error) {
-        return res.status(400).send({ error: "Registration failed" });
+        return res.status(400).send({ error });
     }
 });
 
@@ -34,4 +41,4 @@ router.put('/:id', async (req, res, next) => {
     }
 });
 
-module.exports = app => app.use('/alugaveis', router);
+module.exports = app => app.use('/alugaveis', authMiddleware, router);
