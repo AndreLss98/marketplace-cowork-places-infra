@@ -135,6 +135,9 @@ router.get('/:id/local', async (req, res, next) => {
     res.status(200).send(await Local.getByAlugavelId(id));
 });
 
+/**
+ * Atualiza os dados do endereco de um alugavel
+ */
 router.put('/:id/local', async (req, res, next) => {
     const response = await Local.update(req.body);
     if (!response) return res.status(400).send({ error: "Update failed" });
