@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const authMiddleware = require('../middlewares/auth');
+const multerMiddleware = require('./../middlewares/multer');
 const paginationMiddleware = require('../middlewares/pagination');
 
 const shared = require('./../shared/functions');
@@ -42,5 +43,14 @@ router.post('/create', async (req, res, next) => {
         return res.status(400).send({ error: "Registrarion Failed!" });
     }
 });
+
+router.post('/:id/img-perfil', authMiddleware, multerMiddleware.single('file'), async (req, res, next) => {
+    const { id } = req.params;
+    const img = { img_perfil: req.file.key };
+
+    const response = await Usuario.update(id, img);
+
+    res.status(200).send({ response });
+})
 
 module.exports = app => app.use('/usuarios', router);
