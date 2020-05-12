@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 const Info = require('./../repositorys/info');
 const Local = require('./../repositorys/local');
+const Duvida = require('./../repositorys/duvida');
 const Alugavel = require('../repositorys/alugavel');
 const Caracteristica = require('./../repositorys/caracteristica');
 const AlugavelImagem = require('./../repositorys/alugavel_imagem');
@@ -60,9 +61,9 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
 
-    const { caracteristicas, infos, local, usuario_id, tipo_id, descricao, valor } = req.body;
+    const { caracteristicas, infos, local, anunciante_id, tipo_id, descricao, valor } = req.body;
 
-    const alugavel = { usuario_id, tipo_id, descricao, valor };
+    const alugavel = { anunciante_id, tipo_id, descricao, valor };
 
     if (!local) return res.status(400).send({ error: "Invalid address" });
 
@@ -163,6 +164,15 @@ router.put('/:id/local', async (req, res, next) => {
     if (!response) return res.status(400).send({ error: "Update failed" });
 
     res.status(200).send({ response });
+});
+
+/**
+ * Retorna todas as duvidas registradas
+ */
+router.get('/:id/duvidas', async (req, res, next) => {
+    const { id } = req.params;
+    const duvidas = await Duvida.getAllByAlugavelId(id);
+    res.status(200).send(duvidas);
 });
 
 module.exports = app => app.use('/alugaveis', authMiddleware, router);

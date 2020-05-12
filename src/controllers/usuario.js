@@ -5,6 +5,7 @@ const paginationMiddleware = require('../middlewares/pagination');
 
 const shared = require('./../shared/functions');
 const Usuario = require('../repositorys/usuario');
+const Duvida = require('./../repositorys/duvida');
 
 router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req, res, next) => {
     res.result.results.forEach(user => user.senha = undefined);
@@ -19,6 +20,12 @@ router.get('/:id', authMiddleware, async (req, res, next) => {
     }
     user.senha = undefined;
     res.send(user);
+});
+
+router.get('/:id/duvidas', async (req, res, next) => {
+    const { id } = req.params;
+    const duvidas = await Duvida.getAllByUserId(id);
+    res.status(200).send(duvidas);
 });
 
 router.post('/create', async (req, res, next) => {
