@@ -6,10 +6,22 @@ const Duvida = require('./../repositorys/duvida');
 const Alugavel = require('../repositorys/alugavel');
 const Caracteristica = require('./../repositorys/caracteristica');
 const AlugavelImagem = require('./../repositorys/alugavel_imagem');
+const DiasReservados = require('./../repositorys/dias_reservados');
 const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica');
 
 const authMiddleware = require('./../middlewares/auth');
 const multerMiddleware = require('./../middlewares/multer');
+
+async function validateDates(idAlugavel, diasSolicitados) {
+    diasSolicitados = diasSolicitados.map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
+    const diasReservados = (await DiasReservados.getAllByAlugavelId(idAlugavel)).map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
+    
+    for (let dia of diasSolicitados) {
+        if (diasReservados.includes(dia)) return false;
+    }
+
+    return true;
+}
 
 /**
  * Retorna todos os alugaveis
@@ -173,6 +185,48 @@ router.get('/:id/duvidas', async (req, res, next) => {
     const { id } = req.params;
     const duvidas = await Duvida.getAllByAlugavelId(id);
     res.status(200).send(duvidas);
+});
+
+/**
+ * Retorna dias reservadas
+ */
+router.get('/:id/dias-reservados', async (req, res, next) => {
+    const { id } = req.params;
+    const dias = await DiasReservados.getAllByAlugavelId(id);
+
+    res.status(200).send(dias);
+});
+
+/**
+ * Reservar dias manualmente
+ */
+router.post('/:id/reservar', async (req, res, next) => {
+    const { id } = req.params;
+    const dias = req.body;
+    const response = await validateDates(id, dias);
+
+    if (!response) return res.status(400).send({ error: "Day already reserved" });
+
+    for(let dia of dias) {
+        try {
+            dia.alugavel_id = id;
+            await DiasReservados.save(dia);
+        } catch (error) {
+            return res.status(400).send({ error: "Failed to reserve" });
+        }
+    }
+
+    return res.status(200).send({ response: 1 });
+});
+
+/**
+ * Valida datas de reserva a serer registradas
+ */
+router.post('/:id/validate', async (req, res, next) => {
+    const { id } = req.params;
+    const response = await validateDates(id, req.body);
+    if (!response) return res.status(400).send({ error: "Day already reserved" });
+    res.status(200).send({ response: 1 });
 });
 
 module.exports = app => app.use('/alugaveis', authMiddleware, router);
