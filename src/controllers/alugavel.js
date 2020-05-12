@@ -4,9 +4,11 @@ const Info = require('./../repositorys/info');
 const Local = require('./../repositorys/local');
 const Alugavel = require('../repositorys/alugavel');
 const Caracteristica = require('./../repositorys/caracteristica');
+const AlugavelImagem = require('./../repositorys/alugavel_imagem');
 const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica');
 
 const authMiddleware = require('./../middlewares/auth');
+const multerMiddleware = require('./../middlewares/multer');
 
 /**
  * Retorna todos os alugaveis
@@ -69,6 +71,24 @@ router.post('/', async (req, res, next) => {
     } catch(error) {
         return res.status(400).send({ error });
     }
+});
+
+/**
+ * Salva uma imagem de um alugavel
+ */
+router.post('/:id/imagem', multerMiddleware.single('file'), async (req, res, next) => {
+    const img = await AlugavelImagem.save(req.params.id, req.file.key);
+    res.status(200).send({ img });
+});
+
+/**
+ * Deleta uma imagem
+ */
+router.delete('/:id/imagem/:imgId', async (req, res, next) => {
+    let { imgId } = req.params;
+    imgId = parseInt(imgId);
+    const response = await AlugavelImagem.delete(imgId);
+    res.status(200).send({ response });
 });
 
 /**

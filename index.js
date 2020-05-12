@@ -6,7 +6,9 @@ const boydParser = require('body-parser');
 const app_port = process.env.PORT || 3000;
 
 app.use(boydParser.json());
-app.use(boydParser.urlencoded({extended: false}));
+app.use(boydParser.urlencoded({ extended: true }));
+
+app.use('/alg-imgs', express.static('./tmp/uploads'));
 
 require('./src/controllers')(app);
 
