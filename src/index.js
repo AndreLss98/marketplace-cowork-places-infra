@@ -8,8 +8,8 @@ const app_port = process.env.PORT || 3000;
 app.use(boydParser.json());
 app.use(boydParser.urlencoded({ extended: true }));
 
-app.use('/alg-imgs', express.static('./tmp/uploads'));
+app.use('/alg-imgs', express.static('./../public/tmp/uploads'));
 
-require('./src/controllers')(app);
+require('./controllers')(app);
 
 app.listen(app_port, () => console.log(`Server running on port ${app_port}`));

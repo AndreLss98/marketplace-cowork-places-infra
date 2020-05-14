@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const db = require('../../configs/knex');
+const db = require('./../configs/knex');
 const TABLE = 'usuario';
 
 module.exports = {

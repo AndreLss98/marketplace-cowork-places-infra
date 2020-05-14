@@ -1,4 +1,4 @@
-const db = require('./../../configs/knex');
+const db = require('./../configs/knex');
 const TABLE = 'dias_reservados';
 
 module.exports = {
