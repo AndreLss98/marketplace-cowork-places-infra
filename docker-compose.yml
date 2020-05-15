@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+    db:
+        image: postgres
+        container_name: placeet-db
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        volumes:
+            - /custom/mount:/var/lib/postgresql/data
+    api:
+        build: "./"
+        container_name: placeet-api
+        restart: always
+        volumes:
+            - .:/usr/app
+        ports:
+            - "3000:3000"
+        depends_on:
+            - db
