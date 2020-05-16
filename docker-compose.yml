@@ -16,7 +16,13 @@ services:
         restart: always
         volumes:
             - .:/usr/app
-        ports:
-            - "3000:3000"
         depends_on:
             - db
+    nginx:
+        build: "./nginx/"
+        container_name: placeet-server
+        restart: always
+        ports:
+            - "80:80"
+        depends_on:
+            - api

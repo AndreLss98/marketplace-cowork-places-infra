@@ -8,7 +8,7 @@ const app_port = process.env.PORT || 3000;
 app.use(boydParser.json());
 app.use(boydParser.urlencoded({ extended: true }));
 
-app.use('/alg-imgs', express.static('./../public/tmp/uploads'));
+app.use('/alg-imgs', express.static('public/tmp/uploads'));
 
 require('./controllers')(app);
 
