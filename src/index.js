@@ -14,4 +14,8 @@ app.use('/alg-imgs', express.static('public/tmp/uploads'));
 
 require('./controllers')(app);
 
+app.get('/', (req, res, next) => {
+    res.status(200).send({ status: 'ok' });
+});
+
 app.listen(app_port, () => console.log(`Server running on port ${app_port}`));
