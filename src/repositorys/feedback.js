@@ -1,6 +1,8 @@
 const db = require('./../configs/knex');
+
 const  TABLE = 'feedback';
 const  RELATION_TABLE = 'feedback_usuario';
+
 module.exports = {
     async getAll() {
         return await db(TABLE);
