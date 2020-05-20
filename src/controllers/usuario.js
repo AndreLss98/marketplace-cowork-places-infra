@@ -70,8 +70,13 @@ router.put('/:id/assinar-termos', authMiddleware, async (req, res, next) => {
 
 router.get('/:id/feedbacks', authMiddleware, async (req, res, next) => {
     const { id } = req.params;
-    Feedback.getAllByUser(id);
-    res.status(200).send({ response: 'ok' });
+    res.status(200).send(await Feedback.getAllByUser(id));
+});
+
+router.post('/:id/feedbacks', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    const feedback = await Feedback.reply(id, req.body);
+    res.status(200).send(feedback);
 });
 
 module.exports = app => app.use('/usuarios', router);

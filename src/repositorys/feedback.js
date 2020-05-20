@@ -7,9 +7,19 @@ module.exports = {
     },
     async getAllByUser(usuario_id) {
         const relations = await db(RELATION_TABLE).where({ usuario_id });
-        const relationsIds = relations.map(relation => relation.usuario_id);
+        const relationsIds = relations.map(relation => relation.feedback_id);
         const feedbacks = await db(TABLE).whereIn('id', relationsIds);
-        console.log(feedbacks);
+        for (let feedback of feedbacks) {
+            feedback.resposta = relations.find(relation => relation.feedback_id === feedback.id).resposta;
+        }
+        return feedbacks;
+    },
+    async reply(usuario_id, feedbacks) {
+        for (let feedback of feedbacks) {
+            feedback.usuario_id = usuario_id;
+            await db(RELATION_TABLE).insert(feedback);
+        }
+        return await db(RELATION_TABLE).where({usuario_id});
     },
     async save(feedback) {
         const id = await db(TABLE).insert(feedback).returning('id');
