@@ -7,6 +7,7 @@ const paginationMiddleware = require('../middlewares/pagination');
 const shared = require('./../shared/functions');
 const Usuario = require('../repositorys/usuario');
 const Duvida = require('./../repositorys/duvida');
+const Termos = require('./../repositorys/termos');
 
 router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req, res, next) => {
     res.result.results.forEach(user => user.senha = undefined);
@@ -51,6 +52,19 @@ router.post('/:id/img-perfil', authMiddleware, multerMiddleware.single('file'), 
     const response = await Usuario.update(id, img);
 
     res.status(200).send({ response });
+});
+
+router.post('/:id/assinar-termos', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    req.body.usuario_id = id;
+    return res.status(200).send(await Termos.save(req.body));
+});
+
+router.put('/:id/assinar-termos', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    const { versao } = req.body;
+    const response = await Termos.update(id, versao);
+    return res.status(200).send({ response });
 });
 
 module.exports = app => app.use('/usuarios', router);
