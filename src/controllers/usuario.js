@@ -46,6 +46,14 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
+router.post('/:id/adiar-pagamento', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    const user = await Usuario.getById(id);
+    if (parseFloat(user.saldo) === 0) return res.status(400).send({ error: "Insufficient funds" });
+    const response = await Usuario.update(id, { saldo: 0 });
+    res.status(200).send({ response });
+});
+
 router.post('/:id/img-perfil', authMiddleware, multerMiddleware.single('file'), async (req, res, next) => {
     const { id } = req.params;
     const img = { img_perfil: req.file.key };
