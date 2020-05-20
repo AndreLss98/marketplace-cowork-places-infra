@@ -5,7 +5,7 @@ const multer = require('multer');
 const storageType = {
     local: multer.diskStorage({
         destination: (req, file, cb) => {
-            cb(null, path.resolve(__dirname, '..', 'tmp', 'uploads'))
+            cb(null, path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads'))
         },
         filename: (req, file, cb) =>{
             crypto.randomBytes(16, (error, hash) => {
@@ -19,7 +19,7 @@ const storageType = {
 }
 
 module.exports = {
-    dest: path.resolve(__dirname, '..', 'tmp', 'uploads'),
+    dest: path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads'),
     storage: storageType[process.env.STORAGE_TYPE],
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
