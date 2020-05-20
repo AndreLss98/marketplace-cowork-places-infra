@@ -29,6 +29,13 @@ module.exports = {
     },
     async update(id, user) {
         return await db(TABLE).update(user).where({ id });
+    },
+    async atualizarSaldo(id, deposito) {
+        let { saldo } = await db.select('saldo').from(TABLE).where({ id }).first();
+        saldo = parseFloat(saldo);
+        saldo += deposito;
+        console.log(saldo);
+        return await db(TABLE).update({ saldo }).where({ id });
     }
 }
 

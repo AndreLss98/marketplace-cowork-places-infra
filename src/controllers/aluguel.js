@@ -3,6 +3,7 @@ const router = require('express').Router();
 const authMiddleware = require('./../middlewares/auth');
 
 const Aluguel = require('./../repositorys/aluguel');
+const Usuario = require('./../repositorys/usuario');
 const DiasReservados = require('./../repositorys/dias_reservados');
 
 router.post('/', async (req, res, next) => {
@@ -22,6 +23,8 @@ router.post('/', async (req, res, next) => {
             return res.status(400).send({ error: "Failed to reserve" });
         }
     }
+
+    await Usuario.atualizarSaldo(aluguel.usuario_id, aluguel.valor);
 
     delete aluguel.authorization_id;
     delete aluguel.cancellation_id;

@@ -51,6 +51,6 @@ router.post('/:id/img-perfil', authMiddleware, multerMiddleware.single('file'), 
     const response = await Usuario.update(id, img);
 
     res.status(200).send({ response });
-})
+});
 
 module.exports = app => app.use('/usuarios', router);
