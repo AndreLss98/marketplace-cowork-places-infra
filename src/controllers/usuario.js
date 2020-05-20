@@ -8,6 +8,7 @@ const shared = require('./../shared/functions');
 const Usuario = require('../repositorys/usuario');
 const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
+const Feedback = require('./../repositorys/feedback');
 
 router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req, res, next) => {
     res.result.results.forEach(user => user.senha = undefined);
@@ -65,6 +66,12 @@ router.put('/:id/assinar-termos', authMiddleware, async (req, res, next) => {
     const { versao } = req.body;
     const response = await Termos.update(id, versao);
     return res.status(200).send({ response });
+});
+
+router.get('/:id/feedbacks', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    Feedback.getAllByUser(id);
+    res.status(200).send({ response: 'ok' });
 });
 
 module.exports = app => app.use('/usuarios', router);
