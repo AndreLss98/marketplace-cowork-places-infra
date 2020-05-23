@@ -46,6 +46,8 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
 
 router.post('/refresh-token', async (req, res, next) => {
     let refresh_token = req.cookies.refresh_token;
+
+    if (!refresh_token) return res.status(400).send({ error: "Invalid refresh token" });
     
     const user = await Usuario.getBySearchKey({ refresh_token });
 
