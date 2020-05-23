@@ -1,9 +1,18 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+
+const tokenDuration = 900
 
 module.exports = {
     generateToken(params = {}) {
         return jwt.sign(params, process.env.JWT_SECRET, {
-            expiresIn: 900
+            expiresIn: tokenDuration
         });
+    },
+    generateExpirationTime() {
+        return Math.floor(Date.now() / 1000) + tokenDuration;
+    },
+    generateRefreshToken() {
+        return crypto.randomBytes(30).toString('hex');
     }
 }

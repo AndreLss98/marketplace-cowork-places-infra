@@ -7,13 +7,16 @@ module.exports = {
         return await db(TABLE);
     },
     async getById(id) {
-        return user = await db(TABLE).where({ id }).first();
+        return await db(TABLE).where({ id }).first();
     },
     async getByEmail(email) {
-        return user = await db(TABLE).where({ email }).first();
+        return await db(TABLE).where({ email }).first();
     },
     async getByGoogleId(google_id) {
-        return user = await db(TABLE).where({ google_id }).first();
+        return await db(TABLE).where({ google_id }).first();
+    },
+    async getBySearchKey(key) {
+        return await db(TABLE).where(key).first();
     },
     async save(user) {
         if (user.senha) {
