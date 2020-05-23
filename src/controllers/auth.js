@@ -14,16 +14,18 @@ router.post('/', async (req, res) => {
 
     if (!await bcrypt.compare(senha, user.senha)) return res.status(400).send({ error: "Invalid password" });
 
+    const expires_at = shared.generateExpirationTime();
     const refresh_token = shared.generateRefreshToken();
-    await Usuario.update(user.id, { refresh_token });
+    await Usuario.update(user.id, { refresh_token, expires_at });
     
     user.senha = undefined;
     user.refresh_token = undefined;
+    user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: shared.generateExpirationTime(), httpOnly: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
     .status(200)
-    .send({ user, token: shared.generateToken({ id: user.id }), espiresAt: shared.generateExpirationTime() });
+    .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
 
 router.get('/google', passport.authenticate('google', {
@@ -32,16 +34,18 @@ router.get('/google', passport.authenticate('google', {
 
 router.get('/google/redirect', passport.authenticate('google'), async (req, res) => {
 
+    const expires_at = shared.generateExpirationTime();
     const refresh_token = shared.generateRefreshToken();
-    await Usuario.update(req.user.id, { refresh_token });
+    await Usuario.update(req.user.id, { refresh_token, expires_at });
 
     req.user.senha = undefined;
     req.user.refresh_token = undefined;
+    req.user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: shared.generateExpirationTime(), httpOnly: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
     .status(200)
-    .send({ user: req.user, token: shared.generateToken({ id: req.user.id }), espiresAt: shared.generateExpirationTime() });
+    .send({ user: req.user, token: shared.generateToken({ id: req.user.id }), expires_at });
 });
 
 router.post('/refresh-token', async (req, res, next) => {
@@ -53,18 +57,20 @@ router.post('/refresh-token', async (req, res, next) => {
 
     if (!user) return res.status(401).send({ error: "Invalid refresh token" });
 
+    const expires_at = shared.generateExpirationTime();
     refresh_token = shared.generateRefreshToken();
-    await Usuario.update(user.id, { refresh_token });
+    await Usuario.update(user.id, { refresh_token, expires_at });
 
     user.senha = undefined;
     user.refresh_token = undefined;
+    user.expires_at = undefined;
 
     console.log(user);
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: shared.generateExpirationTime(), httpOnly: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
     .status(200)
-    .send({ user, token: shared.generateToken({ id: user.id }), espiresAt: shared.generateExpirationTime() });
+    .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
 
 module.exports = app => {

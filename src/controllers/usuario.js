@@ -41,15 +41,17 @@ router.post('/create', async (req, res, next) => {
         const user = await Usuario.save(req.body);
 
         const refresh_token = shared.generateRefreshToken();
-        await Usuario.update(user.id, { refresh_token });
+        const expires_at = shared.generateExpirationTime();
+        await Usuario.update(user.id, { refresh_token, expires_at });
 
         user.senha = undefined;
         user.refresh_token = undefined;
+        user.expires_at = undefined;
         
         return res
-        .cookie('refresh_token', refresh_token, { maxAge: shared.generateExpirationTime(), httpOnly: true })
+        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
         .status(200)
-        .send({ user, token: shared.generateToken({ id: user.id }), espiresAt: shared.generateExpirationTime() });
+        .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
     } catch (err) {
         return res.status(400).send({ error: "Registrarion Failed!" });
     }
