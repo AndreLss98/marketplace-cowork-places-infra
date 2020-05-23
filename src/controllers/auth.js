@@ -30,7 +30,7 @@ router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email']
 }));
 
-router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
+router.get('/google/redirect', passport.authenticate('google'), async (req, res) => {
 
     const refresh_token = shared.generateRefreshToken();
     await Usuario.update(req.user.id, { refresh_token });
