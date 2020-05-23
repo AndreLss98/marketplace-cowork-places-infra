@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
 
     user.senha = undefined;
 
-    res.status(200).send({ user, token: shared.generateToken({ id: user.id }) });
+    res.status(200).send({ user, token: shared.generateToken({ id: user.id }), espiresAt: Math.floor(Date.now() / 1000) + 900 });
 });
 
 router.get('/google', passport.authenticate('google', {
