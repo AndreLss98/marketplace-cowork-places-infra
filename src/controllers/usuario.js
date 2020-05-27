@@ -36,6 +36,7 @@ router.post('/create', async (req, res, next) => {
 
     if (teste) return res.status(400).send({ error: "Email already used!" });
     if (!req.body.senha) return res.status(400).send({ error: "Invalid object!" });
+    if (!req.body.numero_1) return res.status(400).send({ error: "Invalid object!" });
 
     try {
         const user = await Usuario.save(req.body);
