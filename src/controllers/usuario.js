@@ -99,4 +99,13 @@ router.post('/:id/feedbacks', authMiddleware, async (req, res, next) => {
     res.status(200).send(feedback);
 });
 
+route.post('/email', async(req, res, next) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).send({ error: "Email is required" });
+    const user = await Usuario.getByEmail(email);
+
+    if (!user) return res.status(404).send({ error: "Email not found" });
+    return res.status(200).send({ response: "Email already registered" })
+});
+
 module.exports = app => app.use('/usuarios', router);
