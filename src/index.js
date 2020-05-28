@@ -7,10 +7,12 @@ const boydParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app_port = process.env.PORT || 3000;
 
-app.use(cors({
+const corsOptions = {
     origin: '*',
     credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(boydParser.json());
 app.use(boydParser.urlencoded({ extended: true }));
