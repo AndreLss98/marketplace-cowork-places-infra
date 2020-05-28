@@ -17,5 +17,9 @@ module.exports = {
     },
     verifyTokenExpires(expires_at) {
         return expires_at < Math.floor(Date.now() / 1000);
+    },
+    decodeToken(bearer_token) {
+        const token = bearer_token.split(' ');
+        return jwt.decode(token[1]);
     }
 }

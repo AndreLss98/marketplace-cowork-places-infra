@@ -9,26 +9,21 @@ const Usuario = require('../repositorys/usuario');
 const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
 const Feedback = require('./../repositorys/feedback');
+const Favoritos = require('./../repositorys/usuario_favoritos');
 
 router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req, res, next) => {
-    res.result.results.forEach(user => user.senha = undefined);
+    res.result.results.forEach(user => {
+        delete user.senha;
+        delete user.refresh_token;
+        delete user.expires_at;
+    });
     res.send(res.result);
 });
 
-router.get('/:id', authMiddleware, async (req, res, next) => {
-    const { id } = req.params;
-    const user = await Usuario.getById(id);
-    if (!user) {
-        return res.status(404).send({ error: 'User not found' });
-    }
-    user.senha = undefined;
-    res.send(user);
-});
-
-router.get('/:id/duvidas', async (req, res, next) => {
-    const { id } = req.params;
-    const duvidas = await Duvida.getAllByUserId(id);
-    res.status(200).send(duvidas);
+router.get('/duvidas', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization)
+    const duvidas = await Duvida.getAllByUserId(user.id);
+    return res.status(200).send(duvidas);
 });
 
 router.post('/create', async (req, res, next) => {
@@ -58,44 +53,46 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
-router.post('/:id/adiar-pagamento', authMiddleware, async (req, res, next) => {
-    const { id } = req.params;
-    const user = await Usuario.getById(id);
+router.post('/payment', authMiddleware, async (req, res, next) => {
+    const userToken = shared.decodeToken(req.headers.authorization);
+    const user = await Usuario.getById(userToken.id);
+
     if (parseFloat(user.saldo) === 0) return res.status(400).send({ error: "Insufficient funds" });
-    const response = await Usuario.update(id, { saldo: 0 });
+    const response = await Usuario.update(userToken.id, { saldo: 0 });
     res.status(200).send({ response });
 });
 
-router.post('/:id/img-perfil', authMiddleware, multerMiddleware.single('file'), async (req, res, next) => {
-    const { id } = req.params;
-    const img = { img_perfil: req.file.key };
+router.post('/img-perfil', authMiddleware, multerMiddleware.single('file'), async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
 
-    const response = await Usuario.update(id, img);
+    const response = await Usuario.update(user.id, { img_perfil: req.file.key });
 
     res.status(200).send({ response });
 });
 
-router.post('/:id/assinar-termos', authMiddleware, async (req, res, next) => {
-    const { id } = req.params;
-    req.body.usuario_id = id;
-    return res.status(200).send(await Termos.save(req.body));
-});
-
-router.put('/:id/assinar-termos', authMiddleware, async (req, res, next) => {
-    const { id } = req.params;
+router.post('/assinar-termos', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
     const { versao } = req.body;
-    const response = await Termos.update(id, versao);
+    if (!versao) return res.status(400).send({ error: "Version of terms is required" });
+    const response = await Termos.save(user.id, versao);
+    return res.status(200).send(response);
+});
+
+router.put('/assinar-termos', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    const { versao } = req.body;
+    const response = await Termos.update(user.id, versao);
     return res.status(200).send({ response });
 });
 
-router.get('/:id/feedbacks', authMiddleware, async (req, res, next) => {
-    const { id } = req.params;
-    res.status(200).send(await Feedback.getAllByUser(id));
+router.get('/feedbacks', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    res.status(200).send(await Feedback.getAllByUser(user.id));
 });
 
-router.post('/:id/feedbacks', authMiddleware, async (req, res, next) => {
-    const { id } = req.params;
-    const feedback = await Feedback.reply(id, req.body);
+router.post('/feedbacks', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    const feedback = await Feedback.reply(user.id, req.body);
     res.status(200).send(feedback);
 });
 
@@ -106,6 +103,44 @@ router.post('/email', async(req, res, next) => {
 
     if (!user) return res.status(404).send({ error: "Email not found" });
     return res.status(200).send({ response: "Email already registered" })
+});
+
+router.get('/favoritos', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    const response = await Favoritos.getAllByUserId(user.id);
+    return res.status(200).send(response);
+});
+
+router.post('/favoritos', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    const { alugavel_id } = req.body;
+
+    try {
+        const response = await Favoritos.favoritar(user.id, alugavel_id);
+
+        return res.status(200).send({ response });
+    } catch(error) {
+        return res.status(400).send({ error: "Registration failed" });
+    }
+});
+
+router.delete('/favoritos', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    const { alugavel_id } = req.body;
+    const response = await Favoritos.desfavoritar(user.id, alugavel_id);
+    return res.status(200).send({response});
+});
+
+router.get('/:id', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    const user = await Usuario.getById(id);
+    if (!user) {
+        return res.status(404).send({ error: 'User not found' });
+    }
+    delete user.senha;
+    delete user.refresh_token;
+    delete user.expires_at;
+    res.send(user);
 });
 
 module.exports = app => app.use('/usuarios', router);
