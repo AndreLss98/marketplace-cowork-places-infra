@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
     user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
     .status(200)
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
@@ -43,7 +43,7 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     req.user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
     .status(200)
     .send({ user: req.user, token: shared.generateToken({ id: req.user.id }), expires_at });
 });
@@ -66,7 +66,7 @@ router.post('/refresh-token', async (req, res, next) => {
     user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
     .status(200)
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });

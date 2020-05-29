@@ -45,7 +45,7 @@ router.post('/create', async (req, res, next) => {
         user.expires_at = undefined;
         
         return res
-        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true })
+        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
         .status(200)
         .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
     } catch (err) {
