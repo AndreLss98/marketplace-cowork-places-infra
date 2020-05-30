@@ -1,18 +1,11 @@
 require('dotenv').config();
 
-const cors = require('cors');
 const express = require("express");
 const app = express();
 const boydParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app_port = process.env.PORT || 3000;
 
-const corsOptions = {
-    origin: '*',
-    credentials: true
-};
-
-app.use(cors());
 app.use(cookieParser());
 app.use(boydParser.json());
 app.use(boydParser.urlencoded({ extended: true }));

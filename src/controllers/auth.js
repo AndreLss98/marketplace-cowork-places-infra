@@ -1,3 +1,4 @@
+const cors = require('cors');
 require('../middlewares/passport');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
@@ -48,7 +49,7 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     .send({ user: req.user, token: shared.generateToken({ id: req.user.id }), expires_at });
 });
 
-router.post('/refresh-token', async (req, res, next) => {
+router.post('/refresh-token', cors({ credentials: true }), async (req, res, next) => {
     let refresh_token = req.cookies.refresh_token;
 
     if (!refresh_token) return res.status(400).send({ error: "Invalid refresh token" });
