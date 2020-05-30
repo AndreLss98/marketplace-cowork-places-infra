@@ -7,8 +7,16 @@ const boydParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app_port = process.env.PORT || 3000;
 
+const whitelist = ['http://localhost:4200', 'https://placeet.com', 'http://paceet.com.br']
+
 app.use(cors({
-    origin: 'http://localhost:4200',
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not Allowed by CORS'))
+        }
+    },
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization'
 }))
