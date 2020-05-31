@@ -179,7 +179,7 @@ router.delete('/:id/caracteristicas', async (req, res, next) => {
 });
 
 /**
- * Retorna endereco de em alugavel
+ * Retorna endereco de um alugavel
  */
 router.get('/:id/local', async (req, res, next) => {
     const { id } = req.params;
@@ -218,7 +218,7 @@ router.get('/:id/dias-reservados', async (req, res, next) => {
 /**
  * Reservar dias manualmente
  */
-router.post('/:id/reservar', async (req, res, next) => {
+router.post('/:id/dias-reservados', async (req, res, next) => {
     const { id } = req.params;
     const dias = req.body;
     const response = await validateDates(id, dias);
@@ -228,6 +228,7 @@ router.post('/:id/reservar', async (req, res, next) => {
     for(let dia of dias) {
         try {
             dia.alugavel_id = id;
+            delete dia.aluguel_id;
             await DiasReservados.save(dia);
         } catch (error) {
             return res.status(400).send({ error: "Failed to reserve" });

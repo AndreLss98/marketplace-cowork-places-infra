@@ -4,11 +4,12 @@ const TABLE = 'dias_reservados';
 module.exports = {
     async getAllByAlugavelId(alugavel_id) {
         const today = new Date();
+
         return await db(TABLE)
             .where({ alugavel_id })
-            .where('dia', '>=', today.getDate())
-            .where('mes', '>=', today.getMonth() + 1)
-            .where('ano', '>=', today.getFullYear());
+            .where('mes', '>=', today.getMonth())
+            .where('ano', '>=', today.getFullYear())
+            .orWhere('ano', '>', today.getFullYear());
     },
     async save(dia) {
         try {
