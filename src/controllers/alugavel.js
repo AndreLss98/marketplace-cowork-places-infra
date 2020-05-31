@@ -166,9 +166,14 @@ router.put('/:id/caracteristicas', async (req, res, next) => {
 /**
  * Remove caracteristica do alugavel
  */
-router.delete('/:id/caracteristica', async (req, res, next) => {
+router.delete('/:id/caracteristicas', async (req, res, next) => {
 
-    const response = await AlugavelCaracteristica.removerRelacionamento(id, req.body.caracteristica_id);
+    const { id } = req.params;
+    const { caracteristica_id } = req.body;
+
+    if (!caracteristica_id) return res.status(400).send({ error: "Feature id is required" });
+
+    const response = await AlugavelCaracteristica.removerRelacionamento(id, caracteristica_id);
 
     res.status(200).send({ response });
 });
