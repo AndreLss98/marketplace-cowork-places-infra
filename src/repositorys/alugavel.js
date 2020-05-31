@@ -36,9 +36,9 @@ module.exports = {
             throw error;
         }
     },
-    async update(alugavel) {
+    async update(id, alugavel) {
         try {
-            return await db(TABLE).update(alugavel).where({ id: alugavel.id });
+            return await db(TABLE).update(alugavel).where({ id });
         } catch (error) {
             throw error;
         }

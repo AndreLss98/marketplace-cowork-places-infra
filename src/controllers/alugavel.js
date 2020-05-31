@@ -125,7 +125,7 @@ router.put('/:id', async (req, res, next) => {
     if (!alugavel) return res.status(404).send({ error: "Not found" });
 
     try {
-        const response = await Alugavel.update(req.body);
+        const response = await Alugavel.update(id, req.body);
         return res.status(200).send({ response });
     } catch(err) {
         return res.status(400).send({ error: "Update failed" });
@@ -137,6 +137,8 @@ router.put('/:id', async (req, res, next) => {
  */
 router.post('/:id/caracteristicas', async (req, res, next) => {
     const { caracteristicas } = req.body;
+
+    if (!caracteristicas || caracteristicas.length === 0) return res.status(400).send({ error: "Required one or more features" });
 
     if (caracteristicas) {
         for (let caracteristica of caracteristicas) {
