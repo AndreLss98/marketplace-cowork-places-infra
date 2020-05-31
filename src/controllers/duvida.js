@@ -16,4 +16,4 @@ router.put('/:id', async (req, res, next) => {
     res.status(200).send({ response });
 });
 
-module.exports = app => app.use('/duvidas', router);
+module.exports = app => app.use('/duvidas', authMiddleware, router);

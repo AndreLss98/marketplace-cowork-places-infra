@@ -26,6 +26,22 @@ router.get('/duvidas', authMiddleware, async (req, res, next) => {
     return res.status(200).send(duvidas);
 });
 
+router.post('/duvidas', authMiddleware, async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    req.body.usuario_id = user.id;
+    const { alugavel_id, pergunta } = req.body;
+    if (!alugavel_id) return res.status(400).send({ error: "Rentable id is required" });
+    if (!pergunta) return res.status(400).send({ error: "Question is required" });
+
+    const alugavel = await Duvida.getAllByAlugavelId(alugavel_id);
+    
+    if (!alugavel) return res.status(404).send({ error: "Rentable not found" });
+
+    const duvida = await Duvida.save(req.body);
+    delete duvida.resposta;
+    return res.status(200).send(duvida);
+});
+
 router.post('/create', async (req, res, next) => {
     const teste = await Usuario.getByEmail(req.body.email);
 
