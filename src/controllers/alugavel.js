@@ -62,7 +62,7 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
 
         for (let used of usedCaracteristicas) {
             const caracteristica = await Caracteristica.getById(used.caracteristica_id);
-            caracteristicas.push(caracteristica);
+            caracteristicas.push({...caracteristica, valor: used.valor});
         }
     }
 
@@ -153,7 +153,7 @@ router.post('/:id/caracteristicas', async (req, res, next) => {
 /**
  * Atualiza o valor de uma caracteristica de um alugavel
  */
-router.put('/:id/caracteristica', async (req, res, next) => {
+router.put('/:id/caracteristicas', async (req, res, next) => {
     const { id } = req.params;
     
     const { valor, caracteristica_id } = req.body;
