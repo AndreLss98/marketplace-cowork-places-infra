@@ -9,7 +9,7 @@ const app_port = process.env.PORT || 3000;
 
 const whitelist = ['http://localhost:4200', 'https://placeet.com', 'http://paceet.com.br']
 
-/* app.use(cors({
+app.use(cors({
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
             callback(null, true);
@@ -19,9 +19,9 @@ const whitelist = ['http://localhost:4200', 'https://placeet.com', 'http://pacee
     },
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization'
-})) */
+}))
 
-app.use(cors());
+// app.use(cors());
 app.use(cookieParser());
 app.use(boydParser.json());
 app.use(boydParser.urlencoded({ extended: true }));
