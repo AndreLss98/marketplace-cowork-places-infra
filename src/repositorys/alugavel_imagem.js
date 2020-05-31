@@ -9,5 +9,8 @@ module.exports = {
     },
     async delete(id) {
         return await db(TABLE).where({ id }).delete();
+    },
+    async getAllByAlugavelId(alugavel_id) {
+        return await db(TABLE).where({ alugavel_id });
     }
 }

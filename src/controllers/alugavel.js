@@ -90,6 +90,14 @@ router.post('/', async (req, res, next) => {
 });
 
 /**
+ * Retorna todas as imagens do alugavel
+ */
+router.get('/:id/imagem', multerMiddleware.single('file'), async (req, res, next) => {
+    const imgs = await AlugavelImagem.getAllByAlugavelId(req.params.id);
+    res.status(200).send(imgs);
+});
+
+/**
  * Salva uma imagem de um alugavel
  */
 router.post('/:id/imagem', multerMiddleware.single('file'), async (req, res, next) => {
