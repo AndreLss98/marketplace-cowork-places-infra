@@ -241,7 +241,7 @@ router.post('/:id/dias-reservados', async (req, res, next) => {
 /**
  * Valida datas de reserva a serer registradas
  */
-router.post('/:id/validate', async (req, res, next) => {
+router.post('/:id/dias-reservados/validate', async (req, res, next) => {
     const { id } = req.params;
     const response = await validateDates(id, req.body);
     if (!response) return res.status(400).send({ error: "Day already reserved" });
