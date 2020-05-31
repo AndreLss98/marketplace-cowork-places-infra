@@ -26,10 +26,12 @@ router.post('/', async (req, res, next) => {
 
 router.put('/:id', async (req, res, next) => {
     const caracteristica = await Caracteristica.getById(req.params.id);
+
     if (!caracteristica) return res.status(404).send({ error: "Not found" });
+    if (!req.body.nome) return res.status(400).send({ error: "Name is required" }); 
 
     try {
-        return res.status(200).send({ response: await Caracteristica.update(req.body) });
+        return res.status(200).send({ response: await Caracteristica.update(req.params.id, req.body) });
     } catch(err) {
         return res.status(400).send({ error: "Name already exists" });
     }
@@ -37,7 +39,11 @@ router.put('/:id', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
     const { id } = req.params;
-    return res.status(200).send({ response: await Caracteristica.delete(id) });
+    try {
+        return res.status(200).send({ response: await Caracteristica.delete(id) });
+    } catch(error) {
+        return res.status(400).send({ error: "Failed to delete" });
+    }
 });
 
 module.exports = app => app.use('/caracteristicas', authMiddleware, router);

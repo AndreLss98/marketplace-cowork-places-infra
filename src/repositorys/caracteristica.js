@@ -16,14 +16,18 @@ module.exports = {
             throw  error;
         }
     },
-    async update(caracteristica) {
+    async update(id, caracteristica) {
         try {
-            return await db(TABLE).where({ id: caracteristica.id }).update(caracteristica);
+            return await db(TABLE).where({ id }).update(caracteristica);
         } catch(error) {
             throw error;
         }
     },
     async delete(id) {
-        return db(TABLE).where({ id }).delete();
+        try {
+            return db(TABLE).where({ id }).delete();
+        } catch(error) {
+            throw error;
+        }
     }
 }
