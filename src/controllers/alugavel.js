@@ -10,6 +10,7 @@ const DiasReservados = require('./../repositorys/dias_reservados');
 const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica');
 
 const authMiddleware = require('./../middlewares/auth');
+const paginationMiddleware = require('./../middlewares/pagination');
 const multerMiddleware = require('./../middlewares/multer');
 
 async function validateDates(idAlugavel, diasSolicitados) {
@@ -26,8 +27,8 @@ async function validateDates(idAlugavel, diasSolicitados) {
 /**
  * Retorna todos os alugaveis
  */
-router.get('/', async (req, res, next) => {
-    res.status(200).send(await Alugavel.getAll());
+router.get('/', paginationMiddleware(Alugavel.getAll), async (req, res, next) => {
+    return res.status(200).send(res.result);
 });
 
 /**

@@ -17,7 +17,7 @@ router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req
         delete user.refresh_token;
         delete user.expires_at;
     });
-    res.send(res.result);
+    res.status(200).send(res.result);
 });
 
 router.get('/duvidas', authMiddleware, async (req, res, next) => {
