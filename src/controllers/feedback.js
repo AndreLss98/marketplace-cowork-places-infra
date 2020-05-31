@@ -13,4 +13,11 @@ router.post('/', async (req, res, next) => {
     res.status(200).send(feedback);
 });
 
+router.put('/:id', async (req, res, next) => {
+    const id = req.params.id;
+    if (!id) return res.status(400).send({ error: "Id is required" });
+    const response = await Feedback.update(id, req.body);
+    return res.status(200).send({ response });
+});
+
 module.exports = app => app.use('/feedback', authMiddleware, router);

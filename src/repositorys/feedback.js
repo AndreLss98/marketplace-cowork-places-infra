@@ -26,5 +26,8 @@ module.exports = {
     async save(feedback) {
         const id = await db(TABLE).insert(feedback).returning('id');
         return await db(TABLE).where({ id: id[0] }).first();
+    },
+    async update(id, feedback) {
+        return await db(TABLE).update(feedback).where({ id });
     }
 }
