@@ -13,7 +13,7 @@ module.exports = {
         const temp = await db(TABLE).where({ id: id[0] }).first();
         return temp;
     },
-    async update(duvida) {
-        return await db(TABLE).update(duvida).where({ id: duvida.id });
+    async update(id, duvida) {
+        return await db(TABLE).update(duvida).where({ id });
     }
 }

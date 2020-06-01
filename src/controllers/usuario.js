@@ -42,6 +42,14 @@ router.post('/duvidas', authMiddleware, async (req, res, next) => {
     return res.status(200).send(duvida);
 });
 
+router.put('/duvidas/:id', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    const { resposta } = req.body;
+    if (!resposta) return res.status(400).send({ error: "Response is required" });
+    const response = await Duvida.update(id, { resposta });
+    return res.status(200).send({ response });
+});
+
 router.post('/create', async (req, res, next) => {
     const teste = await Usuario.getByEmail(req.body.email);
 
