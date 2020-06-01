@@ -16,9 +16,9 @@ module.exports = {
             throw new Error("Registration failed")
         }
     },
-    async update(tipo) {
+    async update(id, tipo) {
         try {
-            return await db(TABLE).where({ id: tipo.id }).update(tipo);
+            return await db(TABLE).where({ id }).update(tipo);
         } catch (error) {
             throw error;
         }
