@@ -10,7 +10,6 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
     const tempPerfil = req.body;
     const temp = await Perfil.search({ nivel: tempPerfil.nivel });
-    console.log(temp);
     if (temp && temp.length > 0) return res.status(400).send({ error: "Level already exists" });
 
     try {
