@@ -148,10 +148,10 @@ router.post('/favoritos', authMiddleware, async (req, res, next) => {
     }
 });
 
-router.delete('/favoritos', authMiddleware, async (req, res, next) => {
+router.delete('/favoritos/:alugavelId', authMiddleware, async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
-    const { alugavel_id } = req.body;
-    const response = await Favoritos.desfavoritar(user.id, alugavel_id);
+    const { alugavelId } = req.params;
+    const response = await Favoritos.desfavoritar(user.id, alugavelId);
     return res.status(200).send({response});
 });
 
