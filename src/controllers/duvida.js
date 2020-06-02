@@ -4,6 +4,8 @@ const Duvida = require('./../repositorys/duvida');
 
 const authMiddleware = require('./../middlewares/auth');
 
+const perfis = require('./../shared/perfis');
+
 router.put('/:id', async (req, res, next) => {
 
     const { id } = req.params;
@@ -15,4 +17,4 @@ router.put('/:id', async (req, res, next) => {
     res.status(200).send({ response });
 });
 
-module.exports = app => app.use('/duvidas', authMiddleware, router);
+module.exports = app => app.use('/duvidas', authMiddleware([perfis.ADMIN]), router);
