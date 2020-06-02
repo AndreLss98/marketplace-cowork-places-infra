@@ -3,6 +3,8 @@ const authMiddleware = require('./../middlewares/auth');
 
 const Perfil = require('./../repositorys/perfil');
 
+const perfis = require('./../shared/perfis');
+
 router.get('/', async (req, res, next) => {
     res.status(200).send(await Perfil.getAll());
 });
@@ -20,4 +22,4 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-module.exports = app => app.use('/perfil', authMiddleware, router);
+module.exports = app => app.use('/perfil', authMiddleware([perfis.ADMIN]), router);
