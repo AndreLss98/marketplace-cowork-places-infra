@@ -5,6 +5,9 @@ module.exports = {
     async getAll() {
         return await db(TABLE);
     },
+    async getById(id) {
+        return await db(TABLE).where({ id }).first();
+    },
     async search(perfil) {
         return await db(TABLE).where(perfil);
     },

@@ -1,19 +1,37 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {
-    const originalToken = req.headers.authorization;
+const Perfil = require('./../repositorys/perfil');
+const Usuario = require('./../repositorys/usuario');
 
-    if (!originalToken) return res.status(401).send({ error: 'No token provided' });
+const perfis = require('./../shared/perfis');
+const shared = require('./../shared/functions');
 
-    const tokenParts = originalToken.split(' ');
-    if (!tokenParts.length === 2) return res.status(401).send({ error: "Token error" });
+module.exports = (permissions = []) => {
+    return async (req, res, next) => {
+        const originalToken = req.headers.authorization;
+    
+        if (!originalToken) return res.status(401).send({ error: 'No token provided' });
+    
+        const tokenParts = originalToken.split(' ');
+        if (!tokenParts.length === 2) return res.status(401).send({ error: "Token error" });
+    
+        const [ scheme, token ] = tokenParts;
+        if(!/^Bearer$/i.test(scheme)) return res.status(401).send({ error: "Bad token formatted" });
+        
+        if (permissions.length > 0) {
+            const tokenUser = shared.decodeToken(originalToken);
+            const user = await Usuario.getById(tokenUser.id);
+            const perfil = await Perfil.getById(user.perfil_id);
 
-    const [ scheme, token ] = tokenParts;
-    if(!/^Bearer$/i.test(scheme)) return res.status(401).send({ error: "Bad token formatted" })
-
-    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
-        if (error) return res.status(401).send({ error: "Invalid token" });
-        req.userId = decoded.id;
-        return next();
-    });
+            if (perfil.nivel !== perfis.ADMIN && !permissions.includes(perfil.nivel)) {
+                return res.status(401).send({ error: "User does not have permission for access this resource" });
+            }
+        }
+    
+        jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+            if (error) return res.status(401).send({ error: "Invalid token" });
+            req.userId = decoded.id;
+            return next();
+        });
+    }
 }
