@@ -32,4 +32,4 @@ router.post('/', async (req, res, next) => {
     res.status(200).send(aluguel);
 });
 
-module.exports = app => app.use('/alugueis', authMiddleware, router);
+module.exports = app => app.use('/alugueis', authMiddleware([]), router);
