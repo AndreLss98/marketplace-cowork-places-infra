@@ -4,6 +4,8 @@ const authMiddleware = require('./../middlewares/auth');
 
 const Tipo = require('./../repositorys/tipo');
 
+const perfis = require('./../shared/perfis');
+
 router.get('/', async (req, res, next) => {
     res.status(200).send(await Tipo.getAll());
 });
@@ -39,4 +41,4 @@ router.put('/:id', async (req, res, next) => {
     }
 });
 
-module.exports = app => app.use('/tipos', authMiddleware, router);
+module.exports = app => app.use('/tipos', authMiddleware([perfis.ADMIN]), router);
