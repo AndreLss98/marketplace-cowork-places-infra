@@ -4,14 +4,16 @@ const authMiddleware = require('../middlewares/auth');
 const multerMiddleware = require('./../middlewares/multer');
 const paginationMiddleware = require('../middlewares/pagination');
 
-const shared = require('./../shared/functions');
 const Usuario = require('../repositorys/usuario');
 const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
 const Feedback = require('./../repositorys/feedback');
 const Favoritos = require('./../repositorys/usuario_favoritos');
 
-router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req, res, next) => {
+const perfis = require('./../shared/perfis');
+const shared = require('./../shared/functions');
+
+router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Usuario.getAll), async (req, res, next) => {
     res.result.results.forEach(user => {
         delete user.senha;
         delete user.refresh_token;
@@ -20,13 +22,13 @@ router.get('/', authMiddleware, paginationMiddleware(Usuario.getAll), async (req
     res.status(200).send(res.result);
 });
 
-router.get('/duvidas', authMiddleware, async (req, res, next) => {
+router.get('/duvidas', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization)
     const duvidas = await Duvida.getAllByUserId(user.id);
     return res.status(200).send(duvidas);
 });
 
-router.post('/duvidas', authMiddleware, async (req, res, next) => {
+router.post('/duvidas', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     req.body.usuario_id = user.id;
     const { alugavel_id, pergunta } = req.body;
@@ -42,7 +44,7 @@ router.post('/duvidas', authMiddleware, async (req, res, next) => {
     return res.status(200).send(duvida);
 });
 
-router.put('/duvidas/:id', authMiddleware, async (req, res, next) => {
+router.put('/duvidas/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const { resposta } = req.body;
     if (!resposta) return res.status(400).send({ error: "Response is required" });
@@ -77,7 +79,7 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
-router.post('/payment', authMiddleware, async (req, res, next) => {
+router.post('/payment', authMiddleware(), async (req, res, next) => {
     const userToken = shared.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
 
@@ -86,7 +88,7 @@ router.post('/payment', authMiddleware, async (req, res, next) => {
     res.status(200).send({ response });
 });
 
-router.post('/img-perfil', authMiddleware, multerMiddleware.single('file'), async (req, res, next) => {
+router.post('/img-perfil', authMiddleware(), multerMiddleware.single('file'), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
 
     const response = await Usuario.update(user.id, { img_perfil: req.file.key });
@@ -94,7 +96,7 @@ router.post('/img-perfil', authMiddleware, multerMiddleware.single('file'), asyn
     res.status(200).send({ response });
 });
 
-router.post('/assinar-termos', authMiddleware, async (req, res, next) => {
+router.post('/assinar-termos', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const { versao } = req.body;
     if (!versao) return res.status(400).send({ error: "Version of terms is required" });
@@ -102,24 +104,27 @@ router.post('/assinar-termos', authMiddleware, async (req, res, next) => {
     return res.status(200).send(response);
 });
 
-router.put('/assinar-termos', authMiddleware, async (req, res, next) => {
+router.put('/assinar-termos', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const { versao } = req.body;
     const response = await Termos.update(user.id, versao);
     return res.status(200).send({ response });
 });
 
-router.get('/feedbacks', authMiddleware, async (req, res, next) => {
+router.get('/feedbacks', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     res.status(200).send(await Feedback.getAllByUser(user.id));
 });
 
-router.post('/feedbacks', authMiddleware, async (req, res, next) => {
+router.post('/feedbacks', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const feedback = await Feedback.reply(user.id, req.body);
     res.status(200).send(feedback);
 });
 
+/**
+ * Valida um email se já está em uso ou não
+ */
 router.post('/email', async(req, res, next) => {
     const { email } = req.body;
     if (!email) return res.status(400).send({ error: "Email is required" });
@@ -129,13 +134,13 @@ router.post('/email', async(req, res, next) => {
     return res.status(200).send({ response: "Email already registered" })
 });
 
-router.get('/favoritos', authMiddleware, async (req, res, next) => {
+router.get('/favoritos', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const response = await Favoritos.getAllByUserId(user.id);
     return res.status(200).send(response);
 });
 
-router.post('/favoritos', authMiddleware, async (req, res, next) => {
+router.post('/favoritos', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const { alugavel_id } = req.body;
 
@@ -148,14 +153,14 @@ router.post('/favoritos', authMiddleware, async (req, res, next) => {
     }
 });
 
-router.delete('/favoritos/:alugavelId', authMiddleware, async (req, res, next) => {
+router.delete('/favoritos/:alugavelId', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const { alugavelId } = req.params;
     const response = await Favoritos.desfavoritar(user.id, alugavelId);
     return res.status(200).send({response});
 });
 
-router.get('/:id', authMiddleware, async (req, res, next) => {
+router.get('/:id', authMiddleware(perfis.ADMIN), async (req, res, next) => {
     const { id } = req.params;
     const user = await Usuario.getById(id);
     if (!user) {
