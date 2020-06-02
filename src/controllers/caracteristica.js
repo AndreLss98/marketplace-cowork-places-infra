@@ -4,6 +4,8 @@ const Caracteristica = require('../repositorys/caracteristica');
 
 const authMiddleware = require('./../middlewares/auth');
 
+const perfis = require('./../shared/perfis');
+
 router.get('/', async (req, res, next) => {
     res.status(200).send(await Caracteristica.getAll());
 });
@@ -46,4 +48,4 @@ router.delete('/:id', async (req, res, next) => {
     }
 });
 
-module.exports = app => app.use('/caracteristicas', authMiddleware, router);
+module.exports = app => app.use('/caracteristicas', authMiddleware([perfis.ADMIN]), router);
