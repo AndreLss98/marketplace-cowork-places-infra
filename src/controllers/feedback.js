@@ -4,6 +4,8 @@ const Feedback = require('./../repositorys/feedback');
 
 const authMiddleware = require('./../middlewares/auth');
 
+const perfis = require('./../shared/perfis');
+
 router.get('/', async (req, res, next) => {
     res.status(200).send(await Feedback.getAll());
 });
@@ -20,4 +22,4 @@ router.put('/:id', async (req, res, next) => {
     return res.status(200).send({ response });
 });
 
-module.exports = app => app.use('/feedback', authMiddleware, router);
+module.exports = app => app.use('/feedback', authMiddleware([perfis.ADMIN]), router);
