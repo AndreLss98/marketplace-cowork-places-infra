@@ -13,6 +13,8 @@ const authMiddleware = require('./../middlewares/auth');
 const paginationMiddleware = require('./../middlewares/pagination');
 const multerMiddleware = require('./../middlewares/multer');
 
+const perfis = require('./../shared/perfis');
+
 async function validateDates(idAlugavel, diasSolicitados) {
     diasSolicitados = diasSolicitados.map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
     const diasReservados = (await DiasReservados.getAllByAlugavelId(idAlugavel)).map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
@@ -27,14 +29,14 @@ async function validateDates(idAlugavel, diasSolicitados) {
 /**
  * Retorna todos os alugaveis
  */
-router.get('/', paginationMiddleware(Alugavel.getAll), async (req, res, next) => {
+router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Alugavel.getAll), async (req, res, next) => {
     return res.status(200).send(res.result);
 });
 
 /**
  * Retorna um alugavel
  */
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const alugavel = await Alugavel.getById(req.params.id);
     if (!alugavel) res.status(404).send({ error: "Not found" });
     res.status(200).send(alugavel);
@@ -199,7 +201,7 @@ router.put('/:id/local', async (req, res, next) => {
 /**
  * Retorna todas as duvidas registradas
  */
-router.get('/:id/duvidas', async (req, res, next) => {
+router.get('/:id/duvidas', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
     const duvidas = await Duvida.getAllByAlugavelId(id);
     res.status(200).send(duvidas);
@@ -239,7 +241,7 @@ router.post('/:id/dias-reservados', async (req, res, next) => {
 });
 
 /**
- * Valida datas de reserva a serer registradas
+ * Valida datas de reserva a serem registradas
  */
 router.post('/:id/dias-reservados/validate', async (req, res, next) => {
     const { id } = req.params;
@@ -248,4 +250,4 @@ router.post('/:id/dias-reservados/validate', async (req, res, next) => {
     res.status(200).send({ response: 1 });
 });
 
-module.exports = app => app.use('/alugaveis', authMiddleware, router);
+module.exports = app => app.use('/alugaveis', authMiddleware(), router);
