@@ -1,5 +1,8 @@
 const router = require('express').Router();
 
+const multer = require('multer');
+const multerConfig = require('./../configs/multer');
+
 const Info = require('./../repositorys/info');
 const Local = require('./../repositorys/local');
 const Duvida = require('./../repositorys/duvida');
@@ -11,7 +14,6 @@ const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica
 
 const authMiddleware = require('./../middlewares/auth');
 const paginationMiddleware = require('./../middlewares/pagination');
-const multerMiddleware = require('./../middlewares/multer');
 
 const perfis = require('./../shared/perfis');
 
@@ -94,7 +96,7 @@ router.post('/', async (req, res, next) => {
 /**
  * Retorna todas as imagens do alugavel
  */
-router.get('/:id/imagem', multerMiddleware.single('file'), async (req, res, next) => {
+router.get('/:id/imagem', async (req, res, next) => {
     const imgs = await AlugavelImagem.getAllByAlugavelId(req.params.id);
     res.status(200).send(imgs);
 });
@@ -102,7 +104,7 @@ router.get('/:id/imagem', multerMiddleware.single('file'), async (req, res, next
 /**
  * Salva uma imagem de um alugavel
  */
-router.post('/:id/imagem', multerMiddleware.single('file'), async (req, res, next) => {
+router.post('/:id/imagem', multer(multerConfig('img')).single('file'), async (req, res, next) => {
     const img = await AlugavelImagem.save(req.params.id, req.file.key);
     res.status(200).send({ img });
 });

@@ -1,7 +1,9 @@
 const router = require('express').Router();
 
+const multer = require('multer');
+const multerConfig = require('./../configs/multer');
+
 const authMiddleware = require('../middlewares/auth');
-const multerMiddleware = require('./../middlewares/multer');
 const paginationMiddleware = require('../middlewares/pagination');
 
 const Usuario = require('../repositorys/usuario');
@@ -88,7 +90,7 @@ router.post('/payment', authMiddleware(), async (req, res, next) => {
     res.status(200).send({ response });
 });
 
-router.post('/img-perfil', authMiddleware(), multerMiddleware.single('file'), async (req, res, next) => {
+router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
 
     const response = await Usuario.update(user.id, { img_perfil: req.file.key });
