@@ -19,14 +19,15 @@ app.use(cors({
     },
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization'
-}))
+}));
 
 // app.use(cors());
 app.use(cookieParser());
 app.use(boydParser.json());
 app.use(boydParser.urlencoded({ extended: true }));
 
-app.use('/alg-imgs', express.static('public/tmp/uploads'));
+app.use('/md', express.static('public/tmp/uploads/md'));
+app.use('/imgs', express.static('public/tmp/uploads/img'));
 
 require('./controllers')(app);
 
