@@ -1,4 +1,5 @@
 node_modules/
 .env
-tmp/
+public/tmp/uploads/img/
+public/tmp/uploads/md/
 nginx/certs/

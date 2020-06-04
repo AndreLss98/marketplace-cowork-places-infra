@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const fs = require('fs');
 const cors = require('cors');
 const express = require("express");
 const app = express();
@@ -35,4 +36,12 @@ app.get('/', (req, res, next) => {
     res.status(200).send({ status: 'ok' });
 });
 
-app.listen(app_port, () => console.log(`Server running on port ${app_port}`));
+app.listen(app_port, () => {
+    console.log(`Server running on port ${app_port}`);
+    if (!fs.existsSync('./public/tmp/uploads/img')) {
+        fs.mkdirSync('./public/tmp/uploads/img', { recursive: true });
+    }
+    if (!fs.existsSync('./public/tmp/uploads/md')) {
+        fs.mkdirSync('./public/tmp/uploads/md', { recursive: true });
+    }
+});
