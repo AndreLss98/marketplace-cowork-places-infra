@@ -13,7 +13,7 @@ router.get('/', async (req, res, next) => {
     return res.status(200).send(await Politica.getAll());
 });
 
-router.post('/', multer(multerConfig('md', false)).single('file'), async (req, res, next) => {
+router.post('/', authMiddleware([perfis.ADMIN]), multer(multerConfig('md', false)).single('file'), async (req, res, next) => {
     const { nome } = req.body;
     if (!nome) return res.status(400).send({ error: "Nome is required" });
 
@@ -27,7 +27,7 @@ router.post('/', multer(multerConfig('md', false)).single('file'), async (req, r
     }
 });
 
-router.put('/:id', multer(multerConfig('md')).single('file'), async (req, res, next) => {
+router.put('/:id', authMiddleware([perfis.ADMIN]), multer(multerConfig('md')).single('file'), async (req, res, next) => {
     const { id } = req.params;
     const { nome, versao } = req.body;
     if (!versao) return res.status(400).send({ error: "Version is required" });
@@ -43,4 +43,4 @@ router.put('/:id', multer(multerConfig('md')).single('file'), async (req, res, n
     }
 });
 
-module.exports = app => app.use('/politicas', authMiddleware([perfis.ADMIN]), router);
+module.exports = app => app.use('/politicas', router);
