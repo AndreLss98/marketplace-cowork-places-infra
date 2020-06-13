@@ -17,8 +17,10 @@ router.get('/:id', async (req, res, next) => {
     res.status(200).send(tipo);
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     if (!req.body.nome) return res.status(400).send({ error: "Name is required" });
+    if (!req.body.slug) return res.status(400).send({ error: "Slug is required" });
+    if (!req.body.icone) return res.status(400).send({ error: "Icon is required" });
 
     try {
         const tipo = await Tipo.save(req.body);
@@ -28,7 +30,7 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
     const tipo = await Tipo.getById(id);
 
@@ -41,4 +43,4 @@ router.put('/:id', async (req, res, next) => {
     }
 });
 
-module.exports = app => app.use('/tipos', authMiddleware([perfis.ADMIN]), router);
+module.exports = app => app.use('/tipos', router);

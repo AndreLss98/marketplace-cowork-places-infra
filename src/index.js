@@ -12,7 +12,7 @@ const whitelist = ['http://localhost:4200', 'https://placeet.com', 'http://pacee
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
             callback(null, true);
         } else {
             callback(new Error('Not Allowed by CORS'))
