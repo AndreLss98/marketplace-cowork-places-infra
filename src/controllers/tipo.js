@@ -7,7 +7,8 @@ const Tipo = require('./../repositorys/tipo');
 const perfis = require('./../shared/perfis');
 
 router.get('/', async (req, res, next) => {
-    res.status(200).send(await Tipo.getAll());
+    const tipos = await Tipo.getAll();
+    res.status(200).send(tipos);
 });
 
 router.get('/:id', async (req, res, next) => {
@@ -19,7 +20,6 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     if (!req.body.nome) return res.status(400).send({ error: "Name is required" });
-    if (!req.body.slug) return res.status(400).send({ error: "Slug is required" });
     if (!req.body.icone) return res.status(400).send({ error: "Icon is required" });
 
     try {

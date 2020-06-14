@@ -3,7 +3,7 @@ const TABLE = 'tipo';
 
 module.exports = {
     async getAll() {
-        return await db(TABLE);
+        return await db(TABLE).orderBy('id', 'asc');
     },
     async getById(id) {
         return await db(TABLE).where({ id }).first();
@@ -13,7 +13,7 @@ module.exports = {
             const id = await db(TABLE).insert(tipo).returning('id');
             return await db(TABLE).where({ id: id[0] }).first();
         } catch(error) {
-            throw new Error("Registration failed")
+            throw error
         }
     },
     async update(id, tipo) {
