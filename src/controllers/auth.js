@@ -3,8 +3,13 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const router = require('express').Router();
 
+const authMiddleware = require('./../middlewares/auth');
+
+const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
+
 const Usuario = require('../repositorys/usuario');
+const Perfil = require('./../repositorys/perfil');
 
 router.post('/', async (req, res) => {
     const { email, senha } = req.body;
@@ -23,7 +28,7 @@ router.post('/', async (req, res) => {
     user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
     .status(200)
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
@@ -43,7 +48,7 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     req.user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
     .status(200)
     .send({ user: req.user, token: shared.generateToken({ id: req.user.id }), expires_at });
 });
@@ -67,7 +72,7 @@ router.post('/refresh-token', async (req, res, next) => {
     user.expires_at = undefined;
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
     .status(200)
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });

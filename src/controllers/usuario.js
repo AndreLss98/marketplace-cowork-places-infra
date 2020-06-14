@@ -9,6 +9,7 @@ const paginationMiddleware = require('../middlewares/pagination');
 const Usuario = require('../repositorys/usuario');
 const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
+const Perfil = require('./../repositorys/perfil');
 const Feedback = require('./../repositorys/feedback');
 const Favoritos = require('./../repositorys/usuario_favoritos');
 
@@ -73,7 +74,7 @@ router.post('/create', async (req, res, next) => {
         user.expires_at = undefined;
         
         return res
-        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
+        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
         .status(200)
         .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
     } catch (err) {
@@ -172,6 +173,17 @@ router.get('/:id', authMiddleware(perfis.ADMIN), async (req, res, next) => {
     delete user.refresh_token;
     delete user.expires_at;
     res.send(user);
+});
+
+router.post('/check-admin', async (req, res, next) => {
+
+    const userToken = shared.decodeToken(req.headers.authorization);
+    const user = await Usuario.getById(userToken.id);
+    const perfil = await Perfil.getById(user.perfil_id);
+
+    if (perfil.nivel !== perfis.ADMIN) return res.status(400).send({ error: "Access denied" });
+
+    return res.status(200).send({ response: "Authorized access" });
 });
 
 module.exports = app => app.use('/usuarios', router);
