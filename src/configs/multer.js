@@ -26,7 +26,7 @@ module.exports = (folder, randomName = true) => {
     return {
         dest: path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads', folder),
         storage: storageType[process.env.STORAGE_TYPE](folder, randomName),
-        limits: { fileSize: 5 * 1024 * 1024 },
+        limits: { fileSize: 100 * 1024 * 1024 },
         fileFilter: (req, file, cb) => {
             const allowedMimes = ['image/jpeg', 'image/pjpeg', 'image/jpg', 'image/png', 'text/markdown'];
     

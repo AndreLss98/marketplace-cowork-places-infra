@@ -93,10 +93,10 @@ router.post('/payment', authMiddleware(), async (req, res, next) => {
 
 router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
-
+    if (!user) return res.status(400).send({ error: "User not found!" });
     const response = await Usuario.update(user.id, { img_perfil: req.file.key });
 
-    res.status(200).send({ response });
+    res.status(200).send({ image_name: req.file.key });
 });
 
 router.post('/assinar-termos', authMiddleware(), async (req, res, next) => {
