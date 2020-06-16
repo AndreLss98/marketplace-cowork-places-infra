@@ -28,7 +28,7 @@ module.exports = (folder, randomName = true) => {
         storage: storageType[process.env.STORAGE_TYPE](folder, randomName),
         limits: { fileSize: 100 * 1024 * 1024 },
         fileFilter: (req, file, cb) => {
-            const allowedMimes = ['image/jpeg', 'image/pjpeg', 'image/jpg', 'image/png', 'text/markdown'];
+            const allowedMimes = ['image/jpeg', 'image/pjpeg', 'image/jpg', 'image/png', 'text/markdown', 'application/pdf'];
     
             if (allowedMimes.includes(file.mimetype)) {
                 cb(null, true);

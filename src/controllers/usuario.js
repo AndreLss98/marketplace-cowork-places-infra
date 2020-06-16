@@ -11,6 +11,7 @@ const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
 const Perfil = require('./../repositorys/perfil');
 const Feedback = require('./../repositorys/feedback');
+const Documento = require('./../repositorys/documento');
 const Favoritos = require('./../repositorys/usuario_favoritos');
 
 const perfis = require('./../shared/perfis');
@@ -156,6 +157,31 @@ router.post('/favoritos', authMiddleware(), async (req, res, next) => {
     }
 });
 
+router.post('/check-admin', async (req, res, next) => {
+
+    const userToken = shared.decodeToken(req.headers.authorization);
+    const user = await Usuario.getById(userToken.id);
+    const perfil = await Perfil.getById(user.perfil_id);
+
+    if (perfil.nivel !== perfis.ADMIN) return res.status(400).send({ error: "Access denied" });
+
+    return res.status(200).send({ response: "Authorized access" });
+});
+
+router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file'), async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    if (!user) return res.status(400).send({ error: "User not found!" });
+    const { documento_id } = req.body;
+    if (!documento_id) return res.status(400).send({ error: "Document id is required" });
+
+    try {
+        const response = await Documento.salvarDocumento({ usuario_id: user.id, documento_id, url: req.file.key });
+        res.status(200).send(response);
+    } catch(error) {
+        return res.status(400).send({ error: "Register failed", trace: error });
+    }
+});
+
 router.delete('/favoritos/:alugavelId', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const { alugavelId } = req.params;
@@ -173,17 +199,6 @@ router.get('/:id', authMiddleware(perfis.ADMIN), async (req, res, next) => {
     delete user.refresh_token;
     delete user.expires_at;
     res.send(user);
-});
-
-router.post('/check-admin', async (req, res, next) => {
-
-    const userToken = shared.decodeToken(req.headers.authorization);
-    const user = await Usuario.getById(userToken.id);
-    const perfil = await Perfil.getById(user.perfil_id);
-
-    if (perfil.nivel !== perfis.ADMIN) return res.status(400).send({ error: "Access denied" });
-
-    return res.status(200).send({ response: "Authorized access" });
 });
 
 module.exports = app => app.use('/usuarios', router);

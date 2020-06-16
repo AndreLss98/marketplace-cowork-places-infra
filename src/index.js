@@ -29,6 +29,7 @@ app.use(boydParser.urlencoded({ extended: true }));
 
 app.use('/md', express.static('public/tmp/uploads/md'));
 app.use('/imgs', express.static('public/tmp/uploads/img'));
+app.use('/docs', express.static('public/tmp/uploads/doc'));
 
 require('./controllers')(app);
 
@@ -43,5 +44,8 @@ app.listen(app_port, () => {
     }
     if (!fs.existsSync('./public/tmp/uploads/md')) {
         fs.mkdirSync('./public/tmp/uploads/md', { recursive: true });
+    }
+    if (!fs.existsSync('./public/tmp/uploads/doc')) {
+        fs.mkdirSync('./public/tmp/uploads/doc', { recursive: true });
     }
 });
