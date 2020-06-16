@@ -78,13 +78,14 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
 
-    const { caracteristicas, infos, local, anunciante_id, tipo_id, descricao, valor } = req.body;
+    const { caracteristicas, infos, local, anunciante_id, tipo_id, descricao, valor, titulo } = req.body;
 
     const alugavel = { anunciante_id, tipo_id, descricao, valor };
 
     if (!local) return res.status(400).send({ error: "Invalid address" });
     if (!anunciante_id) return res.status(400).send({ error: "Advertiser id is required" });
     if (!tipo_id) return res.status(400).send({ error: "Type id is required" });
+    if (!titulo) return res.status(400).send({ error: "Title is required" });
 
     try {
         return res.status(200).send(await Alugavel.save(alugavel, caracteristicas, infos, local));
