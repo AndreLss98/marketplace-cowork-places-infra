@@ -168,6 +168,14 @@ router.post('/check-admin', async (req, res, next) => {
     return res.status(200).send({ response: "Authorized access" });
 });
 
+router.get('/doc', authMiddleware(), async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    if (!user) return res.status(400).send({ error: "User not found!" });
+
+    const response = await Documento.getAllSendByUser(user.id);
+    return res.status(200).send(response);
+});
+
 router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file'), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });

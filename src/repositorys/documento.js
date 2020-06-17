@@ -32,5 +32,8 @@ module.exports = {
         } catch(error) {
             throw error;
         }
+    },
+    async getAllSendByUser(usuario_id) {
+        return await db(RELATION_TABLE).where({ usuario_id });
     }
 }
