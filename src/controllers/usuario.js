@@ -13,6 +13,7 @@ const Perfil = require('./../repositorys/perfil');
 const Feedback = require('./../repositorys/feedback');
 const Documento = require('./../repositorys/documento');
 const Favoritos = require('./../repositorys/usuario_favoritos');
+const ContaBancaria = require('./../repositorys/conta_bancaria');
 
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
@@ -92,10 +93,46 @@ router.post('/payment', authMiddleware(), async (req, res, next) => {
     res.status(200).send({ response });
 });
 
+router.post('/conta-bancaria', authMiddleware(), async (req, res, next) => {
+    const userToken = shared.decodeToken(req.headers.authorization);
+    const user = await Usuario.getById(userToken.id);
+    const { banco, agencia, numero, tipo } = req.body;
+
+    if (!banco) return res.status(400).send({ error: "Bank is required" });
+    if (!agencia) return res.status(400).send({ error: "Agency is required" });
+    if (!numero) return res.status(400).send({ error: "Number is required" });
+    if (!tipo) return res.status(400).send({ error: "Type is required" });
+
+    try {
+        const response = await ContaBancaria.save({ usuario_id: user.id, banco, agencia, numero, tipo });
+        return res.status(200).send(response);
+    } catch(error) {
+        return res.status(400).send({ error: "Register Failed" });
+    }
+});
+
+router.put('/conta-bancaria', authMiddleware(), async (req, res, next) => {
+    const userToken = shared.decodeToken(req.headers.authorization);
+    const user = await Usuario.getById(userToken.id);
+    const { banco, agencia, numero, tipo } = req.body;
+
+    if (!banco) return res.status(400).send({ error: "Bank is required" });
+    if (!agencia) return res.status(400).send({ error: "Agency is required" });
+    if (!numero) return res.status(400).send({ error: "Number is required" });
+    if (!tipo) return res.status(400).send({ error: "Type is required" });
+
+    try {
+        const response = await ContaBancaria.update(user.id, { banco, agencia, numero, tipo });
+        return res.status(200).send(response);
+    } catch(error) {
+        return res.status(400).send({ error: "Update Failed" });
+    }
+});
+
 router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });
-    const response = await Usuario.update(user.id, { img_perfil: req.file.key });
+    await Usuario.update(user.id, { img_perfil: req.file.key });
 
     res.status(200).send({ image_name: req.file.key });
 });
@@ -199,14 +236,17 @@ router.delete('/favoritos/:alugavelId', authMiddleware(), async (req, res, next)
 
 router.get('/:id', authMiddleware(perfis.ADMIN), async (req, res, next) => {
     const { id } = req.params;
-    const user = await Usuario.getById(id);
+    let user = await Usuario.getById(id);
     if (!user) {
         return res.status(404).send({ error: 'User not found' });
     }
+
+    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
+
     delete user.senha;
     delete user.refresh_token;
     delete user.expires_at;
-    res.send(user);
+    res.status(200).send(user);
 });
 
 module.exports = app => app.use('/usuarios', router);

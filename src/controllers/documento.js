@@ -16,7 +16,7 @@ routes.get('/:id', async (req, res, next) => {
     return res.status(200).send(documento);
 });
 
-routes.post('/', async (req, res, next) => {
+routes.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { nome, avancado } = req.body;
     if (!nome) return res.status(400).send({ error: "Name is required" });
     if (avancado === undefined ||avancado === null) return res.status(400).send({ error: "Is Advanced?" });
@@ -29,4 +29,4 @@ routes.post('/', async (req, res, next) => {
     }
 });
 
-module.exports = app => app.use('/documentos', authMiddleware([perfis.ADMIN]), routes);
+module.exports = app => app.use('/documentos', routes);

@@ -37,7 +37,6 @@ module.exports = {
         let { saldo } = await db.select('saldo').from(TABLE).where({ id }).first();
         saldo = parseFloat(saldo);
         saldo += deposito;
-        console.log(saldo);
         return await db(TABLE).update({ saldo }).where({ id });
     }
 }

@@ -3,13 +3,10 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const router = require('express').Router();
 
-const authMiddleware = require('./../middlewares/auth');
-
-const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
 
 const Usuario = require('../repositorys/usuario');
-const Perfil = require('./../repositorys/perfil');
+const ContaBancaria = require('./../repositorys/conta_bancaria');
 
 router.post('/', async (req, res) => {
     const { email, senha } = req.body;
@@ -26,6 +23,8 @@ router.post('/', async (req, res) => {
     user.senha = undefined;
     user.refresh_token = undefined;
     user.expires_at = undefined;
+
+    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
     res
     .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
@@ -46,6 +45,8 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     req.user.senha = undefined;
     req.user.refresh_token = undefined;
     req.user.expires_at = undefined;
+
+    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
     res
     .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
@@ -70,6 +71,8 @@ router.post('/refresh-token', async (req, res, next) => {
     user.senha = undefined;
     user.refresh_token = undefined;
     user.expires_at = undefined;
+
+    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
     res
     .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
