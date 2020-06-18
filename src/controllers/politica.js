@@ -29,12 +29,13 @@ router.post('/', authMiddleware([perfis.ADMIN]), multer(multerConfig('md', false
 
 router.put('/:id', authMiddleware([perfis.ADMIN]), multer(multerConfig('md')).single('file'), async (req, res, next) => {
     const { id } = req.params;
-    const { nome, versao } = req.body;
+    const { nome, versao, aprovado } = req.body;
     if (!versao) return res.status(400).send({ error: "Version is required" });
+    if (!aprovado) return res.status(400).send({ error: "Is approved is required" });
 
-    let politica = { versao };
+    let politica = { versao, aprovado };
     if (nome) politica = { ...politica, nome };
-
+    if (req.file) politica = { ...politica, sluq: req.file.originalname }
     try {
         const response = await Politica.update(id, politica);
         return res.status(200).send({ response });

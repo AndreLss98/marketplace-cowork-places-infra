@@ -22,7 +22,7 @@ module.exports = {
     async update(id, politica) {
         console.log('Politica: ', politica);
         try {
-            const response = await db(TABLE).where({ id }).update(politica);
+            const response = await db(TABLE).update(politica).where({ id });
             return response
         } catch(error) {
             throw error;
