@@ -3,7 +3,7 @@ const TABLE = 'caracteristica';
 
 module.exports = {
     async getAll() {
-        return db(TABLE);
+        return db(TABLE).orderBy('id', 'asc');
     }, 
     async getById(id) {
         return db(TABLE).where({ id }).first();

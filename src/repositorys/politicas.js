@@ -3,7 +3,7 @@ const TABLE = 'politicas';
 
 module.exports = {
     async getAll() {
-        return await db(TABLE);
+        return await db(TABLE).orderBy('id', "asc");
     },
     async getById(id) {
         return await db(TABLE).where({ id });
