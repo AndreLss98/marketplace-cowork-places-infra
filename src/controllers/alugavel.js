@@ -8,6 +8,7 @@ const Local = require('./../repositorys/local');
 const Duvida = require('./../repositorys/duvida');
 const Alugavel = require('../repositorys/alugavel');
 const Caracteristica = require('./../repositorys/caracteristica');
+const Documentos = require('./../repositorys/documentos_alugavel');
 const AlugavelImagem = require('./../repositorys/alugavel_imagem');
 const DiasReservados = require('./../repositorys/dias_reservados');
 const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica');
@@ -92,6 +93,30 @@ router.post('/', async (req, res, next) => {
         return res.status(200).send(await Alugavel.save(alugavel, caracteristicas, infos, local));
     } catch(error) {
         return res.status(400).send({ error });
+    }
+});
+
+/**
+ * Salva um documento de um alugavel
+ */
+router.get('/:id/documentos', async (req, res, next) => {
+    const { id } = req.params;
+    const documentos = await Documentos.getAllByAlugavelId(id);
+    return res.status(200).send(documentos);
+});
+
+/**
+ * Salva um documento de um alugavel
+ */
+router.post('/:id/documentos', multer(multerConfig('doc')).single('file'), async (req, res, next) => {
+    const { id } = req.params;
+    const url = req.file.key;
+    const documento = { alugavel_id: id, url };
+    try {
+        const response = await Documentos.save(documento);
+        return res.send(200).send(response);
+    } catch(error) {
+        return res.status(400).send({ error: "Register failed" });
     }
 });
 
