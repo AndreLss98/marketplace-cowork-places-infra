@@ -12,6 +12,7 @@ const Termos = require('./../repositorys/termos');
 const Perfil = require('./../repositorys/perfil');
 const Feedback = require('./../repositorys/feedback');
 const Documento = require('./../repositorys/documento');
+const Questionario = require('./../repositorys/questionario');
 const Favoritos = require('./../repositorys/usuario_favoritos');
 const ContaBancaria = require('./../repositorys/conta_bancaria');
 
@@ -208,7 +209,6 @@ router.post('/check-admin', async (req, res, next) => {
 router.get('/doc', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });
-
     const response = await Documento.getAllSendByUser(user.id);
     return res.status(200).send(response);
 });
@@ -223,6 +223,19 @@ router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file')
         const response = await Documento.salvarDocumento({ usuario_id: user.id, documento_id, url: req.file.key });
         res.status(200).send(response);
     } catch(error) {
+        return res.status(400).send({ error: "Register failed", trace: error });
+    }
+});
+
+router.post('/perguntas', authMiddleware(), async (req, res, next) => {
+    const { perguntas } = req.body;
+    if (!perguntas || perguntas.length == 0) return res.status(400).send({ error: "Answers is required" });
+    const user = shared.decodeToken(req.headers.authorization);
+
+    try {
+        const response = await Questionario.answer(user.id, perguntas);
+        return res.status(200).send(response);
+    } catch (error) {
         return res.status(400).send({ error: "Register failed", trace: error });
     }
 });

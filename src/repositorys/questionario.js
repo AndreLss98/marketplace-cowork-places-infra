@@ -15,10 +15,14 @@ module.exports = {
             throw error;
         }
     },
-    async answer(response) {
+    async answer(usuario_id, responses) {
         try {
-            await db(ANSWERS_TABLE).insert({response});
-            return await db(ANSWERS_TABLE).where({ usuario_id: response.usuario_id, pergunta_id: response.pergunta_id }).first();
+            for (let response of responses ){
+                response.usuario_id = usuario_id;
+                await db(ANSWERS_TABLE).insert(response);
+            }
+
+            return await db(ANSWERS_TABLE).where({ usuario_id });
         } catch(error) {
             throw error;
         }
