@@ -2,7 +2,8 @@ const db = require('./../configs/knex');
 const TABLE = 'alugavel_caracteristica';
 
 module.exports = {
-    async realacionar(alugavel_id, caracteristica_id, valor) {
+    async relacionar(alugavel_id, caracteristica_id, valor) {
+        console.log("Alugavel_id: ", alugavel_id, "Caracteristica_id: ", caracteristica_id, "valor: ", valor);
         try {
             return await db(TABLE).insert({ alugavel_id, caracteristica_id, valor });
         } catch(error) {

@@ -18,6 +18,8 @@ const paginationMiddleware = require('./../middlewares/pagination');
 
 const perfis = require('./../shared/perfis');
 
+const constants = require('./../shared/constants');
+
 async function validateDates(idAlugavel, diasSolicitados) {
     diasSolicitados = diasSolicitados.map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
     const diasReservados = (await DiasReservados.getAllByAlugavelId(idAlugavel)).map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
@@ -34,6 +36,10 @@ async function validateDates(idAlugavel, diasSolicitados) {
  */
 router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Alugavel.getAll), async (req, res, next) => {
     return res.status(200).send(res.result);
+});
+
+router.get('/taxa', async (req, res, next) => {
+    return res.status(200).send({ taxa: constants.TAXA_ALUGAVEL })
 });
 
 /**
@@ -175,7 +181,7 @@ router.post('/:id/caracteristicas', async (req, res, next) => {
     if (caracteristicas) {
         for (let caracteristica of caracteristicas) {
             const { alugavel_id, caracteristica_id, valor } = caracteristica;
-            await AlugavelCaracteristica.realacionar(alugavel_id, caracteristica_id, valor);
+            await AlugavelCaracteristica.relacionar(alugavel_id, caracteristica_id, valor);
         }
     }
 

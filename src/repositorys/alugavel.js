@@ -18,7 +18,7 @@ module.exports = {
             const id = await db(TABLE).insert(alugavel).returning('id');
             if (caracteristicas) {
                 caracteristicas.forEach(async (caracteristica) => {
-                    await AlugavelCaracteristica.realacionar(id[0], caracteristica.id, caracteristica.valor);
+                    await AlugavelCaracteristica.relacionar(id[0], caracteristica.caracteristica_id, caracteristica.valor);
                 });
             }
 
