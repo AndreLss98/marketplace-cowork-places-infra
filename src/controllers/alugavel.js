@@ -79,10 +79,11 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
 
-    const { caracteristicas, infos, local, anunciante_id, tipo_id, descricao, valor, titulo, proprietario } = req.body;
+    const { caracteristicas, infos, local, anunciante_id, tipo_id, descricao, valor, titulo, proprietario, taxa } = req.body;
 
     let alugavel = { anunciante_id, tipo_id, descricao, valor, titulo };
     if (proprietario) alugavel.proprietario = proprietario;
+    if (taxa) alugavel.taxa = taxa;
 
     if (!local) return res.status(400).send({ error: "Invalid address" });
     if (!anunciante_id) return res.status(400).send({ error: "Advertiser id is required" });
