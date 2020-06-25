@@ -17,7 +17,7 @@ router.get('/:id', async (req, res, next) => {
     res.status(200).send(caracteristica);
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     try {
         const caracteristica = await Caracteristica.save(req.body);
         return res.status(200).send(caracteristica);
@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const caracteristica = await Caracteristica.getById(req.params.id);
 
     if (!caracteristica) return res.status(404).send({ error: "Not found" });
@@ -39,7 +39,7 @@ router.put('/:id', async (req, res, next) => {
     }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
     try {
         return res.status(200).send({ response: await Caracteristica.delete(id) });
@@ -48,4 +48,4 @@ router.delete('/:id', async (req, res, next) => {
     }
 });
 
-module.exports = app => app.use('/caracteristicas', authMiddleware([perfis.ADMIN]), router);
+module.exports = app => app.use('/caracteristicas', router);
