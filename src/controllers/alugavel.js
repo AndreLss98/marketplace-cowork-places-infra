@@ -17,7 +17,6 @@ const authMiddleware = require('./../middlewares/auth');
 const paginationMiddleware = require('./../middlewares/pagination');
 
 const perfis = require('./../shared/perfis');
-
 const constants = require('./../shared/constants');
 
 async function validateDates(idAlugavel, diasSolicitados) {
@@ -84,27 +83,37 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
  * Salva um alugavel
  */
 router.post('/', async (req, res, next) => {
+    const {
+        caracteristicas,
+        infos, local, anunciante_id,
+        tipo_id, descricao, valor, titulo,
+        proprietario, taxa, imagens, documentos
+    } = req.body;
 
-    const { caracteristicas, infos, local, anunciante_id, tipo_id, descricao, valor, titulo, proprietario, taxa } = req.body;
-
-    let alugavel = { anunciante_id, tipo_id, descricao, valor, titulo };
-    if (proprietario) alugavel.proprietario = proprietario;
-    if (taxa) alugavel.taxa = taxa;
+    let tempAlugavel = { anunciante_id, tipo_id, descricao, valor, titulo };
+    if (proprietario) tempAlugavel.proprietario = proprietario;
+    if (taxa) tempAlugavel.taxa = taxa;
 
     if (!local) return res.status(400).send({ error: "Invalid address" });
     if (!anunciante_id) return res.status(400).send({ error: "Advertiser id is required" });
     if (!tipo_id) return res.status(400).send({ error: "Type id is required" });
     if (!titulo) return res.status(400).send({ error: "Title is required" });
+    if (!imagens || imagens.length === 0) return res.status(400).send({ error: "Images is required" });
+    if (!documentos || documentos.length === 0) return res.status(400).send({ error: "Documents is required" });
+
+    const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local);
+    await AlugavelImagem.relacionar(alugavel.id, imagens);
+    await Documentos.relacionar(alugavel.id, documentos);
 
     try {
-        return res.status(200).send(await Alugavel.save(alugavel, caracteristicas, infos, local));
+        return res.status(200).send(alugavel);
     } catch(error) {
         return res.status(400).send({ error });
     }
 });
 
 /**
- * Salva um documento de um alugavel
+ * Busca os documentos salvos de um alugavel
  */
 router.get('/:id/documentos', async (req, res, next) => {
     const { id } = req.params;
@@ -115,15 +124,14 @@ router.get('/:id/documentos', async (req, res, next) => {
 /**
  * Salva um documento de um alugavel
  */
-router.post('/:id/documentos', multer(multerConfig('doc')).single('file'), async (req, res, next) => {
-    const { id } = req.params;
+router.post('/documentos', multer(multerConfig('doc')).single('file'), async (req, res, next) => {
     const url = req.file.key;
-    const documento = { alugavel_id: id, url };
+    const documento = { url };
     try {
-        const response = await Documentos.save(documento);
-        return res.send(200).send(response);
+        const doc = await Documentos.save(documento);
+        return res.status(200).send(doc);
     } catch(error) {
-        return res.status(400).send({ error: "Register failed" });
+        return res.status(400).send({ error: "Register failed", trace: error });
     }
 });
 
@@ -138,8 +146,9 @@ router.get('/:id/imagem', async (req, res, next) => {
 /**
  * Salva uma imagem de um alugavel
  */
-router.post('/:id/imagem', multer(multerConfig('img')).single('file'), async (req, res, next) => {
-    const img = await AlugavelImagem.save(req.params.id, req.file.key);
+router.post('/imagem', multer(multerConfig('img')).single('file'), async (req, res, next) => {
+    const img = await AlugavelImagem.save(req.file.key);
+    delete img.alugavel_id;
     res.status(200).send({ img });
 });
 

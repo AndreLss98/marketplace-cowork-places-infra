@@ -8,10 +8,15 @@ module.exports = {
     },
     async save(documento) {
         try {
-            await db(TABLE).insert(documento);
-            return await db(TABLE).where({ url: documento.url });
+            const id = await db(TABLE).insert(documento).returning('id');
+            return await db(TABLE).where({ id: id[0] }).first();
         } catch(error) {
             throw error;
+        }
+    },
+    async relacionar(alugavel_id, documentos) {
+        for (let id of documentos) {
+            await db(TABLE).update({ alugavel_id }).where({ id });
         }
     }
 }
