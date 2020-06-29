@@ -186,7 +186,7 @@ router.put('/:id', async (req, res, next) => {
 /**
  * Relaciona uma lista de caracteristicas ao alugavel
  */
-router.post('/:id/caracteristicas', async (req, res, next) => {
+router.post('/caracteristicas', async (req, res, next) => {
     const caracteristicas = req.body;
 
     if (!caracteristicas || caracteristicas.length === 0) return res.status(400).send({ error: "Required one or more features" });

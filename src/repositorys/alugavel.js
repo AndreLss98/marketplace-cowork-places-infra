@@ -2,6 +2,7 @@ const db = require('./../configs/knex');
 const TABLE = 'alugavel';
 
 const Info = require('./../repositorys/info');
+const Tipo = require('./../repositorys/tipo');
 const Local = require('./../repositorys/local');
 const Caracteristica = require('./../repositorys/caracteristica');
 const AlugavelImagem = require('./../repositorys/alugavel_imagem');
@@ -15,10 +16,11 @@ module.exports = {
         let alugavel = await db(TABLE).where({ id }).first();
         alugavel.caracteristicas = [];
         alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(id);
-
+        alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
+        delete alugavel.tipo_id;
         let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(id);
         for (let tempCaracteristica of tempCaracteristicas) {
-            let caracteristica = await Caracteristica.getById(tempCaracteristica.alugavel_id);
+            let caracteristica = await Caracteristica.getById(tempCaracteristica.caracteristica_id);
             caracteristica.valor = tempCaracteristica.valor;
             alugavel.caracteristicas.push(caracteristica);
         }
