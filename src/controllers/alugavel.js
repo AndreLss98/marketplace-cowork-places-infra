@@ -126,7 +126,11 @@ router.get('/:id/documentos', async (req, res, next) => {
  */
 router.post('/documentos', multer(multerConfig('doc')).single('file'), async (req, res, next) => {
     const url = req.file.key;
-    const documento = { url };
+    const { nome } = req.body;
+
+    if (!nome) return res.status(400).send({ error: "Document name is required" });
+
+    const documento = { url, nome };
     try {
         const doc = await Documentos.save(documento);
         return res.status(200).send(doc);
