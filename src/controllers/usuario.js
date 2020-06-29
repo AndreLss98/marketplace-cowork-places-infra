@@ -16,7 +16,6 @@ const Documento = require('./../repositorys/documento');
 const Questionario = require('./../repositorys/questionario');
 const Favoritos = require('./../repositorys/usuario_favoritos');
 const ContaBancaria = require('./../repositorys/conta_bancaria');
-const AlugavelImagem = require('./../repositorys/alugavel_imagem');
 
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
@@ -186,7 +185,6 @@ router.get('/favoritos', authMiddleware(), async (req, res, next) => {
 
     for (let favorito of favoritosIds) {
         let object = await Alugavel.getById(favorito.alugavel_id);
-        object.imagens = await AlugavelImagem.getAllByAlugavelId(object.id);
         favoritos.push(object);
     }
 
@@ -199,7 +197,6 @@ router.post('/favoritos', authMiddleware(), async (req, res, next) => {
 
     try {
         const response = await Favoritos.favoritar(user.id, alugavel_id);
-
         return res.status(200).send({ response });
     } catch(error) {
         return res.status(400).send({ error: "Registration failed" });

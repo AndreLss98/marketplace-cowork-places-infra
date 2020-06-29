@@ -3,15 +3,27 @@ const TABLE = 'alugavel';
 
 const Info = require('./../repositorys/info');
 const Local = require('./../repositorys/local');
+const Caracteristica = require('./../repositorys/caracteristica');
+const AlugavelImagem = require('./../repositorys/alugavel_imagem');
 const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica');
-
 
 module.exports = {
     async getAll() {
         return await db(TABLE);
     },
     async getById(id) {
-        return await db(TABLE).where({ id }).first();
+        let alugavel = await db(TABLE).where({ id }).first();
+        alugavel.caracteristicas = [];
+        alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(id);
+
+        let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(id);
+        for (let tempCaracteristica of tempCaracteristicas) {
+            let caracteristica = await Caracteristica.getById(tempCaracteristica.alugavel_id);
+            caracteristica.valor = tempCaracteristica.valor;
+            alugavel.caracteristicas.push(caracteristica);
+        }
+
+        return alugavel;
     },
     async save(alugavel, caracteristicas, infos, local) {
         try {
