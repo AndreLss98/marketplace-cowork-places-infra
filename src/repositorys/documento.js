@@ -35,5 +35,9 @@ module.exports = {
     },
     async getAllSendByUser(usuario_id) {
         return await db(RELATION_TABLE).where({ usuario_id });
+    },
+    async delete(id) {
+        await db(RELATION_TABLE).where({ documento_id: id });
+        return await db(TABLE).where({ id }).delete();
     }
 }

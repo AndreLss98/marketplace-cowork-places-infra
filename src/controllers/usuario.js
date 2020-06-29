@@ -10,11 +10,13 @@ const Usuario = require('../repositorys/usuario');
 const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
 const Perfil = require('./../repositorys/perfil');
+const Alugavel = require('./../repositorys/alugavel');
 const Feedback = require('./../repositorys/feedback');
 const Documento = require('./../repositorys/documento');
 const Questionario = require('./../repositorys/questionario');
 const Favoritos = require('./../repositorys/usuario_favoritos');
 const ContaBancaria = require('./../repositorys/conta_bancaria');
+const AlugavelImagem = require('./../repositorys/alugavel_imagem');
 
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
@@ -178,8 +180,17 @@ router.post('/email', async(req, res, next) => {
 
 router.get('/favoritos', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
-    const response = await Favoritos.getAllByUserId(user.id);
-    return res.status(200).send(response);
+    const favoritosIds = await Favoritos.getAllByUserId(user.id);
+
+    let favoritos = [];
+
+    for (let favorito of favoritosIds) {
+        let object = await Alugavel.getById(favorito.alugavel_id);
+        object.imagens = await AlugavelImagem.getAllByAlugavelId(object.id);
+        favoritos.push(object);
+    }
+
+    return res.status(200).send(favoritos);
 });
 
 router.post('/favoritos', authMiddleware(), async (req, res, next) => {

@@ -29,4 +29,20 @@ routes.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     }
 });
 
+routes.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const response = await Documento.update(id, req.body);
+        return res.status(200).send({ response });
+    } catch(error) {
+        return res.status(400).send({ error: "Register Failed" });
+    }
+});
+
+routes.delete('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    const { id } = req.params;
+    const response = await Documento.delete(id);
+    return res.status(200).send({ response });
+});
+
 module.exports = app => app.use('/documentos', routes);

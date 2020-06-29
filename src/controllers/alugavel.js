@@ -33,7 +33,7 @@ async function validateDates(idAlugavel, diasSolicitados) {
 /**
  * Retorna todos os alugaveis
  */
-router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Alugavel.getAll), async (req, res, next) => {
+router.get('/', paginationMiddleware(Alugavel.getAll), async (req, res, next) => {
     return res.status(200).send(res.result);
 });
 
@@ -44,7 +44,7 @@ router.get('/taxa', async (req, res, next) => {
 /**
  * Retorna um alugavel
  */
-router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
     const alugavel = await Alugavel.getById(req.params.id);
     if (!alugavel) res.status(404).send({ error: "Not found" });
     res.status(200).send(alugavel);
