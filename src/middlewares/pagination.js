@@ -1,4 +1,4 @@
-module.exports = (query) => {
+module.exports = (query, filters = {}) => {
     return async (req, res, next) => {
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
@@ -8,7 +8,9 @@ module.exports = (query) => {
 
         const response = {};
 
-        response.results = await query();
+        if (req.query.filters) filters = JSON.parse(req.query.filters);
+
+        response.results = await query(filters);
 
         if (endIndex < response.results.length) {
             response.next = {

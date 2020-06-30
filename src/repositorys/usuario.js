@@ -3,8 +3,8 @@ const db = require('./../configs/knex');
 const TABLE = 'usuario';
 
 module.exports = {
-    async getAll() {
-        return await db(TABLE);
+    async getAll(filters = { }) {
+        return await db(TABLE).where(filters);
     },
     async getById(id) {
         return await db(TABLE).where({ id }).first();
