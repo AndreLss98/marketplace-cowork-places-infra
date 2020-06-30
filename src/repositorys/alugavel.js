@@ -10,7 +10,21 @@ const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica
 
 module.exports = {
     async getAll() {
-        return await db(TABLE);
+        let alugaveis = await db(TABLE);
+        for (let alugavel of alugaveis) {
+            alugavel.caracteristicas = [];
+            alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
+            alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
+            delete alugavel.tipo_id;
+            let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
+            for (let tempCaracteristica of tempCaracteristicas) {
+                let caracteristica = await Caracteristica.getById(tempCaracteristica.caracteristica_id);
+                caracteristica.valor = tempCaracteristica.valor;
+                alugavel.caracteristicas.push(caracteristica);
+            }
+        }
+
+        return alugaveis;
     },
     async getById(id) {
         let alugavel = await db(TABLE).where({ id }).first();
