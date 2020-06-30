@@ -255,7 +255,7 @@ router.delete('/favoritos/:alugavelId', authMiddleware(), async (req, res, next)
     return res.status(200).send({response});
 });
 
-router.get('/:id', authMiddleware(perfis.ADMIN), async (req, res, next) => {
+router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
     let user = await Usuario.getById(id);
     if (!user) {
@@ -263,6 +263,7 @@ router.get('/:id', authMiddleware(perfis.ADMIN), async (req, res, next) => {
     }
 
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
+    user.documentos = await Documento.getAllSendByUser(user.id);
 
     delete user.senha;
     delete user.refresh_token;
