@@ -1,20 +1,23 @@
 const db = require('./../configs/knex');
 const TABLE = 'alugavel';
 
-const Info = require('./../repositorys/info');
-const Tipo = require('./../repositorys/tipo');
-const Local = require('./../repositorys/local');
-const Caracteristica = require('./../repositorys/caracteristica');
-const AlugavelImagem = require('./../repositorys/alugavel_imagem');
-const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica');
+const Info = require('./info');
+const Tipo = require('./tipo');
+const Local = require('./local');
+const Caracteristica = require('./caracteristica');
+const AlugavelImagem = require('./alugavel_imagem');
+const AlugavelCaracteristica = require('./alugavel_caracteristica');
+const Documentos = require('./documentos_alugavel');
 
 module.exports = {
-    async getAll() {
-        let alugaveis = await db(TABLE);
+    async getAll(filters = {}) {
+        let alugaveis = await db(TABLE).where(filters);
         for (let alugavel of alugaveis) {
             alugavel.caracteristicas = [];
             alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
             alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
+            alugavel.local = await Local.getByAlugavelId(alugavel.id);
+            alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
             delete alugavel.tipo_id;
             let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
             for (let tempCaracteristica of tempCaracteristicas) {
@@ -31,6 +34,8 @@ module.exports = {
         alugavel.caracteristicas = [];
         alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(id);
         alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
+        alugavel.local = await Local.getByAlugavelId(alugavel.id);
+        alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
         delete alugavel.tipo_id;
         let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(id);
         for (let tempCaracteristica of tempCaracteristicas) {

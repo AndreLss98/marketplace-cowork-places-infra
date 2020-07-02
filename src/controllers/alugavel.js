@@ -299,4 +299,15 @@ router.post('/:id/dias-reservados/validate', async (req, res, next) => {
     res.status(200).send({ response: 1 });
 });
 
+router.put('/:id/disponibilizar', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    const { id } = req.params;
+    const { disponivel } = req.body;
+    if (disponivel === undefined || disponivel === null) return res.status(400).send({ error: "Available is required" });
+
+    const response = await Alugavel.update(id, { disponivel });
+
+    return res.status(200).send({ response });
+
+})
+
 module.exports = app => app.use('/alugaveis', authMiddleware(), router);
