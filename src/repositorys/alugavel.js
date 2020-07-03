@@ -18,6 +18,10 @@ module.exports = {
             alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
             alugavel.local = await Local.getByAlugavelId(alugavel.id);
             alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
+            alugavel.infos = await Info.getAll(alugavel.id);
+            for (let info of alugavel.infos) {
+                delete info.alugavel_id;
+            }
             delete alugavel.tipo_id;
             let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
             for (let tempCaracteristica of tempCaracteristicas) {
@@ -36,6 +40,10 @@ module.exports = {
         alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
         alugavel.local = await Local.getByAlugavelId(alugavel.id);
         alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
+        alugavel.infos = await Info.getAll(alugavel.id);
+        for (let info of alugavel.infos) {
+            delete info.alugavel_id;
+        }
         delete alugavel.tipo_id;
         let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(id);
         for (let tempCaracteristica of tempCaracteristicas) {
