@@ -82,7 +82,7 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
 /**
  * Salva um alugavel
  */
-router.post('/', async (req, res, next) => {
+router.post('/', authMiddleware(), async (req, res, next) => {
     const {
         caracteristicas,
         infos, local, anunciante_id,
@@ -124,7 +124,7 @@ router.get('/:id/documentos', async (req, res, next) => {
 /**
  * Salva um documento de um alugavel
  */
-router.post('/documentos', multer(multerConfig('doc')).single('file'), async (req, res, next) => {
+router.post('/documentos', authMiddleware(), multer(multerConfig('doc')).single('file'), async (req, res, next) => {
     const url = req.file.key;
     const { nome } = req.body;
 
@@ -150,7 +150,7 @@ router.get('/:id/imagem', async (req, res, next) => {
 /**
  * Salva uma imagem de um alugavel
  */
-router.post('/imagem', multer(multerConfig('img')).single('file'), async (req, res, next) => {
+router.post('/imagem', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
     const img = await AlugavelImagem.save(req.file.key);
     delete img.alugavel_id;
     res.status(200).send({ img });
@@ -159,7 +159,7 @@ router.post('/imagem', multer(multerConfig('img')).single('file'), async (req, r
 /**
  * Deleta uma imagem
  */
-router.delete('/:id/imagem/:imgId', async (req, res, next) => {
+router.delete('/:id/imagem/:imgId', authMiddleware(), async (req, res, next) => {
     let { imgId } = req.params;
     imgId = parseInt(imgId);
     const response = await AlugavelImagem.delete(imgId);
@@ -169,7 +169,7 @@ router.delete('/:id/imagem/:imgId', async (req, res, next) => {
 /**
  * Atualiza um alugavel
  */
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const alugavel = await Alugavel.getById(id);
 
@@ -186,7 +186,7 @@ router.put('/:id', async (req, res, next) => {
 /**
  * Relaciona uma lista de caracteristicas ao alugavel
  */
-router.post('/caracteristicas', async (req, res, next) => {
+router.post('/caracteristicas', authMiddleware(), async (req, res, next) => {
     const caracteristicas = req.body;
 
     if (!caracteristicas || caracteristicas.length === 0) return res.status(400).send({ error: "Required one or more features" });
@@ -204,7 +204,7 @@ router.post('/caracteristicas', async (req, res, next) => {
 /**
  * Atualiza o valor de uma caracteristica de um alugavel
  */
-router.put('/:id/caracteristicas', async (req, res, next) => {
+router.put('/:id/caracteristicas', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     
     const { valor, caracteristica_id } = req.body;
@@ -217,7 +217,7 @@ router.put('/:id/caracteristicas', async (req, res, next) => {
 /**
  * Remove caracteristica do alugavel
  */
-router.delete('/:id/caracteristicas', async (req, res, next) => {
+router.delete('/:id/caracteristicas', authMiddleware(), async (req, res, next) => {
 
     const { id } = req.params;
     const { caracteristica_id } = req.body;
@@ -240,7 +240,7 @@ router.get('/:id/local', async (req, res, next) => {
 /**
  * Atualiza os dados do endereco de um alugavel
  */
-router.put('/:id/local', async (req, res, next) => {
+router.put('/:id/local', authMiddleware(), async (req, res, next) => {
     const response = await Local.update(req.body);
     if (!response) return res.status(400).send({ error: "Update failed" });
 
@@ -269,7 +269,7 @@ router.get('/:id/dias-reservados', async (req, res, next) => {
 /**
  * Reservar dias manualmente
  */
-router.post('/:id/dias-reservados', async (req, res, next) => {
+router.post('/:id/dias-reservados', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const dias = req.body;
     const response = await validateDates(id, dias);
@@ -310,4 +310,4 @@ router.put('/:id/disponibilizar', authMiddleware([perfis.ADMIN]), async (req, re
 
 })
 
-module.exports = app => app.use('/alugaveis', authMiddleware(), router);
+module.exports = app => app.use('/alugaveis', router);
