@@ -29,6 +29,15 @@ router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Usuario.get
     res.status(200).send(res.result);
 });
 
+router.put('/', authMiddleware(), async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    const { numero_1, numero_2, cpf } = req.body;
+    
+    const response = await Usuario.update(user.id, { numero_1, numero_2, cpf });
+
+    return res.status(200).send({ response });
+});
+
 router.get('/duvidas', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization)
     const duvidas = await Duvida.getAllByUserId(user.id);
