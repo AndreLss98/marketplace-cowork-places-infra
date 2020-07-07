@@ -21,7 +21,7 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
     delete tempAluguel.dias_reservados;
 
     const aluguel = await Aluguel.save(tempAluguel);
-    
+
     try {
         dias_reservados.aluguel_id = aluguel.id;
         dias_reservados.alugavel_id = aluguel.alugavel_id;
@@ -62,7 +62,7 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/checkout/callback', async (req, res, next) => {
-    
+
     await axios({
         method: 'post',
         url: `https://appws.picpay.com/ecommerce/public/payments/${referenceId}/status`,
@@ -84,8 +84,8 @@ router.post('/cancel/:id', async (req, res, next) => {
     const { id } = req.params;
     const aluguel = await Aluguel.getAllByAlugavelId(id);
 
-    const data = aluguel.authorization_id? { authorizationId: aluguel.authorization_id } : {};
-    
+    const data = aluguel.authorization_id ? { authorizationId: aluguel.authorization_id } : {};
+
     await axios({
         method: 'post',
         url: `https://appws.picpay.com/ecommerce/public/payments/${aluguel.id}/cancellations`,
@@ -101,6 +101,22 @@ router.post('/cancel/:id', async (req, res, next) => {
     }).catch(error => {
         return res.status(400).send({ error });
     });
+});
+
+router.put('/:id', authMiddleware(), async (req, res, next) => {
+    const { id } = req.params;
+    const { nota, comentario } = req.body;
+    if ((nota === undefined || nota === null) && (comentario === undefined || comentario === null || comentario === "")) {
+        return res.status(400).send({ error: "Note or Comment is required" });
+    }
+
+    let avaliacao = {};
+    if (nota !== undefined && nota !== null) avaliacao.nota = nota;
+    if (comentario !== undefined && comentario !== null) avaliacao.comentario = comentario;
+    
+    const response = await Aluguel.update(id, avaliacao);
+    return res.status(200).send({ response });
+
 });
 
 module.exports = app => app.use('/alugueis', router);
