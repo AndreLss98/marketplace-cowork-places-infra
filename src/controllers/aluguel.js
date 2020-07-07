@@ -52,7 +52,7 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
         headers: {
             "Content-Type": "application/json",
             "x-picpay-token": process.env.PIC_PAY_TOKEN,
-            "accept-encoding": 'gzip,deflate,br',
+            "accept-encoding": 'gzip,deflate,br'
         }
     }).then(async (response) => {
         return res.status(200).send(response.data);
@@ -62,9 +62,45 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/checkout/callback', async (req, res, next) => {
-    const { referenceId, authorizationId } = req.body;
-    const response = await Aluguel.update(referenceId, { authorization_id: authorizationId });
-    return res.status(200).send({ response });
+    
+    await axios({
+        method: 'post',
+        url: `https://appws.picpay.com/ecommerce/public/payments/${referenceId}/status`,
+        data: {},
+        headers: {
+            "Content-Type": "application/json",
+            "x-picpay-token": process.env.PIC_PAY_TOKEN,
+            "accept-encoding": 'gzip,deflate,br'
+        }
+    }).then(async (response) => {
+        const result = await Aluguel.update(referenceId, { authorization_id: response.data.authorizationId, status: response.data.status });
+        return res.status(200).send({ result });
+    }).catch(error => {
+        return res.status(400).send({ error: 'Update status failed' });
+    });
+});
+
+router.post('/cancel/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const aluguel = await Aluguel.getAllByAlugavelId(id);
+
+    const data = aluguel.authorization_id? { authorizationId: aluguel.authorization_id } : {};
+    
+    await axios({
+        method: 'post',
+        url: `https://appws.picpay.com/ecommerce/public/payments/${aluguel.id}/cancellations`,
+        data,
+        headers: {
+            "Content-Type": "application/json",
+            "x-picpay-token": process.env.PIC_PAY_TOKEN,
+            "accept-encoding": 'gzip,deflate,br'
+        }
+    }).then(async (response) => {
+        const result = await Aluguel.update(aluguel.id, { cancellation_id: response.data.cancellationId });
+        return res.status(200).send({ result });
+    }).catch(error => {
+        return res.status(400).send({ error });
+    });
 });
 
 module.exports = app => app.use('/alugueis', router);
