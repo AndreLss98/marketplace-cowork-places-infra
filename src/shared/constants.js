@@ -1,3 +1,3 @@
 module.exports = {
-    TAXA_ALUGAVEL: 7
+    TAXA_ALUGAVEL: 13
 }
