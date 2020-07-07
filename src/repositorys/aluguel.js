@@ -11,5 +11,8 @@ module.exports = {
     async save(aluguel) {
         const id = await db(TABLE).insert(aluguel).returning('id');
         return await db(TABLE).where({ id: id[0] }).first();
+    },
+    async update(id, aluguel) {
+        return await db(TABLE).update(aluguel).where({ id });
     }
 }

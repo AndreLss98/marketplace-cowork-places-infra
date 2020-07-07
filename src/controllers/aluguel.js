@@ -9,7 +9,7 @@ const DiasReservados = require('./../repositorys/dias_reservados');
 
 const shared = require('./../shared/functions');
 
-router.post('/checkout', async (req, res, next) => {
+router.post('/checkout', authMiddleware(), async (req, res, next) => {
     let tempAluguel = req.body;
 
     const userToken = shared.decodeToken(req.headers.authorization);
@@ -39,6 +39,7 @@ router.post('/checkout', async (req, res, next) => {
         data: {
             referenceId: aluguel.id,
             callbackUrl: "https://spotted-br.com",
+            returnUrl: "https://placeet.com",
             value: aluguel.valor,
             buyer: {
                 firstName: user.nome,
@@ -60,4 +61,10 @@ router.post('/checkout', async (req, res, next) => {
     });
 });
 
-module.exports = app => app.use('/alugueis', authMiddleware([]), router);
+router.post('/checkout/callback', async (req, res, next) => {
+    const { referenceId, authorizationId } = req.body;
+    const response = await Aluguel.update(referenceId, { authorization_id: authorizationId });
+    return res.status(200).send({ response });
+});
+
+module.exports = app => app.use('/alugueis', router);
