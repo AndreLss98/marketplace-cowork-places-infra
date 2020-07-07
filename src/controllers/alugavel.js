@@ -19,15 +19,12 @@ const paginationMiddleware = require('./../middlewares/pagination');
 const perfis = require('./../shared/perfis');
 const constants = require('./../shared/constants');
 
-async function validateDates(idAlugavel, diasSolicitados) {
-    diasSolicitados = diasSolicitados.map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
-    const diasReservados = (await DiasReservados.getAllByAlugavelId(idAlugavel)).map(dia => `${dia.dia}-${dia.mes}-${dia.ano}`);
-    
-    for (let dia of diasSolicitados) {
-        if (diasReservados.includes(dia)) return false;
-    }
-
-    return true;
+async function validateDates(idAlugavel, dataEntrada) {
+    let dataSaida = (await DiasReservados.getLastDateOfRent(idAlugavel)).data_saida;
+    dataSaida = new Date(dataSaida);
+    console.log("Data saida: ", dataSaida);
+    console.log("Data entrada: ", dataEntrada);
+    return dataEntrada <= dataSaida;
 }
 
 /**
@@ -173,6 +170,8 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const alugavel = await Alugavel.getById(id);
 
+    delete req.body.disponivel;
+
     if (!alugavel) return res.status(404).send({ error: "Not found" });
 
     try {
@@ -294,9 +293,11 @@ router.post('/:id/dias-reservados', authMiddleware(), async (req, res, next) => 
  */
 router.post('/:id/dias-reservados/validate', async (req, res, next) => {
     const { id } = req.params;
-    const response = await validateDates(id, req.body);
-    if (!response) return res.status(400).send({ error: "Day already reserved" });
-    res.status(200).send({ response: 1 });
+    const { data_entrada } = req.body;
+    const reservado = await validateDates(id, new Date(data_entrada));
+    console.log('Response: ', reservado);
+    if (reservado) return res.status(400).send({ reservado, error: "Invalid period"});
+    return res.status(200).send({ reservado });
 });
 
 router.put('/:id/disponibilizar', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
@@ -307,7 +308,6 @@ router.put('/:id/disponibilizar', authMiddleware([perfis.ADMIN]), async (req, re
     const response = await Alugavel.update(id, { disponivel });
 
     return res.status(200).send({ response });
-
-})
+});
 
 module.exports = app => app.use('/alugaveis', router);

@@ -3,13 +3,7 @@ const TABLE = 'dias_reservados';
 
 module.exports = {
     async getAllByAlugavelId(alugavel_id) {
-        const today = new Date();
-
-        return await db(TABLE)
-            .where({ alugavel_id })
-            .where('mes', '>=', today.getMonth())
-            .where('ano', '>=', today.getFullYear())
-            .orWhere('ano', '>', today.getFullYear());
+        return await db(TABLE).where({ alugavel_id });
     },
     async save(dia) {
         try {
@@ -17,5 +11,8 @@ module.exports = {
         } catch(error) {
             throw error;
         }
+    },
+    async getLastDateOfRent(alugavel_id) {
+        return await db(TABLE).max('data_saida', { as: 'data_saida' }).where({ alugavel_id }).first();
     }
 }
