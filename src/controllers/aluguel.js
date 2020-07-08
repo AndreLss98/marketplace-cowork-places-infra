@@ -38,7 +38,7 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
         url: 'https://appws.picpay.com/ecommerce/public/payments',
         data: {
             referenceId: aluguel.id,
-            callbackUrl: "https://spotted-br.com",
+            callbackUrl: "https://spotted-br.com/alugueis/checkout/callback",
             returnUrl: "https://placeet.com",
             value: aluguel.valor,
             buyer: {
