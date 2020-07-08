@@ -8,7 +8,7 @@ const boydParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app_port = process.env.PORT || 3000;
 
-const whitelist = ['http://localhost:4200', 'https://placeet.com', 'http://paceet.com.br']
+const whitelist = ['http://localhost:4200', 'https://placeet.com', 'http://placeet.com.br']
 
 app.use(cors({
     origin: function (origin, callback) {
