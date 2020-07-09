@@ -30,7 +30,8 @@ passport.use(
                     sobrenome: profile.name.familyName,
                     email: profile.emails[0].value,
                     img_perfil: profile.photos[0].value,
-                    google_id: profile.id
+                    google_id: profile.id,
+                    email_validado: true
                 });
                 return done(null, newUser);
             } catch(error) {

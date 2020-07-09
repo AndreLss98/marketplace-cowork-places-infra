@@ -1,7 +1,10 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const sendGrid = require('@sendgrid/mail');
 
-const tokenDuration = 900
+const tokenDuration = 900;
+
+sendGrid.setApiKey(process.env.SENDGRID_TOKEN);
 
 module.exports = {
     generateToken(params = {}) {
@@ -21,5 +24,8 @@ module.exports = {
     decodeToken(bearer_token) {
         const token = bearer_token.split(' ');
         return jwt.decode(token[1]);
+    },
+    async sendEmail(to, from, subject, text) {
+        return await sendGrid.send({to, from, subject, text});
     }
 }

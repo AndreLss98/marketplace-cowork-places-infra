@@ -19,6 +19,7 @@ const ContaBancaria = require('./../repositorys/conta_bancaria');
 
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
+const constants = require('./../shared/constants');
 
 router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Usuario.getAll), async (req, res, next) => {
     res.result.results.forEach(user => {
@@ -76,15 +77,39 @@ router.post('/create', async (req, res, next) => {
     if (!req.body.numero_1) return res.status(400).send({ error: "Invalid object!" });
 
     try {
+        req.body.email_token = shared.generateRefreshToken();
+        req.body.refresh_token = shared.generateRefreshToken();
+        req.body.expires_at = shared.generateExpirationTime();
+        
         const user = await Usuario.save(req.body);
+        delete user.senha;
 
-        const refresh_token = shared.generateRefreshToken();
-        const expires_at = shared.generateExpirationTime();
-        await Usuario.update(user.id, { refresh_token, expires_at });
+        const refresh_token = user.refresh_token;
+        const expires_at = user.expires_at;
 
-        user.senha = undefined;
-        user.refresh_token = undefined;
-        user.expires_at = undefined;
+        delete user.refresh_token;
+        delete user.expires_at;
+
+        try {
+            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Confirme seu email',
+            `Oi ${user.nome} ${user.sobrenome}
+
+            Bem vindo a Placeet.
+            
+            Clique no link abaixo para confirmar seu email:
+            
+            https://placeet.com/confirm-email?token=${user.email_token}
+            
+            Caso você não tenha criado conta na Placeet e está recebendo este email por engano, por favor ignore-o.
+            
+            Abraços,
+            
+            Equipe Placeet`);
+        } catch (error) {
+            console.log("Error: ", error);
+            // return res.status(400).send({ error });
+        }
+        delete user.email_token;
         
         return res
         .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
@@ -278,6 +303,17 @@ router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     delete user.refresh_token;
     delete user.expires_at;
     res.status(200).send(user);
+});
+
+router.post('/:id/validar-email', async (req, res, next) => {
+    const { token } = req.body;
+
+    const usuario = await Usuario.getBySearchKey({ email_token: token });
+
+    if (!usuario) return res.status(400).send({ error: "Invalid token" });
+
+    const response = await Usuario.update(usuario.id, { email_validado: true });
+    return res.status(200).send({ response });
 });
 
 router.put('/:id/validar-perfil', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
