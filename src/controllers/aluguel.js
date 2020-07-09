@@ -62,21 +62,26 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/checkout/callback', async (req, res, next) => {
-
+    const { referenceId, authorizationId } = req.body;
+    const url = `https://appws.picpay.com/ecommerce/public/payments/${referenceId}/status`;
     await axios({
-        method: 'post',
-        url: `https://appws.picpay.com/ecommerce/public/payments/${referenceId}/status`,
-        data: {},
+        method: 'get',
+        url,
         headers: {
             "Content-Type": "application/json",
             "x-picpay-token": process.env.PIC_PAY_TOKEN,
             "accept-encoding": 'gzip,deflate,br'
         }
     }).then(async (response) => {
-        const result = await Aluguel.update(referenceId, { authorization_id: response.data.authorizationId, status: response.data.status });
+        console.log('Response: ', response.data);
+        const info = {
+            status: response.data.status,
+        }
+        if (authorizationId) info.authorization_id = authorizationId
+        const result = await Aluguel.update(referenceId, info);
         return res.status(200).send({ result });
     }).catch(error => {
-        return res.status(400).send({ error: 'Update status failed' });
+        return res.status(400).send({ error });
     });
 });
 
