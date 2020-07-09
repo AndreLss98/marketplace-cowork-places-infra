@@ -89,6 +89,13 @@ router.post('/cancel/:id', async (req, res, next) => {
     const { id } = req.params;
     const aluguel = await Aluguel.getAllByAlugavelId(id);
 
+    const dataAtual = new Date();
+    const dataCriaco = new Date(aluguel.data_criacao);
+
+    if (dataAtual.getTime() - dataCriaco.getTime() > 24) {
+        return res.status(401).send({ error: "Não é mais permitido cancelar o pedido" });
+    }
+
     const data = aluguel.authorization_id ? { authorizationId: aluguel.authorization_id } : {};
 
     await axios({
