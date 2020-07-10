@@ -17,6 +17,7 @@ const authMiddleware = require('./../middlewares/auth');
 const paginationMiddleware = require('./../middlewares/pagination');
 
 const perfis = require('./../shared/perfis');
+const shared = require('./../shared/functions');
 const constants = require('./../shared/constants');
 
 async function validateDates(idAlugavel, dataEntrada) {
@@ -32,6 +33,14 @@ async function validateDates(idAlugavel, dataEntrada) {
  */
 router.get('/', paginationMiddleware(Alugavel.getAll), async (req, res, next) => {
     return res.status(200).send(res.result);
+});
+
+/**
+ * Retorna todos os alugaveis do usuario
+ */
+router.get('/usuario', authMiddleware(), async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    return res.status(200).send(await Alugavel.getAll({anunciante_id: user.id}));
 });
 
 router.get('/taxa', async (req, res, next) => {
