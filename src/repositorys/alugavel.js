@@ -12,7 +12,15 @@ const AlugavelCaracteristica = require('./alugavel_caracteristica');
 
 module.exports = {
     async getAll(filters = {}) {
-        let alugaveis = await db(TABLE).where(filters);
+        let alugaveis = [];
+        if (filters.limit) {
+            const limit = filters.limit;
+            delete filters.limit;
+            alugaveis = await db(TABLE).where(filters).limit(limit);
+        } else {
+            alugaveis = await db(TABLE).where(filters);
+        }
+
         for (let alugavel of alugaveis) {
             alugavel.caracteristicas = [];
 
