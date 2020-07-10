@@ -26,6 +26,7 @@ router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Usuario.get
         delete user.senha;
         delete user.refresh_token;
         delete user.expires_at;
+        delete user.email_token;
     });
     res.status(200).send(res.result);
 });
@@ -237,7 +238,7 @@ router.post('/favoritos', authMiddleware(), async (req, res, next) => {
     }
 });
 
-router.post('/check-admin', async (req, res, next) => {
+router.post('/check-admin', authMiddleware(), async (req, res, next) => {
 
     const userToken = shared.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);

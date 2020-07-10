@@ -20,9 +20,10 @@ router.post('/', async (req, res) => {
     const refresh_token = shared.generateRefreshToken();
     await Usuario.update(user.id, { refresh_token, expires_at });
     
-    user.senha = undefined;
-    user.refresh_token = undefined;
-    user.expires_at = undefined;
+    delete user.senha;
+    delete user.refresh_token;
+    delete user.expires_at;
+    delete user.email_token;
 
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
@@ -42,9 +43,10 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     const refresh_token = shared.generateRefreshToken();
     await Usuario.update(req.user.id, { refresh_token, expires_at });
 
-    req.user.senha = undefined;
-    req.user.refresh_token = undefined;
-    req.user.expires_at = undefined;
+    delete req.user.senha;
+    delete req.user.refresh_token;
+    delete req.user.expires_at;
+    delete req.user.email_token;
 
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
@@ -68,9 +70,10 @@ router.post('/refresh-token', async (req, res, next) => {
     refresh_token = shared.generateRefreshToken();
     await Usuario.update(user.id, { refresh_token, expires_at });
 
-    user.senha = undefined;
-    user.refresh_token = undefined;
-    user.expires_at = undefined;
+    delete user.senha;
+    delete user.refresh_token;
+    delete user.expires_at;
+    delete user.email_token;
 
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
