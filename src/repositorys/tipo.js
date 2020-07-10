@@ -1,11 +1,13 @@
 const db = require('./../configs/knex');
 const TABLE = 'tipo';
 
+const { ALUGAVEL_STATUS } = require('./../shared/constants');
+
 module.exports = {
     async getAll(filters = {}) {
         if (filters.used) {
             return await db(TABLE).whereIn('id', function () {
-                this.select('tipo_id').from('alugavel');
+                this.select('tipo_id').from('alugavel').where({ status: ALUGAVEL_STATUS.APPROVED });
             }).orderBy('id', 'asc');
         }
         return await db(TABLE).orderBy('id', 'asc');
