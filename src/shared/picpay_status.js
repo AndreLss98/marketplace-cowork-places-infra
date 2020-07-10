@@ -7,3 +7,7 @@ const STATUS = {
     REFUNDED: 'refunded',
     CHARGEBACK: 'chargeback'
 }
+
+module.exports = {
+    STATUS
+}

@@ -170,7 +170,7 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const alugavel = await Alugavel.getById(id);
 
-    delete req.body.disponivel;
+    delete req.body.status;
 
     if (!alugavel) return res.status(404).send({ error: "Not found" });
 
@@ -300,12 +300,12 @@ router.post('/:id/dias-reservados/validate', async (req, res, next) => {
     return res.status(200).send({ reservado });
 });
 
-router.put('/:id/disponibilizar', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
-    const { disponivel } = req.body;
-    if (disponivel === undefined || disponivel === null) return res.status(400).send({ error: "Available is required" });
+    const { status } = req.body;
+    if (!status) return res.status(400).send({ error: "Status is required" });
 
-    const response = await Alugavel.update(id, { disponivel });
+    const response = await Alugavel.update(id, { status });
 
     return res.status(200).send({ response });
 });
