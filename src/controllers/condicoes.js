@@ -17,6 +17,15 @@ routes.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     return res.status(200).send(response);
 });
 
+routes.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    const { id } = req.params;
+    const { descricao } = req.body;
+    if (!descricao) return res.status(400).send({ error: "Condition is required" });
+
+    const response = await Condicoes.update(id, { descricao });
+    return res.status(200).send({ response });
+});
+
 routes.get('/:id', async (req, res, next) => {
     const { id } = req.params;
     const condicao = await Condicoes.getById(id);
