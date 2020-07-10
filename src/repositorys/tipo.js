@@ -2,7 +2,12 @@ const db = require('./../configs/knex');
 const TABLE = 'tipo';
 
 module.exports = {
-    async getAll() {
+    async getAll(filters = {}) {
+        if (filters.used) {
+            return await db(TABLE).whereIn('id', function () {
+                this.select('tipo_id').from('alugavel');
+            }).orderBy('id', 'asc');
+        }
         return await db(TABLE).orderBy('id', 'asc');
     },
     async getById(id) {

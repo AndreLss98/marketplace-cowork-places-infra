@@ -7,7 +7,10 @@ const Tipo = require('./../repositorys/tipo');
 const perfis = require('./../shared/perfis');
 
 router.get('/', async (req, res, next) => {
-    const tipos = await Tipo.getAll();
+    let filters = {};
+    if (req.query.filters) filters = JSON.parse(req.query.filters);
+
+    const tipos = await Tipo.getAll(filters);
     res.status(200).send(tipos);
 });
 
