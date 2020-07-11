@@ -57,6 +57,15 @@ router.get('/:id', async (req, res, next) => {
 });
 
 /**
+ * Retorna todos bairros cadastrados
+ */
+router.get('/local/bairros', async (req, res, next) => {
+    let filters = req.query.filters? JSON.parse(req.query.filters) : {};
+    const response = await Local.getAllBairros(filters);
+    return res.status(200).send(response);
+});
+
+/**
  * Retorna todas as informacoes de um alugavel 
  */
 router.get('/:id/infos', async (req, res, next) => {
