@@ -145,7 +145,7 @@ module.exports = {
                     await Info.update(info);
                 });
             }
-
+            local.alugavel_id = id;
             await Local.update(local);
             
             return 1;
