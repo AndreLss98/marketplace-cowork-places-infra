@@ -18,7 +18,7 @@ async function createQuery(filters = {}) {
     delete filters.bairro;
     delete filters.minArea;
     delete filters.maxArea;
-    
+
     let query = db(TABLE).where(filters);
 
     if (minValue || maxValue) {
@@ -37,15 +37,15 @@ async function createQuery(filters = {}) {
 
     if (minArea || maxArea) {
         if (minArea && maxArea) {
-            query = query.whereIn('id', function() {
+            query = query.whereIn('id', function () {
                 this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) between ${minArea} and ${maxArea}`);
             });
         } else if (minArea && !maxArea) {
-            query = query.whereIn('id', function() {
+            query = query.whereIn('id', function () {
                 this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) >= ${minArea}`);
             });
         } else {
-            query = query.whereIn('id', function() {
+            query = query.whereIn('id', function () {
                 this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) <= ${maxArea}`);
             });
         }
@@ -54,6 +54,42 @@ async function createQuery(filters = {}) {
     if (limit) query = query.limit(limit);
 
     return query;
+};
+
+async function getMoreInfo(alugavel) {
+    alugavel.caracteristicas = [];
+
+    alugavel.infos = await Info.getAll(alugavel.id);
+    alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
+    alugavel.local = await Local.getByAlugavelId(alugavel.id);
+    alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
+    alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
+
+    let caracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
+    for (let caracteristica of caracteristicas) {
+        let tempCaracteristica = await Caracteristica.getById(caracteristica.caracteristica_id);
+        tempCaracteristica.valor = caracteristica.valor;
+        alugavel.caracteristicas.push(tempCaracteristica);
+    }
+
+    alugavel.nota = await getAvaliacoes(alugavel.id);
+
+    delete alugavel.tipo_id;
+    for (let info of alugavel.infos) {
+        delete info.alugavel_id;
+    }
+
+    return alugavel;
+}
+
+async function getAvaliacoes(alugavel_id) {
+    const alugueis = await Aluguel.getAllByAlugavelId(alugavel_id);
+
+    if (alugueis && alugueis.length > 6) {
+        return alugueis.reduce((soma, aluguel) => soma += aluguel.nota, 0) / alugueis.length;
+    }
+
+    return null;
 }
 
 module.exports = {
@@ -61,32 +97,7 @@ module.exports = {
         let alugaveis = await createQuery(filters);
 
         for (let alugavel of alugaveis) {
-            alugavel.caracteristicas = [];
-
-            alugavel.infos = await Info.getAll(alugavel.id);
-            alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
-            alugavel.local = await Local.getByAlugavelId(alugavel.id);
-            alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
-            alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
-
-            const alugueis = await Aluguel.getAllByAlugavelId(alugavel.id);
-
-            if (alugueis && alugueis.length > 6) {
-                alugavel.nota = alugueis.reduce((soma, aluguel) => soma += aluguel.nota, 0) / alugueis.length;
-            }
-
-            for (let info of alugavel.infos) {
-                delete info.alugavel_id;
-            }
-
-            delete alugavel.tipo_id;
-            let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
-            
-            for (let tempCaracteristica of tempCaracteristicas) {
-                let caracteristica = await Caracteristica.getById(tempCaracteristica.caracteristica_id);
-                caracteristica.valor = tempCaracteristica.valor;
-                alugavel.caracteristicas.push(caracteristica);
-            }
+            alugavel = await getMoreInfo(alugavel);
         }
 
         return alugaveis;
@@ -94,33 +105,7 @@ module.exports = {
     async getById(id) {
         let alugavel = await db(TABLE).where({ id }).first();
         if (!alugavel) return alugavel;
-        alugavel.caracteristicas = [];
-
-        alugavel.infos = await Info.getAll(alugavel.id);
-        alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
-        alugavel.local = await Local.getByAlugavelId(alugavel.id);
-        alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
-        alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
-
-        const alugueis = await Aluguel.getAllByAlugavelId(alugavel.id);
-
-        if (alugueis && alugueis.length > 6) {
-            alugavel.nota = alugueis.reduce((soma, aluguel) => soma += aluguel.nota, 0) / alugueis.length;
-        }
-
-        for (let info of alugavel.infos) {
-            delete info.alugavel_id;
-        }
-
-        delete alugavel.tipo_id;
-        let tempCaracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
-
-        for (let tempCaracteristica of tempCaracteristicas) {
-            let caracteristica = await Caracteristica.getById(tempCaracteristica.caracteristica_id);
-            caracteristica.valor = tempCaracteristica.valor;
-            alugavel.caracteristicas.push(caracteristica);
-        }
-        return alugavel;
+        return await getMoreInfo(alugavel);
     },
     async save(alugavel, caracteristicas, infos, local) {
         try {
