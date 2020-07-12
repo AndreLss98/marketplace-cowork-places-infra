@@ -10,16 +10,55 @@ const AlugavelImagem = require('./alugavel_imagem');
 const Documentos = require('./documentos_alugavel');
 const AlugavelCaracteristica = require('./alugavel_caracteristica');
 
+async function createQuery(filters = {}) {
+    const { limit, minValor, maxValor, bairro, minArea, maxArea } = filters;
+    delete filters.limit;
+    delete filters.minValor;
+    delete filters.maxValor;
+    delete filters.bairro;
+    delete filters.minArea;
+    delete filters.maxArea;
+    
+    let query = db(TABLE).where(filters);
+
+    if (minValor || maxValor) {
+        if (minValor && !maxValor) {
+            query = query.where('valor', '>=', minValor);
+        } else if (maxValor && !minValor) {
+            query = query.where('valor', '<=', maxValor);
+        } else {
+            query = query.whereBetween('valor', [minValor, maxValor]);
+        }
+    }
+
+    if (bairro) {
+        query = query.select(`${TABLE}.*`).innerJoin('local', `${TABLE}.id`, `local.alugavel_id`).where('bairro', 'like', `%${bairro}%`);
+    }
+
+    if (minArea || maxArea) {
+        if (minArea && maxArea) {
+            query = query.whereIn('id', function() {
+                this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) between ${minArea} and ${maxArea}`);
+            });
+        } else if (minArea && !maxArea) {
+            query = query.whereIn('id', function() {
+                this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) >= ${minArea}`);
+            });
+        } else if (maxArea && !minArea) {
+            query = query.whereIn('id', function() {
+                this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) <= ${maxArea}`);
+            });
+        }
+    }
+
+    if (limit) query = query.limit(limit);
+
+    return query;
+}
+
 module.exports = {
     async getAll(filters = {}) {
-        let alugaveis = [];
-        if (filters.limit) {
-            const limit = filters.limit;
-            delete filters.limit;
-            alugaveis = await db(TABLE).where(filters).limit(limit);
-        } else {
-            alugaveis = await db(TABLE).where(filters);
-        }
+        let alugaveis = await createQuery(filters);
 
         for (let alugavel of alugaveis) {
             alugavel.caracteristicas = [];
