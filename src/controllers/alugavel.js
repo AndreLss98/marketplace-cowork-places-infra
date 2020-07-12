@@ -192,13 +192,26 @@ router.delete('/:id/imagem/:imgId', authMiddleware(), async (req, res, next) => 
 router.put('/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const alugavel = await Alugavel.getById(id);
-
-    delete req.body.status;
-
     if (!alugavel) return res.status(404).send({ error: "Not found" });
 
+    delete req.body.status;
+    delete req.body.anunciante_id;
+    delete req.body.nota;
+
+    const {
+        caracteristicas,
+        infos, local,
+        tipo_id, descricao, valor, titulo,
+        taxa, imagens, documentos
+    } = req.body;
+
+    const update = {tipo_id, descricao, valor, titulo, taxa};
+    
+    await Documentos.relacionar(id, documentos);
+    await AlugavelImagem.relacionar(id, imagens);
+
     try {
-        const response = await Alugavel.update(id, req.body);
+        const response = await Alugavel.update(id, update, caracteristicas, infos, local);
         return res.status(200).send({ response });
     } catch(err) {
         return res.status(400).send({ error: "Update failed" });

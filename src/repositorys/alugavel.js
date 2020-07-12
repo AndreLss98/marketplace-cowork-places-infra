@@ -130,9 +130,25 @@ module.exports = {
             throw error;
         }
     },
-    async update(id, alugavel) {
+    async update(id, alugavel, caracteristicas, infos, local) {
         try {
-            return await db(TABLE).update(alugavel).where({ id });
+            await db(TABLE).update(alugavel).where({ id });
+            if (caracteristicas && caracteristicas.length > 0) {
+                caracteristicas.forEach(async (caracteristica) => {
+                    await AlugavelCaracteristica.atualizarValor(id, caracteristica.caracteristica_id, caracteristica.valor);
+                });
+            }
+
+            if (infos && infos.length > 0) {
+                infos.forEach(async (info) => {
+                    info.alugavel_id = id;
+                    await Info.update(info);
+                });
+            }
+
+            await Local.update(local);
+            
+            return 1;
         } catch (error) {
             throw error;
         }

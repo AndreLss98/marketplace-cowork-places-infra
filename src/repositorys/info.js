@@ -9,8 +9,8 @@ module.exports = {
         const id = await db(TABLE).insert(info).returning('id');
         return await db(TABLE).where({ id: id[0] }).first();
     },
-    async update(alugavel) {
-        return await db(TABLE).update({ descricao: alugavel.descricao }).where({ id: alugavel.id });
+    async update(info) {
+        return await db(TABLE).update({ descricao: info.descricao }).where({ id: info.id });
     },
     async delete(id) {
         return await db(TABLE).where({ id }).delete();
