@@ -11,23 +11,23 @@ const Documentos = require('./documentos_alugavel');
 const AlugavelCaracteristica = require('./alugavel_caracteristica');
 
 async function createQuery(filters = {}) {
-    const { limit, minValor, maxValor, bairro, minArea, maxArea } = filters;
+    const { limit, minValue, maxValue, bairro, minArea, maxArea } = filters;
     delete filters.limit;
-    delete filters.minValor;
-    delete filters.maxValor;
+    delete filters.minValue;
+    delete filters.maxValue;
     delete filters.bairro;
     delete filters.minArea;
     delete filters.maxArea;
     
     let query = db(TABLE).where(filters);
 
-    if (minValor || maxValor) {
-        if (minValor && !maxValor) {
-            query = query.where('valor', '>=', minValor);
-        } else if (maxValor && !minValor) {
-            query = query.where('valor', '<=', maxValor);
+    if (minValue || maxValue) {
+        if (minValue && !maxValue) {
+            query = query.where('valor', '>=', minValue);
+        } else if (maxValue && !minValue) {
+            query = query.where('valor', '<=', maxValue);
         } else {
-            query = query.whereBetween('valor', [minValor, maxValor]);
+            query = query.whereBetween('valor', [minValue, maxValue]);
         }
     }
 
@@ -44,7 +44,7 @@ async function createQuery(filters = {}) {
             query = query.whereIn('id', function() {
                 this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) >= ${minArea}`);
             });
-        } else if (maxArea && !minArea) {
+        } else {
             query = query.whereIn('id', function() {
                 this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) <= ${maxArea}`);
             });
