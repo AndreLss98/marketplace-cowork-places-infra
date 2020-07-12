@@ -142,12 +142,15 @@ module.exports = {
             if (infos && infos.length > 0) {
                 infos.forEach(async (info) => {
                     info.alugavel_id = id;
-                    await Info.update(info);
+                    if (!info.id) {
+                        await Info.save(info);
+                    } else {
+                        await Info.update(info);
+                    }
                 });
             }
             local.alugavel_id = id;
             await Local.update(local);
-            
             return 1;
         } catch (error) {
             throw error;
