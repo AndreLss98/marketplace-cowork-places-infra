@@ -80,6 +80,15 @@ router.get('/:id/infos', async (req, res, next) => {
 });
 
 /**
+ * Retorna todas as informacoes de um alugavel 
+ */
+router.delete('/:id/infos/:idInfo', async (req, res, next) => {
+    const { idInfo } = req.params;
+    const response = await Info.delete(idInfo);
+    res.status(200).send({ response });
+});
+
+/**
  * Retorna todas as caracteristicas de um alugavel
  */
 router.get('/:id/caracteristicas', async (req, res, next) => {
