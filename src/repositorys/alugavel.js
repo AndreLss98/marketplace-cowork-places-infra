@@ -149,8 +149,10 @@ module.exports = {
                     }
                 });
             }
-            local.alugavel_id = id;
-            await Local.update(local);
+            if (local) {
+                local.alugavel_id = id;
+                await Local.update(local);
+            }
             return 1;
         } catch (error) {
             throw error;
