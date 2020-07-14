@@ -338,10 +338,11 @@ router.post('/:id/dias-reservados/validate', async (req, res, next) => {
 
 router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, observacao } = req.body;
     if (!status) return res.status(400).send({ error: "Status is required" });
-
-    const response = await Alugavel.update(id, { status });
+    let update = { status };
+    if (observacao) update.observacao = observacao;
+    const response = await Alugavel.update(id, update);
 
     return res.status(200).send({ response });
 });
