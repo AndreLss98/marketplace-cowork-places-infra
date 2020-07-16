@@ -16,6 +16,6 @@ module.exports = {
         return await db(TABLE).update({ valor }).where({ alugavel_id, caracteristica_id });
     },
     async getAllCaracteristicas(alugavel_id) {
-        return await db(TABLE).where({ alugavel_id });
+        return await db(TABLE).where({ alugavel_id }).orderBy('caracteristica_id');;
     }
 }
