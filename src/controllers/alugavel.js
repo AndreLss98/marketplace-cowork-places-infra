@@ -16,6 +16,7 @@ const AlugavelCaracteristica = require('./../repositorys/alugavel_caracteristica
 const authMiddleware = require('./../middlewares/auth');
 const paginationMiddleware = require('./../middlewares/pagination');
 
+const PAYPAL = require('./../shared/paypal');
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
 const constants = require('./../shared/constants');
@@ -23,8 +24,6 @@ const constants = require('./../shared/constants');
 async function validateDates(idAlugavel, dataEntrada) {
     let dataSaida = (await DiasReservados.getLastDateOfRent(idAlugavel)).data_saida;
     dataSaida = new Date(dataSaida);
-    console.log("Data saida: ", dataSaida);
-    console.log("Data entrada: ", dataEntrada);
     return dataEntrada <= dataSaida;
 }
 
@@ -130,11 +129,11 @@ router.post('/', authMiddleware(), async (req, res, next) => {
     if (!imagens || imagens.length === 0) return res.status(400).send({ error: "Images is required" });
     if (!documentos || documentos.length === 0) return res.status(400).send({ error: "Documents is required" });
 
-    const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local);
-    await AlugavelImagem.relacionar(alugavel.id, imagens);
-    await Documentos.relacionar(alugavel.id, documentos);
-
     try {
+        const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local);
+        await AlugavelImagem.relacionar(alugavel.id, imagens);
+        await Documentos.relacionar(alugavel.id, documentos);
+        
         return res.status(200).send(alugavel);
     } catch(error) {
         return res.status(400).send({ error });
@@ -349,10 +348,22 @@ router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next)
     const { id } = req.params;
     const { status, observacao } = req.body;
     if (!status) return res.status(400).send({ error: "Status is required" });
+    
+    const alugavel = await Alugavel.getById(id);
+    if (!alugavel) return res.status(400).send({ error: "Rentable not found" });
+
+    if (status === constants.ALUGAVEL_STATUS.APPROVED && !alugavel.paypal_id) {
+        try {
+            const img = await AlugavelImagem.getOneByAlugavelId(alugavel.id);
+            await PAYPAL.createProduct(alugavel, img.url);
+        } catch (error) {
+            return res.status(400).send({ error: "Error on save product in paypal api" });
+        }
+    }
+
     let update = { status };
     if (observacao) update.observacao = observacao;
     const response = await Alugavel.update(id, update);
-
     return res.status(200).send({ response });
 });
 

@@ -1,4 +1,3 @@
-const axios = require('axios');
 const router = require('express').Router();
 
 const authMiddleware = require('./../middlewares/auth');
@@ -29,90 +28,11 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
     } catch (error) {
         return res.status(400).send({ error: "Failed to reserve" });
     }
-
-    delete aluguel.authorization_id;
-    delete aluguel.cancellation_id;
-
-    await axios({
-        method: 'post',
-        url: 'https://appws.picpay.com/ecommerce/public/payments',
-        data: {
-            referenceId: aluguel.id,
-            callbackUrl: "https://spotted-br.com/alugueis/checkout/callback",
-            returnUrl: "https://placeet.com",
-            value: aluguel.valor,
-            buyer: {
-                firstName: user.nome,
-                lastName: user.sobrenome,
-                document: user.cpf,
-                email: user.email,
-                phone: user.numero_1
-            }
-        },
-        headers: {
-            "Content-Type": "application/json",
-            "x-picpay-token": process.env.PIC_PAY_TOKEN,
-            "accept-encoding": 'gzip,deflate,br'
-        }
-    }).then(async (response) => {
-        return res.status(200).send(response.data);
-    }).catch((error) => {
-        return res.status(400).send(error);
-    });
-});
-
-router.post('/checkout/callback', async (req, res, next) => {
-    const { referenceId, authorizationId } = req.body;
-    const url = `https://appws.picpay.com/ecommerce/public/payments/${referenceId}/status`;
-    await axios({
-        method: 'get',
-        url,
-        headers: {
-            "Content-Type": "application/json",
-            "x-picpay-token": process.env.PIC_PAY_TOKEN,
-            "accept-encoding": 'gzip,deflate,br'
-        }
-    }).then(async (response) => {
-        console.log('Response: ', response.data);
-        const info = {
-            status: response.data.status,
-        }
-        if (authorizationId) info.authorization_id = authorizationId
-        const result = await Aluguel.update(referenceId, info);
-        return res.status(200).send({ result });
-    }).catch(error => {
-        return res.status(400).send({ error });
-    });
 });
 
 router.post('/cancel/:id', async (req, res, next) => {
     const { id } = req.params;
-    const aluguel = await Aluguel.getAllByAlugavelId(id);
 
-    const dataAtual = new Date();
-    const dataCriaco = new Date(aluguel.data_criacao);
-
-    if (dataAtual.getTime() - dataCriaco.getTime() > 24) {
-        return res.status(401).send({ error: "Não é mais permitido cancelar o pedido" });
-    }
-
-    const data = aluguel.authorization_id ? { authorizationId: aluguel.authorization_id } : {};
-
-    await axios({
-        method: 'post',
-        url: `https://appws.picpay.com/ecommerce/public/payments/${aluguel.id}/cancellations`,
-        data,
-        headers: {
-            "Content-Type": "application/json",
-            "x-picpay-token": process.env.PIC_PAY_TOKEN,
-            "accept-encoding": 'gzip,deflate,br'
-        }
-    }).then(async (response) => {
-        const result = await Aluguel.update(aluguel.id, { cancellation_id: response.data.cancellationId });
-        return res.status(200).send({ result });
-    }).catch(error => {
-        return res.status(400).send({ error });
-    });
 });
 
 router.put('/:id', authMiddleware(), async (req, res, next) => {

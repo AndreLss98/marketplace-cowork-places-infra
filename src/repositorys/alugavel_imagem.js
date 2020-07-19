@@ -17,5 +17,8 @@ module.exports = {
     },
     async getAllByAlugavelId(alugavel_id) {
         return await db(TABLE).where({ alugavel_id });
+    },
+    async getOneByAlugavelId(alugavel_id) {
+        return await db(TABLE).where({ alugavel_id }).limit(1).first();
     }
 }
