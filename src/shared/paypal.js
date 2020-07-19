@@ -90,7 +90,9 @@ module.exports = {
         let authorization;
         try {
             authorization = await getAccessToken();
+            console.log('Token: ', authorization);
         } catch(error) {
+            console.log('Erro no token: ', error);
             throw error;
         }
 
@@ -104,7 +106,7 @@ module.exports = {
             data: {
                 product_id: product.paypal_id,
                 name: `Reserva de ${product.titulo}`,
-                status: PAYPAL_PLAN_STATUS.CREATED,
+                status: PAYPAL_PLAN_STATUS.ACTIVE,
                 billing_cycles: [
                     {
                         frequency: {
@@ -116,7 +118,7 @@ module.exports = {
                         total_cycles: qtd_month,
                         pricing_scheme: {
                             fixed_price: {
-                                value: value.toSring(),
+                                value: value/qtd_month,
                                 currency_code: "BRL"
                             }
                         }
@@ -131,7 +133,7 @@ module.exports = {
         }).then(response => {
             return response.data;
         }).catch(error => {
-            return error.data;
+            throw error.data;
         });
     }
 }

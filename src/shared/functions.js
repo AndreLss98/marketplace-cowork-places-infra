@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const sendGrid = require('@sendgrid/mail');
 
@@ -27,5 +28,11 @@ module.exports = {
     },
     async sendEmail(to, from, subject, text) {
         return await sendGrid.send({to, from, subject, text});
+    },
+    totalMonths(firstDate, lastDate) {
+        lastDate = moment(lastDate);
+        firstDate = moment(firstDate);
+
+        return lastDate.diff(firstDate, 'month'); // moment considers a month with 31 days
     }
 }
