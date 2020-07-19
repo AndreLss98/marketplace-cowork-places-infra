@@ -212,6 +212,17 @@ router.post('/email', async(req, res, next) => {
     return res.status(200).send({ response: "Email already registered" })
 });
 
+router.post('/validar-email', async (req, res, next) => {
+    const { token } = req.body;
+
+    const usuario = await Usuario.getBySearchKey({ email_token: token });
+
+    if (!usuario) return res.status(400).send({ error: "Invalid token" });
+
+    const response = await Usuario.update(usuario.id, { email_validado: true });
+    return res.status(200).send({ response });
+});
+
 router.get('/favoritos', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
     const favoritosIds = await Favoritos.getAllByUserId(user.id);
@@ -304,17 +315,6 @@ router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     delete user.refresh_token;
     delete user.expires_at;
     res.status(200).send(user);
-});
-
-router.post('/:id/validar-email', async (req, res, next) => {
-    const { token } = req.body;
-
-    const usuario = await Usuario.getBySearchKey({ email_token: token });
-
-    if (!usuario) return res.status(400).send({ error: "Invalid token" });
-
-    const response = await Usuario.update(usuario.id, { email_validado: true });
-    return res.status(200).send({ response });
 });
 
 router.put('/:id/validar-perfil', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
