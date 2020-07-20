@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: process.env.PROD_ENV })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
     .status(200)
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
@@ -51,7 +51,7 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     req.user.conta_bancaria = await ContaBancaria.getByUserId(req.user.id);
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: process.env.PROD_ENV })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
     .redirect(process.env.FRONT_END_URL);
 });
 
@@ -77,7 +77,7 @@ router.post('/refresh-token', async (req, res, next) => {
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: process.env.PROD_ENV })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: true })
     .status(200)
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
