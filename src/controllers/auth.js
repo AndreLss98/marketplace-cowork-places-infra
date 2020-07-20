@@ -52,7 +52,7 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
 
     res
     .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
-    .redirect('http://localhost:4200');
+    .redirect(process.env.FRONT_END_URL);
 });
 
 router.post('/refresh-token', async (req, res, next) => {
