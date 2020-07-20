@@ -48,12 +48,11 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     delete req.user.expires_at;
     delete req.user.email_token;
 
-    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
+    req.user.conta_bancaria = await ContaBancaria.getByUserId(req.user.id);
 
     res
     .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: false })
-    .status(200)
-    .send({ user: req.user, token: shared.generateToken({ id: req.user.id }), expires_at });
+    .redirect('http://localhost:4200');
 });
 
 router.post('/refresh-token', async (req, res, next) => {
