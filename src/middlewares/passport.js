@@ -16,7 +16,7 @@ passport.use(
     new googleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: 'http://localhost/auth/google/redirect'
+        callbackURL: 'https://spotted-br/auth/google/redirect'
     }, async (accessToken, refreshToken, profile, done) => {
         let googleUser = null;
         const user = await Usuario.getByEmail(profile.emails[0].value);
