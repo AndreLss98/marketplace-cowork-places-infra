@@ -1,11 +1,22 @@
 const db = require('./../configs/knex');
 
+const TipoCampo = require('./tipo_campo');
+
 const  TABLE = 'feedback';
 const  RELATION_TABLE = 'feedback_usuario';
 
+async function getMoreDetails(tipo_campo_id) {
+    return await TipoCampo.getOne(tipo_campo_id);
+}
+
 module.exports = {
     async getAll() {
-        return await db(TABLE);
+        let feedbacks = await db(TABLE);
+        for (let feedback of feedbacks) {
+            feedback.campo = await getMoreDetails(feedback.tipo_campo_id);
+            delete feedback.tipo_campo_id;
+        }
+        return feedbacks;
     },
     async getAllByUser(usuario_id) {
         const relations = await db(RELATION_TABLE).where({ usuario_id });
@@ -24,6 +35,11 @@ module.exports = {
         return await db(RELATION_TABLE).where({usuario_id});
     },
     async save(feedback) {
+        let { tipo_campo } = feedback;
+        delete feedback.tipo_campo;
+        tipo_campo = await TipoCampo.save(tipo_campo);
+        feedback.tipo_campo_id = tipo_campo.id;
+
         const id = await db(TABLE).insert(feedback).returning('id');
         return await db(TABLE).where({ id: id[0] }).first();
     },
