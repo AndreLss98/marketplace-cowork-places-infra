@@ -1,6 +1,7 @@
 const db = require('./../configs/knex');
 
 const TipoCampo = require('./tipo_campo');
+const { table } = require('./../configs/knex');
 
 const  TABLE = 'feedback';
 const  RELATION_TABLE = 'feedback_usuario';
@@ -45,5 +46,12 @@ module.exports = {
     },
     async update(id, feedback) {
         return await db(TABLE).update(feedback).where({ id });
+    },
+    async delete(id) {
+        const feedback = await db(TABLE).where({id}).first();
+        console.log(feedback);
+        await db(TABLE).where({ id }).delete();
+        return await TipoCampo.delete(feedback.tipo_campo_id);
+        return true;
     }
 }
