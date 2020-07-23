@@ -49,9 +49,7 @@ module.exports = {
     },
     async delete(id) {
         const feedback = await db(TABLE).where({id}).first();
-        console.log(feedback);
         await db(TABLE).where({ id }).delete();
         return await TipoCampo.delete(feedback.tipo_campo_id);
-        return true;
     }
 }
