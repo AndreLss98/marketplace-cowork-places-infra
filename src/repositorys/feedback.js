@@ -22,9 +22,13 @@ module.exports = {
     async getAllByUser(usuario_id) {
         const relations = await db(RELATION_TABLE).where({ usuario_id });
         const relationsIds = relations.map(relation => relation.feedback_id);
-        const feedbacks = await db(TABLE).whereIn('id', relationsIds);
+        const feedbacks = await db(TABLE);
         for (let feedback of feedbacks) {
-            feedback.resposta = relations.find(relation => relation.feedback_id === feedback.id).resposta;
+            if (relations.find(relation => relation.feedback_id === feedback.id)) {
+                feedback.resposta = relations.find(relation => relation.feedback_id === feedback.id).resposta;
+            }
+            feedback.campo = await getMoreDetails(feedback.tipo_campo_id);
+            delete feedback.tipo_campo_id;
         }
         return feedbacks;
     },
