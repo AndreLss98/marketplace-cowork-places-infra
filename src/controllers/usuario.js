@@ -33,10 +33,12 @@ router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Usuario.get
 
 router.put('/', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
-    const { numero_1, numero_2, cpf } = req.body;
-    
-    const response = await Usuario.update(user.id, { numero_1, numero_2, cpf });
+    const { numero_1, numero_2, cpf, data_nascimento } = req.body;
 
+    let info = { numero_1, numero_2, cpf };
+    if (data_nascimento) info.data_nascimento = data_nascimento;
+    
+    const response = await Usuario.update(user.id, info);
     return res.status(200).send({ response });
 });
 
