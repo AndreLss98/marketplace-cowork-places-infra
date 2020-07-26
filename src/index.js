@@ -34,7 +34,7 @@ app.use('/docs', express.static('public/tmp/uploads/doc'));
 require('./controllers')(app);
 
 app.get('/', (req, res, next) => {
-    res.status(200).send({ status: 'ok' });
+    res.status(200).send({ message: 'Placeet backend works fine' });
 });
 
 app.listen(app_port, () => {
