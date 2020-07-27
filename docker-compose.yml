@@ -23,7 +23,7 @@ services:
         container_name: placeet-server
         restart: always
         volumes:
-            - /etc/letsencrypt/live/placeet.com:/etc/nginx/certs
+            - ./nginx/certs:/etc/nginx/certs
         ports:
             - "80:80"
             - "443:443"
