@@ -24,6 +24,7 @@ services:
         restart: always
         volumes:
             - /etc/letsencrypt:/etc/nginx/letsencrypt
+            - /var/www/placeet:/var/www/placeet
         ports:
             - "80:80"
             - "443:443"
