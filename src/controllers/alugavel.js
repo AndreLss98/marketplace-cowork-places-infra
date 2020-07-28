@@ -7,6 +7,7 @@ const Info = require('./../repositorys/info');
 const Local = require('./../repositorys/local');
 const Duvida = require('./../repositorys/duvida');
 const Alugavel = require('../repositorys/alugavel');
+const Usuario = require('./../repositorys/usuario');
 const Caracteristica = require('./../repositorys/caracteristica');
 const Documentos = require('./../repositorys/documentos_alugavel');
 const AlugavelImagem = require('./../repositorys/alugavel_imagem');
@@ -351,11 +352,25 @@ router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next)
     
     const alugavel = await Alugavel.getById(id);
     if (!alugavel) return res.status(400).send({ error: "Rentable not found" });
-
+    
     if (status === constants.ALUGAVEL_STATUS.APPROVED && !alugavel.paypal_id) {
         try {
             const img = await AlugavelImagem.getOneByAlugavelId(alugavel.id);
             await PAYPAL.createProduct(alugavel, img.url);
+            const user = await Usuario.getById(alugavel.anunciante_id);
+
+
+            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Anúncio aprovado',
+            `Olá ${user.nome} ${user.sobrenome}
+
+            Seu anúncio foi aprovado, ele pode ser visualizado em:
+
+            https://placeet.com/spaces/${alugavel.id}
+            
+            Abraços,
+            
+            Equipe Placeet`);
+
         } catch (error) {
             return res.status(400).send({ error: "Error on save product in paypal api" });
         }
