@@ -9,11 +9,11 @@ module.exports = {
     },
     async save(local, id) {
         local.alugavel_id = id;
-        local.numero = parseFloat(local.numero);
+        local.numero = local.numero? parseFloat(local.numero) : null;
         return await db(TABLE).insert(local);
     },
     async update(local) {
-        local.numero = parseFloat(local.numero);
+        local.numero = local.numero? parseFloat(local.numero) : null;
         return await db(TABLE).update(local).where({ alugavel_id: local.alugavel_id });
     },
     async getAllBairros(filters = {}) {
