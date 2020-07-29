@@ -17,13 +17,16 @@ routes.get('/:id', async (req, res, next) => {
 });
 
 routes.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
-    const { nome, avancado } = req.body;
+    const { nome, avancado, icone } = req.body;
     if (!nome) return res.status(400).send({ error: "Name is required" });
-    if (avancado === undefined ||avancado === null) return res.status(400).send({ error: "Is Advanced?" });
+    if (avancado === undefined || avancado === null) return res.status(400).send({ error: "Is Advanced?" });
+    
+    let documento = { nome, avancado };
+    if (icone) documento.icone = icone;
 
     try {
-        const documento = await Documento.save({ nome, avancado });
-        return res.status(200).send(documento);
+        const response = await Documento.save(documento);
+        return res.status(200).send(response);
     } catch(error) {
         return res.status(400).send({ error: "Register failed", trace: error });
     }
