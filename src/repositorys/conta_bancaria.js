@@ -11,7 +11,8 @@ async function getBankName(account) {
 module.exports = {
     async getByUserId(usuario_id) {
         let account = await db(TABLE).where({ usuario_id }).first();
-        return await getBankName(account);
+        if (account) return await getBankName(account);
+        return account;
     },
     async save(conta_bancaria) {
         try {
