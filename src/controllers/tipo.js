@@ -24,6 +24,7 @@ router.get('/:id', async (req, res, next) => {
 router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     if (!req.body.nome) return res.status(400).send({ error: "Name is required" });
     if (!req.body.icone) return res.status(400).send({ error: "Icon is required" });
+    if (!req.body.descricao) return res.status(400).send({ error: "Description is required" });
 
     try {
         const tipo = await Tipo.save(req.body);
