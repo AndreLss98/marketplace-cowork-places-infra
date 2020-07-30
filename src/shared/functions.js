@@ -19,6 +19,9 @@ module.exports = {
     generateRefreshToken() {
         return crypto.randomBytes(30).toString('hex');
     },
+    generateRandoString() {
+        return Math.random().toString(36).substring(2, 15);
+    },
     verifyTokenExpires(expires_at) {
         return expires_at < Math.floor(Date.now() / 1000);
     },

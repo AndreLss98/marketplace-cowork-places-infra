@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const router = require('express').Router();
 
@@ -53,6 +54,32 @@ router.put('/alter-password', authMiddleware(), async (req, res, next) => {
     if (senha_antiga === senha_nova) return res.status(400).send({ error: "New password is equal to old password" });
     const response = await Usuario.update(id, { senha: senha_nova });
     return res.status(200).send({ response });
+});
+
+router.post('/recover-password', async (req, res, next) => {
+    const { email } = req.body;
+    const user = await Usuario.getByEmail(email);
+    if (!user) return res.status(404).send({ error: "Email not found" });
+    const senha = shared.generateRandoString();
+    const response = await Usuario.update(user.id, { senha });
+    try {
+        await shared.sendEmail(email, constants.NO_REPLY_EMAIL, 'Recuperar senha',
+        `Caro(a) ${user.nome} ${user.sobrenome},
+        
+        Você solicitou a recuperação de sua senha de acesso a nossa plataforma.
+        
+        Essa é a sua nova senha: ${senha}
+        
+        Utilize-a para logar e trocar por uma nova no menu "Login e Segurança".
+        
+        Abraços,
+        
+        Equipe Placeet`);
+        return res.status(200).send({ response });
+    } catch (error) {
+        console.log("Error: ", error);
+        return res.status(400).send({ error });
+    }
 });
 
 router.get('/duvidas', authMiddleware(), async (req, res, next) => {
