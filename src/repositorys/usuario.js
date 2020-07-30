@@ -31,6 +31,10 @@ module.exports = {
         }
     },
     async update(id, user) {
+        if (user.senha) {
+            const hash = await bcrypt.hash(user.senha, 10);
+            user.senha = hash;
+        }
         return await db(TABLE).update(user).where({ id });
     },
     async atualizarSaldo(id, deposito) {

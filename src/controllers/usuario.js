@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const router = require('express').Router();
 
 const multer = require('multer');
@@ -39,6 +40,18 @@ router.put('/', authMiddleware(), async (req, res, next) => {
     if (data_nascimento) info.data_nascimento = data_nascimento;
     
     const response = await Usuario.update(user.id, info);
+    return res.status(200).send({ response });
+});
+
+router.put('/alter-password', authMiddleware(), async (req, res, next) => {
+    const {id} = shared.decodeToken(req.headers.authorization);
+    const user = await Usuario.getById(id);
+    const { senha_antiga, senha_nova } = req.body;
+    if (!senha_antiga) return res.status(400).send({ error: "Old password is required" });
+    if (!await bcrypt.compare(senha_antiga, user.senha)) return res.status(400).send({ error: "Old password don't match" });
+    if (!senha_nova) return res.status(400).send({ error: "New password is required" });
+    if (senha_antiga === senha_nova) return res.status(400).send({ error: "New password is equal to old password" });
+    const response = await Usuario.update(id, { senha: senha_nova });
     return res.status(200).send({ response });
 });
 
