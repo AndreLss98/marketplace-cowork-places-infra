@@ -353,11 +353,11 @@ router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next)
     
     const alugavel = await Alugavel.getById(id);
     if (!alugavel) return res.status(400).send({ error: "Rentable not found" });
-    
+
     if (status === constants.ALUGAVEL_STATUS.APPROVED && !alugavel.paypal_id) {
         try {
             const img = await AlugavelImagem.getOneByAlugavelId(alugavel.id);
-            const { descricao } = await Tipo.getById(alugavel.tipo_id);
+            const { descricao } = await Tipo.getById(alugavel.tipo.id);
 
             await PAYPAL.createProduct(alugavel, img.url, descricao);
             const user = await Usuario.getById(alugavel.anunciante_id);
