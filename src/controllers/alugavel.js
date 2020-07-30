@@ -4,6 +4,7 @@ const multer = require('multer');
 const multerConfig = require('./../configs/multer');
 
 const Info = require('./../repositorys/info');
+const Tipo = require('./../repositorys/tipo');
 const Local = require('./../repositorys/local');
 const Duvida = require('./../repositorys/duvida');
 const Alugavel = require('../repositorys/alugavel');
@@ -356,9 +357,10 @@ router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next)
     if (status === constants.ALUGAVEL_STATUS.APPROVED && !alugavel.paypal_id) {
         try {
             const img = await AlugavelImagem.getOneByAlugavelId(alugavel.id);
-            await PAYPAL.createProduct(alugavel, img.url);
-            const user = await Usuario.getById(alugavel.anunciante_id);
+            const { descricao } = await Tipo.getById(alugavel.tipo_id);
 
+            await PAYPAL.createProduct(alugavel, img.url, descricao);
+            const user = await Usuario.getById(alugavel.anunciante_id);
 
             await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Anúncio aprovado',
             `Olá ${user.nome} ${user.sobrenome}

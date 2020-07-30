@@ -56,7 +56,7 @@ async function getAccessToken() {
 }
 
 module.exports = {
-    async createProduct(product, image_url) {
+    async createProduct(product, image_url, description) {
         let authorization;
         try {
             authorization = await getAccessToken();
@@ -72,7 +72,7 @@ module.exports = {
             },
             data: {
                 name: product.titulo,
-                description: product.descricao,
+                description,
                 type: PAYPAL_PRODUCT_TYPE.SERVICO,
                 category: PAYPAL_PRODUCT_CATEGORY.RENTAL_PROPERTY_MANAGEMENT,
                 image_url: `https://spotted-br.com/imgs/${image_url}`,
