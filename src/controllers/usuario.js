@@ -163,6 +163,32 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
+router.get('/resend-confirm-email', authMiddleware(), async (req, res, next) => {
+    const userToken = shared.decodeToken(req.headers.authorization);
+    const user = await Usuario.getById(userToken.id);
+    try {
+        await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Confirme seu email',
+        `Oi ${user.nome} ${user.sobrenome}
+
+        Bem vindo a Placeet.
+        
+        Clique no link abaixo para confirmar seu email:
+        
+        https://placeet.com/confirm-email?token=${user.email_token}
+        
+        Caso você não tenha criado conta na Placeet e está recebendo este email por engano, por favor ignore-o.
+        
+        Abraços,
+        
+        Equipe Placeet`);
+
+        return res.status(200).send({ response: "Ok" });
+    } catch (error) {
+        console.log("Error: ", error);
+        return res.status(400).send({ error });
+    }
+});
+
 router.post('/payment', authMiddleware(), async (req, res, next) => {
     const userToken = shared.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
