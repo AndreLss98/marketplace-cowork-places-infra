@@ -129,7 +129,7 @@ router.post('/', authMiddleware(), async (req, res, next) => {
     if (!tipo_id) return res.status(400).send({ error: "Type id is required" });
     if (!titulo) return res.status(400).send({ error: "Title is required" });
     if (!imagens || imagens.length === 0) return res.status(400).send({ error: "Images is required" });
-    if (!documentos || documentos.length === 0) return res.status(400).send({ error: "Documents is required" });
+    // if (!documentos || documentos.length === 0) return res.status(400).send({ error: "Documents is required" });
 
     try {
         const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local);
