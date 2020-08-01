@@ -24,7 +24,7 @@ module.exports = {
         const relationsIds = relations.map(relation => relation.feedback_id);
         const feedbacks = await db(TABLE);
         for (let feedback of feedbacks) {
-            if (relations.find(relation => relation.feedback_id === feedback.id)) {
+            if (!feedback.fixa && relations.find(relation => relation.feedback_id === feedback.id)) {
                 feedback.resposta = relations.find(relation => relation.feedback_id === feedback.id).resposta;
             }
             feedback.campo = await getMoreDetails(feedback.tipo_campo_id);
