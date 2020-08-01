@@ -33,6 +33,20 @@ router.post('/', async (req, res) => {
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
 
+router.delete('/logout', async (req, res, next) => {
+    let refresh_token = req.cookies.refresh_token;
+
+    if (!refresh_token) return res.status(400).send({ error: "Invalid refresh token" });
+    
+    const user = await Usuario.getBySearchKey({ refresh_token });
+
+    if (!user) return res.status(401).send({ error: "Invalid refresh token" });
+
+    const expires_at = new Date(2000, 0, 1).setHours(0, 0, 0) / 1000;
+    refresh_token = null;
+    await Usuario.update(user.id, { refresh_token, expires_at });
+});
+
 router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email']
 }));
