@@ -35,7 +35,12 @@ module.exports = {
     totalMonths(firstDate, lastDate) {
         lastDate = moment(lastDate);
         firstDate = moment(firstDate);
+        const qtd_months = lastDate.diff(firstDate, 'month'); // moment considers a month with 31 days
 
-        return lastDate.diff(firstDate, 'month'); // moment considers a month with 31 days
+        if (qtd_months > 0) {
+            const qtd_days = lastDate.diff(firstDate, 'days');
+            return Math.round(qtd_days / 31);
+        }
+        return qtd_months;
     }
 }

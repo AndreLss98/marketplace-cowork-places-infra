@@ -35,7 +35,7 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
 
     const qtd_months = shared.totalMonths(dias_reservados.data_entrada, dias_reservados.data_saida);
     
-    if (qtd_months > 0) {
+    if (qtd_months > 1) {
         try {
             const plan = await PayPal.createPlan(alugavel, qtd_months, aluguel.valor);
             await Aluguel.update(aluguel.id, { paypal_plan_id: plan.id });

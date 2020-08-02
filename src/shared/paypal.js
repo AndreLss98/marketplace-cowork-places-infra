@@ -90,7 +90,6 @@ module.exports = {
         let authorization;
         try {
             authorization = await getAccessToken();
-            console.log('Token: ', authorization);
         } catch(error) {
             console.log('Erro no token: ', error);
             throw error;
