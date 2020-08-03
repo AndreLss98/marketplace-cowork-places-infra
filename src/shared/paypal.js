@@ -5,6 +5,7 @@ const Alugavel = require('./../repositorys/alugavel');
 const url_oauth = 'https://api.sandbox.paypal.com/v1/oauth2/token';
 const url_plans = 'https://api.sandbox.paypal.com/v1/billing/plans';
 const url_products = 'https://api.sandbox.paypal.com/v1/catalogs/products';
+const url_subscription = 'https://api.sandbox.paypal.com/v1/billing/subscriptions';
 
 const PAYPAL_PRODUCT_TYPE = {
     SERVICO: 'SERVICE',
@@ -128,6 +129,28 @@ module.exports = {
                     setup_fee_failure_action: 'CANCEL',
                     payment_failure_threshold: 0
                 }
+            }
+        }).then(response => {
+            return response.data;
+        }).catch(error => {
+            throw error.data;
+        });
+    },
+    async showSubscriptionDetails(subscription_id) {
+        let authorization;
+        try {
+            authorization = await getAccessToken();
+        } catch(error) {
+            console.log('Erro no token: ', error);
+            throw error;
+        }
+
+        return await axios({
+            method: 'GET',
+            url: `${url_subscription}/${subscription_id}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authorization.access_token}`
             }
         }).then(response => {
             return response.data;

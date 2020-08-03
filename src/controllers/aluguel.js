@@ -70,9 +70,14 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     if (comentario !== undefined && comentario !== null) avaliacao.comentario = comentario;
     if (subscription_id) avaliacao.subscription_id = subscription_id;
     if (paypal_order_id) avaliacao.paypal_order_id = paypal_order_id;
-
-    const response = await Aluguel.update(id, avaliacao);
-    return res.status(200).send({ response });
+    
+    if (avaliacao.subscription_id) {
+        const details = await PayPal.showSubscriptionDetails(avaliacao.subscription_id);
+        avaliacao.subscription_status = details.status;
+        return res.status(200).send({ response: await Aluguel.update(id, avaliacao) });
+    } else {
+        return res.status(200).send({ response: await Aluguel.update(id, avaliacao) });
+    }
 });
 
 module.exports = app => app.use('/alugueis', router);
