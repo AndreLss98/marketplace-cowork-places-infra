@@ -13,6 +13,7 @@ const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
 const Perfil = require('./../repositorys/perfil');
 const Alugavel = require('./../repositorys/alugavel');
+const Aluguel = require('./../repositorys/aluguel');
 const Feedback = require('./../repositorys/feedback');
 const Documento = require('./../repositorys/documento');
 const Questionario = require('./../repositorys/questionario');
@@ -86,6 +87,11 @@ router.get('/duvidas', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization)
     const duvidas = await Duvida.getAllByUserId(user.id);
     return res.status(200).send(duvidas);
+});
+
+router.get('/alugueis', authMiddleware(), async (req, res, next) => {
+    const user = shared.decodeToken(req.headers.authorization);
+    return res.status(200).send(await Aluguel.getAllByUsuarioId(user.id));
 });
 
 router.post('/duvidas', authMiddleware(), async (req, res, next) => {

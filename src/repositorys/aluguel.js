@@ -1,9 +1,10 @@
 const db = require('./../configs/knex');
+const { table } = require('./../configs/knex');
 const TABLE = 'aluguel';
 
 module.exports = {
     async getAllByUsuarioId(usuario_id) {
-        return await db(TABLE).where({ usuario_id });
+        return await db(TABLE).innerJoin('dias_reservados', 'dias_reservados.aluguel_id', `${TABLE}.id`).where(`${TABLE}.usuario_id`, usuario_id);
     },
     async getAllByAlugavelId(alugavel_id) {
         return await db(TABLE).where({ alugavel_id });
