@@ -116,11 +116,11 @@ router.post('/', authMiddleware(), async (req, res, next) => {
     const {
         caracteristicas,
         infos, local, anunciante_id,
-        tipo_id, descricao, valor, titulo,
+        tipo_id, descricao, valor, valor_mes, titulo,
         proprietario, taxa, imagens, documentos
     } = req.body;
 
-    let tempAlugavel = { anunciante_id, tipo_id, descricao, valor, titulo };
+    let tempAlugavel = { anunciante_id, tipo_id, descricao, valor, valor_mes, titulo };
     if (proprietario) tempAlugavel.proprietario = proprietario;
     if (taxa) tempAlugavel.taxa = taxa;
 
