@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     const user = await Usuario.getByEmail(email);
 
     if (!user) return res.status(404).send({ error: "User not found" });
-    if (user && !user.senha) return res.status(401).send({ error: "User by Google Oauth" });
+    if (user && !user.senha) return res.status(405).send({ error: "User by Google Oauth" });
     if (!await bcrypt.compare(senha, user.senha)) return res.status(400).send({ error: "Invalid password" });
 
     const expires_at = shared.generateExpirationTime();
