@@ -21,5 +21,11 @@ module.exports = {
             this.select('id').from('alugavel').where({ status: ALUGAVEL_STATUS.APPROVED });
         }).groupBy('bairro').orderBy('bairro', 'asc');
         return await db.select('bairro').from(TABLE).groupBy('bairro').orderBy('bairro', 'asc');
+    },
+    async getAllCidades(filters = {}) {
+        if (filters.used) return await db.select('cidade').from(TABLE).whereIn('alugavel_id', function() {
+            this.select('id').from('alugavel').where({ status: ALUGAVEL_STATUS.APPROVED });
+        }).groupBy('cidade').orderBy('cidade', 'asc');
+        return await db.select('cidade').from(TABLE).groupBy('cidade').orderBy('cidade', 'asc');
     }
 }

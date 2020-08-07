@@ -12,11 +12,12 @@ const Documentos = require('./documentos_alugavel');
 const AlugavelCaracteristica = require('./alugavel_caracteristica');
 
 async function createQuery(filters = {}) {
-    const { limit, minValue, maxValue, bairro, minArea, maxArea } = filters;
+    const { limit, minValue, maxValue, bairro, cidade, minArea, maxArea } = filters;
     delete filters.limit;
     delete filters.minValue;
     delete filters.maxValue;
     delete filters.bairro;
+    delete filters.cidade;
     delete filters.minArea;
     delete filters.maxArea;
 
@@ -32,8 +33,9 @@ async function createQuery(filters = {}) {
         }
     }
 
-    if (bairro) {
-        query = query.select(`${TABLE}.*`).innerJoin('local', `${TABLE}.id`, `local.alugavel_id`).where('bairro', 'like', `%${bairro}%`);
+    if (bairro || cidade) {
+        console.log(cidade);
+        query = query.select(`${TABLE}.*`).innerJoin('local', `${TABLE}.id`, `local.alugavel_id`).where(bairro? 'bairro': 'cidade', 'like', `%${bairro || cidade}%`);
     }
 
     if (minArea || maxArea) {
