@@ -120,8 +120,10 @@ router.put('/duvidas/:id', authMiddleware(), async (req, res, next) => {
 
 router.post('/create', async (req, res, next) => {
     const teste = await Usuario.getByEmail(req.body.email);
+    const teste_cpf = await Usuario.getByCpf(req.body.cpf);
 
     if (teste) return res.status(400).send({ error: "Email already used!" });
+    if (teste_cpf) return res.status(400).send({ error: "CPF already used!" });
     if (!req.body.senha) return res.status(400).send({ error: "Invalid object!" });
     if (!req.body.numero_1) return res.status(400).send({ error: "Invalid object!" });
 
@@ -165,6 +167,7 @@ router.post('/create', async (req, res, next) => {
         .status(200)
         .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
     } catch (err) {
+        console.log("Error: ", err);
         return res.status(400).send({ error: "Registrarion Failed!" });
     }
 });

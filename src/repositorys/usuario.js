@@ -12,6 +12,9 @@ module.exports = {
     async getByEmail(email) {
         return await db(TABLE).where({ email }).first();
     },
+    async getByCpf(cpf) {
+        return await db(TABLE).where({ cpf }).first();
+    },
     async getByGoogleId(google_id) {
         return await db(TABLE).where({ google_id }).first();
     },
