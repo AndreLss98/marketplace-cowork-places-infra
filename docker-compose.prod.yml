@@ -46,4 +46,3 @@ services:
         restart: always
         volumes:
             - /etc/letsencrypt:/etc/nginx/letsencrypt
-            - /var/www/placeet-homolog:/var/www/placeet-homolog
