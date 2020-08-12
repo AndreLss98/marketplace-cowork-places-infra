@@ -122,7 +122,7 @@ router.post('/create', async (req, res, next) => {
     const teste = await Usuario.getByEmail(req.body.email);
     const teste_cpf = await Usuario.getByCpf(req.body.cpf);
 
-    if (teste) return res.status(400).send({ error: "Email already used!" , item : 'EMAIL'});
+    if (teste) return res.status(400).send({ error: "Email already used!" , item : 'Email'});
     if (teste_cpf) return res.status(400).send({ error: "CPF already used!" , item: 'CPF' });
     if (!req.body.senha) return res.status(400).send({ error: "Invalid object!" });
     if (!req.body.numero_1) return res.status(400).send({ error: "Invalid object!" });
