@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+    db-homolog:
+        image: postgres
+        container_name: placeet-db-homolog
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: ${DB_PASSWORD_HOMOLOG}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        volumes:
+            - ./db_homolog:/var/lib/postgresql/data
+    api-homolog:
+        build:
+            context: "./"
+            dockerfile: Dockerfile-prod
+        container_name: placeet-api-homolog
+        restart: always
+        environment:
+            - ENV=homolog
+        volumes:
+            - .:/usr/app
+        depends_on:
+            - db-homolog
+    server-homolog:
+        build:
+            context: "./nginx/"
+            dockerfile: Dockerfile-homolog
+        container_name: placeet-server-homolog
+        hostname: placeet-server-homolog
+        restart: always
+        volumes:
+            - /etc/letsencrypt:/etc/nginx/letsencrypt
+            - /var/www/placeet-homolog:/var/www/placeet-homolog
+        ports:
+            - "8082:80"
+            - "8444:443"
+        depends_on:
+            - api-homolog
+    nginx-proxy:
+        build:
+            context: "./nginx/"
+            dockerfile: Dockerfile-proxy
+        container_name: nginx-proxy
+        network_mode: host
+        restart: always
+        volumes:
+            - /etc/letsencrypt:/etc/nginx/letsencrypt
+            - /var/www/placeet-homolog:/var/www/placeet-homolog

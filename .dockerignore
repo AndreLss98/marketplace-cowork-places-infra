@@ -1,2 +1,5 @@
 node_modules/
+
 db/
+db_dev/
+db_homolog/

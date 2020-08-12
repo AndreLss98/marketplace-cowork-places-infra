@@ -11,22 +11,39 @@ services:
         volumes:
             - ./db:/var/lib/postgresql/data
     api:
-        build: "./"
+        build:
+            context: "./"
+            dockerfile: Dockerfile-prod
         container_name: placeet-api
         restart: always
+        environment:
+            - ENV=prod
         volumes:
             - .:/usr/app
         depends_on:
             - db
     nginx:
-        build: "./nginx/"
+        build:
+            context: "./nginx/"
+            dockerfile: Dockerfile-prod
         container_name: placeet-server
+        hostname: placeet-server
         restart: always
         volumes:
             - /etc/letsencrypt:/etc/nginx/letsencrypt
             - /var/www/placeet:/var/www/placeet
         ports:
-            - "80:80"
-            - "443:443"
+            - "8081:80"
+            - "8443:443"
         depends_on:
             - api
+    nginx-proxy:
+        build:
+            context: "./nginx/"
+            dockerfile: Dockerfile-proxy
+        container_name: nginx-proxy
+        network_mode: host
+        restart: always
+        volumes:
+            - /etc/letsencrypt:/etc/nginx/letsencrypt
+            - /var/www/placeet-homolog:/var/www/placeet-homolog

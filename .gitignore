@@ -1,7 +1,11 @@
 .env
 
 db/
+db_dev/
+db_homolog/
+
 node_modules/
+
 public/tmp/uploads/md/
 public/tmp/uploads/img/
 public/tmp/uploads/doc/
