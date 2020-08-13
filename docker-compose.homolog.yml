@@ -31,7 +31,7 @@ services:
         restart: always
         volumes:
             - /etc/letsencrypt:/etc/nginx/letsencrypt
-            - /var/www/placeet-homolog:/var/www/placeet-homolog
+            - /var/www/homolog-placeet:/var/www/homolog-placeet
         ports:
             - "8082:80"
         depends_on:
