@@ -10,10 +10,12 @@ const app_port = process.env.PORT || 3000;
 
 const whitelist = [
     'https://placeet.com',
+    'https://homolog.placeet.com',
     'http://localhost:4200',
     'http://placeet.com.br',
     'https://appws.picpay.com',
     'https://backend.placeet.com',
+    'https://homolog.backend.placeet.com',
     'https://api.sandbox.paypal.com',
 ];
 
