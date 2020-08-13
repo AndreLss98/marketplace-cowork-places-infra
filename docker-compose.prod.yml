@@ -36,12 +36,3 @@ services:
             - "8081:80"
         depends_on:
             - api
-    nginx-proxy:
-        build:
-            context: "./nginx/"
-            dockerfile: Dockerfile-proxy
-        container_name: nginx-proxy
-        network_mode: host
-        restart: always
-        volumes:
-            - /etc/letsencrypt:/etc/nginx/letsencrypt
