@@ -34,7 +34,6 @@ services:
             - /var/www/placeet:/var/www/placeet
         ports:
             - "8081:80"
-            - "8443:443"
         depends_on:
             - api
     nginx-proxy:

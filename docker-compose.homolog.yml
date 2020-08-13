@@ -34,7 +34,6 @@ services:
             - /var/www/placeet-homolog:/var/www/placeet-homolog
         ports:
             - "8082:80"
-            - "8444:443"
         depends_on:
             - api-homolog
     nginx-proxy:
