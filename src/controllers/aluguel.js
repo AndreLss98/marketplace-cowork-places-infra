@@ -80,4 +80,12 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     }
 });
 
+router.get('/:id', authMiddleware(), async (req, res, next) => {
+    const { id } = req.params;
+    const aluguel =  await Aluguel.getDetailsByAluguelId(id);
+    
+    if(!aluguel) return res.status(404).send({ error: "Not Found!" });
+    return res.status(200).send(aluguel);
+})
+
 module.exports = app => app.use('/alugueis', router);
