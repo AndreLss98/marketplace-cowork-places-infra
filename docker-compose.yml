@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+    db-dev:
+        image: postgres
+        container_name: placeet-db-dev
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: ${DB_PASSWORD_DEV}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        ports:
+            - "5432:5432"
+    api-dev:
+        build:
+            context: "./"
+            dockerfile: Dockerfile-dev
+        container_name: placeet-api-dev
+        restart: always
+        environment:
+            - ENV=dev
+        volumes:
+            - .:/usr/app
+        depends_on:
+            - db-dev
+    server-dev:
+        build:
+            context: "./nginx/"
+            dockerfile: Dockerfile-dev
+        container_name: placeet-server-dev
+        hostname: placeet-server-dev
+        restart: always
+        ports:
+            - "80:80"
+        depends_on:
+            - api-dev
