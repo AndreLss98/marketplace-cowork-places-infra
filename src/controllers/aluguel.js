@@ -55,7 +55,7 @@ router.delete('/cancel/:id', async (req, res, next) => {
     const { id } = req.params;
     const aluguel = await Aluguel.getById(id);
     if (!aluguel) return res.status(400).send({ error: "Not found" });
-
+    //Todo: Cancelar o aluguel na paypal
     const response = await Alugavel.update(aluguel.id, { status: ALUGUEL_STATUS.CANCELED });
 
     return res.status(200).send({ response });
