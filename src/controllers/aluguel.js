@@ -10,6 +10,8 @@ const PayPal = require('./../shared/paypal');
 
 const shared = require('./../shared/functions');
 
+const { ALUGUEL_STATUS } = require('./../shared/constants');
+
 router.post('/checkout', authMiddleware(), async (req, res, next) => {
     let tempAluguel = req.body;
 
@@ -49,9 +51,14 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
     }
 });
 
-router.post('/cancel/:id', async (req, res, next) => {
+router.delete('/cancel/:id', async (req, res, next) => {
     const { id } = req.params;
+    const aluguel = await Aluguel.getById(id);
+    if (!aluguel) return res.status(400).send({ error: "Not found" });
 
+    const response = await Alugavel.update(aluguel.id, { status: ALUGUEL_STATUS.CANCELED });
+
+    return res.status(200).send({ response });
 });
 
 router.put('/:id', authMiddleware(), async (req, res, next) => {

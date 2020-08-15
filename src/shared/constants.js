@@ -7,8 +7,15 @@ const ALUGAVEL_STATUS = {
     DISAPPROVED: 'disapproved'
 };
 
+const ALUGUEL_STATUS = {
+    CREATED: 'created',
+    ACTIVE: 'active',
+    CANCELED: 'canceled'
+};
+
 module.exports = {
     TAXA_ALUGAVEL,
     NO_REPLY_EMAIL,
-    ALUGAVEL_STATUS
+    ALUGAVEL_STATUS,
+    ALUGUEL_STATUS
 }
