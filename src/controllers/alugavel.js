@@ -90,7 +90,7 @@ router.get('/:id/infos', async (req, res, next) => {
 });
 
 /**
- * Retorna todas as informacoes de um alugavel 
+ * Deleta uma informacao adicional de um alugavel 
  */
 router.delete('/:id/infos/:idInfo', async (req, res, next) => {
     const { idInfo } = req.params;
