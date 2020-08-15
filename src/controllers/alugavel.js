@@ -81,7 +81,7 @@ router.get('/local/cidades', async (req, res, next) => {
 });
 
 /**
- * Retorna todas as informacoes de um alugavel 
+ * Retorna todas as informacoes adicionais de um alugavel 
  */
 router.get('/:id/infos', async (req, res, next) => {
     const { id } = req.params;
