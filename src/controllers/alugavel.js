@@ -196,7 +196,7 @@ router.post('/imagem', authMiddleware(), multer(multerConfig('img')).single('fil
 });
 
 /**
- * Deleta uma imagem
+ * Deleta uma imagem de um alugavel
  */
 router.delete('/:id/imagem/:imgId', authMiddleware(), async (req, res, next) => {
     let { imgId } = req.params;
