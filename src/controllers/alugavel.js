@@ -72,7 +72,7 @@ router.get('/local/bairros', async (req, res, next) => {
 });
 
 /**
- * Retorna todos bairros cadastrados
+ * Retorna todas cidades cadastrados
  */
 router.get('/local/cidades', async (req, res, next) => {
     let filters = req.query.filters? JSON.parse(req.query.filters) : {};
