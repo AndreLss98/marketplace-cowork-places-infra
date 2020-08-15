@@ -49,6 +49,9 @@ router.get('/usuario', async (req, res, next) => {
     return res.status(200).send(await Alugavel.getAll({anunciante_id: user.id}));
 });
 
+/**
+ * Retorna valor maximo da taxa de serviço
+ */
 router.get('/taxa', async (req, res, next) => {
     return res.status(200).send({ taxa: constants.TAXA_ALUGAVEL })
 });

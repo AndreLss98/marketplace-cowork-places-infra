@@ -4,7 +4,8 @@ const NO_REPLY_EMAIL = 'noreply@placeet.com';
 const ALUGAVEL_STATUS = {
     WAITING: 'waiting',
     APPROVED: 'approved',
-    DISAPPROVED: 'disapproved'
+    DISAPPROVED: 'disapproved',
+    REMOVED: 'removed'
 };
 
 const ALUGUEL_STATUS = {
