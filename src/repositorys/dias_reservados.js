@@ -19,5 +19,8 @@ module.exports = {
     },
     async getLastDateOfRent(alugavel_id) {
         return await db(TABLE).max('data_saida', { as: 'data_saida' }).where({ alugavel_id }).first();
+    },
+    async getByAluguelId(aluguel_id) {
+        return await db(TABLE).where({ aluguel_id }).first();
     }
 }

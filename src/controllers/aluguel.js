@@ -82,9 +82,33 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
 
 router.get('/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
-    const aluguel =  await Aluguel.getDetailsByAluguelId(id);
-    
+    let aluguel =  await Aluguel.getById(id);
     if(!aluguel) return res.status(404).send({ error: "Not Found!" });
+    
+    aluguel.alugavel = await Alugavel.getById(aluguel.alugavel_id);
+    aluguel.locatario = await Usuario.getById(aluguel.usuario_id);
+    aluguel.locador = await Usuario.getById(aluguel.alugavel.anunciante_id);
+    
+    delete aluguel.locatario.perfil_id;
+    delete aluguel.locatario.senha;
+    delete aluguel.locatario.saldo;
+    delete aluguel.locatario.google_id;
+    delete aluguel.locatario.refresh_token;
+    delete aluguel.locatario.expires_at;
+    delete aluguel.locatario.cadastro_validado;
+    delete aluguel.locatario.email_token;
+    delete aluguel.locatario.email_validado;
+
+    delete aluguel.locador.perfil_id;
+    delete aluguel.locador.senha;
+    delete aluguel.locador.saldo;
+    delete aluguel.locador.google_id;
+    delete aluguel.locador.refresh_token;
+    delete aluguel.locador.expires_at;
+    delete aluguel.locador.cadastro_validado;
+    delete aluguel.locador.email_token;
+    delete aluguel.locador.email_validado;
+    
     return res.status(200).send(aluguel);
 })
 

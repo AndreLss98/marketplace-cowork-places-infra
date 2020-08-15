@@ -1,20 +1,22 @@
 const db = require('./../configs/knex');
-const { table } = require('./../configs/knex');
 const TABLE = 'aluguel';
 
+const DiasReservados = require('./dias_reservados');
+
+async function getMoreDetails(aluguel) {
+    aluguel.dias_reservados = await DiasReservados.getByAluguelId(aluguel.id);
+    return aluguel;
+}
+
 module.exports = {
+    async getById(id) {
+        let aluguel = await db(TABLE).where({ id }).first();
+        return await getMoreDetails(aluguel);
+    },
     async getAllByUsuarioId(usuario_id) {
         return await db(TABLE)
-            .innerJoin('dias_reservados', 'dias_reservados.aluguel_id', `${TABLE}.id`).where(`${TABLE}.usuario_id`, usuario_id)
-
-    },
-    async getDetailsByAluguelId(aluguel_id){
-        return await db(TABLE)
-            .select(`${TABLE}.*`)
-            .select('dias_reservados.*')
-            .select('alugavel.anunciante_id')
             .innerJoin('dias_reservados', 'dias_reservados.aluguel_id', `${TABLE}.id`)
-            .innerJoin('alugavel', 'alugavel.id', `${TABLE}.alugavel_id`).where(`${TABLE}.id`, aluguel_id);
+            .where(`${TABLE}.usuario_id`, usuario_id);
     },
     async getAllByAlugavelId(alugavel_id) {
         return await db(TABLE).where({ alugavel_id });
