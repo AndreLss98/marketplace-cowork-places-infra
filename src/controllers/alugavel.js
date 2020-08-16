@@ -241,7 +241,7 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     }
 });
 
-router.put('/:id/availability', authMiddleware(), async (req, res, next) => {
+router.put('/:id/disponibilidade', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const { status } = req.body;
     if (!status) return res.status(400).send({ error: "Status is required" });
