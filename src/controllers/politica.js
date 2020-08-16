@@ -8,6 +8,7 @@ const authMiddleware = require('./../middlewares/auth');
 const Politica = require('./../repositorys/politicas');
 
 const perfis = require('./../shared/perfis');
+const auth = require('./../middlewares/auth');
 
 router.get('/', async (req, res, next) => {
     return res.status(200).send(await Politica.getAll());
@@ -42,6 +43,16 @@ router.put('/:id', authMiddleware([perfis.ADMIN]), multer(multerConfig('md')).si
     } catch(error) {
         return res.status(400).send({ error: "Failed to Update" });
     }
+});
+
+router.delete('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    const { id } = req.params;
+    const politica = await Politica.getById(id);
+    if(!politica) return res.status(404).send({ error: "Not found" });
+
+    const response = await Politica.delete(id);
+
+    return res.status(200).send({ response });
 });
 
 module.exports = app => app.use('/politicas', router);
