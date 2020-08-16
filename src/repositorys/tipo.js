@@ -29,5 +29,12 @@ module.exports = {
         } catch (error) {
             throw error;
         }
+    },
+    async delete(id) {
+        try {
+            return await db(TABLE).where({ id }).delete();
+        } catch (error) {
+            throw error
+        }
     }
 }

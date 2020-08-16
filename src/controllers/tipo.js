@@ -47,4 +47,16 @@ router.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     }
 });
 
+router.delete('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    const { id } = req.params;
+    const tipo = await Tipo.getById(id);
+    if (!tipo) return res.status(404).send({ error: "Not Found" });
+    try {
+        const response = await Tipo.delete(id);
+        return res.status(200).send({ response });
+    } catch (error) {
+        return res.status(400).send({ error });
+    }
+});
+
 module.exports = app => app.use('/tipos', router);
