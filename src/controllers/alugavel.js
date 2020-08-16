@@ -22,6 +22,7 @@ const PAYPAL = require('./../shared/paypal');
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
 const constants = require('./../shared/constants');
+const { ALUGUEL_STATUS, ALUGAVEL_STATUS } = require('./../shared/constants');
 
 async function validateDates(idAlugavel, dataEntrada) {
     let dataSaida = (await DiasReservados.getLastDateOfRent(idAlugavel)).data_saida;
@@ -238,6 +239,21 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     } catch(err) {
         return res.status(400).send({ error: "Update failed" });
     }
+});
+
+router.put('/:id/availability', authMiddleware(), async (req, res, next) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!status) return res.status(400).send({ error: "Status is required" });
+    if (status !== ALUGAVEL_STATUS.WAITING && status !== ALUGAVEL_STATUS.REMOVED) return res.status(401).send({ error: "Action not authorized" });
+
+    const alugavel = await Alugavel.getById(id);
+    if (!alugavel) return res.status(404).send({ error: "Not found" });
+
+    //Todo: Adicionar regra de negocio relacionado ao alugueis ativos
+    const response = await Alugavel.update(alugavel.id, { status });
+
+    return res.status(200).send({ response });
 });
 
 /**
