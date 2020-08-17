@@ -395,14 +395,14 @@ router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
 });
 
 router.put('/:id/validar-perfil', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
-    const { cadastro_validado, observacao } = req.body;
+    const { status_cadastro, observacao } = req.body;
     const { id } = req.params;
-    if(cadastro_validado === undefined || cadastro_validado === null) return res.status(400).send({ error: "Validate is required" });
+    if(status_cadastro === undefined || status_cadastro === null) return res.status(400).send({ error: "Validate is required" });
 
-    let update = {cadastro_validado};
+    let update = { status_cadastro };
     if (observacao) update.observacao = observacao;
 
-    const response = await Usuario.update(id, { cadastro_validado, observacao });
+    const response = await Usuario.update(id, { status_cadastro, observacao });
     return res.status(200).send({ response });
 });
 

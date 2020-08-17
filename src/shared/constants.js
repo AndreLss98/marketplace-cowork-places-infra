@@ -1,6 +1,12 @@
 const TAXA_ALUGAVEL = 13;
 const NO_REPLY_EMAIL = 'noreply@placeet.com';
 
+const USUARIO_STATUS = {
+    WAITING: 'waiting',
+    APPROVED: 'approved',
+    DISAPPROVED: 'disapproved'
+};
+
 const ALUGAVEL_STATUS = {
     WAITING: 'waiting',
     APPROVED: 'approved',
@@ -17,6 +23,7 @@ const ALUGUEL_STATUS = {
 module.exports = {
     TAXA_ALUGAVEL,
     NO_REPLY_EMAIL,
-    ALUGAVEL_STATUS,
-    ALUGUEL_STATUS
+    USUARIO_STATUS,
+    ALUGUEL_STATUS,
+    ALUGAVEL_STATUS
 }
