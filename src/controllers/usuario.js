@@ -91,7 +91,42 @@ router.get('/duvidas', authMiddleware(), async (req, res, next) => {
 
 router.get('/alugueis', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
-    return res.status(200).send(await Aluguel.getAllByUsuarioId(user.id));
+    const { locacoes } = req.query;
+    if (locacoes) {
+        const alugueis = await Aluguel.getAllAlocacoesByUsuarioId(user.id);
+        for (let aluguel of alugueis) {
+            aluguel.alugavel = await Alugavel.getById(aluguel.alugavel_id);
+            aluguel.locatario = await Usuario.getById(aluguel.usuario_id);
+        
+            delete aluguel.locatario.perfil_id;
+            delete aluguel.locatario.senha;
+            delete aluguel.locatario.saldo;
+            delete aluguel.locatario.google_id;
+            delete aluguel.locatario.refresh_token;
+            delete aluguel.locatario.expires_at;
+            delete aluguel.locatario.cadastro_validado;
+            delete aluguel.locatario.email_token;
+            delete aluguel.locatario.email_validado;
+        }
+        return res.status(200).send(alugueis);
+    }
+    
+    const alugueis = await Aluguel.getAllByUsuarioId(user.id);
+    for (let aluguel of alugueis) {
+        aluguel.alugavel = await Alugavel.getById(aluguel.alugavel_id);
+        aluguel.locador = await Usuario.getById(aluguel.alugavel.anunciante_id);
+
+        delete aluguel.locador.perfil_id;
+        delete aluguel.locador.senha;
+        delete aluguel.locador.saldo;
+        delete aluguel.locador.google_id;
+        delete aluguel.locador.refresh_token;
+        delete aluguel.locador.expires_at;
+        delete aluguel.locador.cadastro_validado;
+        delete aluguel.locador.email_token;
+        delete aluguel.locador.email_validado;
+    }
+    return res.status(200).send(alugueis);
 });
 
 router.post('/duvidas', authMiddleware(), async (req, res, next) => {
