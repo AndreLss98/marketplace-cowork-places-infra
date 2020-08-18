@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
 
     res
     .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'none', secure: true })
-    .status(200)
+    .status(200)    
     .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
 });
 

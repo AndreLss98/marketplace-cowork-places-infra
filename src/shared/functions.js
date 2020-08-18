@@ -3,7 +3,7 @@ const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const sendGrid = require('@sendgrid/mail');
 
-const tokenDuration = 900;
+const tokenDuration = 86400;
 
 sendGrid.setApiKey(process.env.SENDGRID_TOKEN);
 
