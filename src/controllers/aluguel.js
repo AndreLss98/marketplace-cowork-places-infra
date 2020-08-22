@@ -8,8 +8,8 @@ const Alugavel = require('./../repositorys/alugavel');
 const DiasReservados = require('./../repositorys/dias_reservados');
 const PayPal = require('./../shared/paypal');
 
+const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
-
 const { ALUGUEL_STATUS } = require('./../shared/constants');
 
 router.post('/checkout', authMiddleware(), async (req, res, next) => {
@@ -87,7 +87,11 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     }
 });
 
-router.get('/:id', authMiddleware(), async (req, res, next) => {
+router.get('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    return res.status(200).send(await Aluguel.getAll());
+});
+
+router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
     let aluguel =  await Aluguel.getById(id);
     if(!aluguel) return res.status(404).send({ error: "Not Found!" });
@@ -117,6 +121,6 @@ router.get('/:id', authMiddleware(), async (req, res, next) => {
     delete aluguel.locador.email_validado;
     
     return res.status(200).send(aluguel);
-})
+});
 
 module.exports = app => app.use('/alugueis', router);

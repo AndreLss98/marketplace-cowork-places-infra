@@ -9,6 +9,13 @@ async function getMoreDetails(aluguel) {
 }
 
 module.exports = {
+    async getAll() {
+        let alugueis = await db(TABLE);
+        for (let aluguel of alugueis) {
+            aluguel = await getMoreDetails(aluguel);
+        }
+        return alugueis;
+    },
     async getById(id) {
         let aluguel = await db(TABLE).where({ id }).first();
         if (!aluguel) return aluguel;
