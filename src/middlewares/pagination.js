@@ -25,7 +25,8 @@ module.exports = (query, filters = {}) => {
                 limit 
             }
         }
-
+        
+        response.total_itens = response.results.length;
         response.results = response.results.slice(startIndex, endIndex);
 
         res.result = response;
