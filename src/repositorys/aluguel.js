@@ -9,8 +9,8 @@ async function getMoreDetails(aluguel) {
 }
 
 module.exports = {
-    async getAll() {
-        let alugueis = await db(TABLE);
+    async getAll(filters = {}) {
+        let alugueis = await db(TABLE).where(filters);
         for (let aluguel of alugueis) {
             aluguel = await getMoreDetails(aluguel);
         }

@@ -22,7 +22,7 @@ module.exports = (query, filters = {}) => {
         if (startIndex > 0) {
             response.previous = {
                 page: page - 1,
-                limit
+                limit 
             }
         }
 

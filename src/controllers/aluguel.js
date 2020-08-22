@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const authMiddleware = require('./../middlewares/auth');
+const paginationMiddleware = require('./../middlewares/pagination');
 
 const Aluguel = require('./../repositorys/aluguel');
 const Usuario = require('./../repositorys/usuario');
@@ -87,8 +88,8 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     }
 });
 
-router.get('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
-    return res.status(200).send(await Aluguel.getAll());
+router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Aluguel.getAll), async (req, res, next) => {
+    return res.status(200).send(res.result);
 });
 
 router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
