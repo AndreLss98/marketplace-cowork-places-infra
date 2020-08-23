@@ -64,18 +64,7 @@ router.post('/recover-password', async (req, res, next) => {
     const senha = shared.generateRandoString();
     const response = await Usuario.update(user.id, { senha });
     try {
-        await shared.sendEmail(email, constants.NO_REPLY_EMAIL, 'Recuperar senha',
-        `Caro(a) ${user.nome} ${user.sobrenome},
-        
-        Você solicitou a recuperação de sua senha de acesso a nossa plataforma.
-        
-        Essa é a sua nova senha: ${senha}
-        
-        Utilize-a para logar e trocar por uma nova no menu "Login e Segurança".
-        
-        Abraços,
-        
-        Equipe Placeet`);
+        await shared.sendEmail(email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.RESET_PASSWORD.subject, constants.EMAILS_USUARIO.RESET_PASSWORD.email(user));
         return res.status(200).send({ response });
     } catch (error) {
         console.log("Error: ", error);
@@ -177,20 +166,7 @@ router.post('/create', async (req, res, next) => {
         delete user.expires_at;
 
         try {
-            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Confirme seu email',
-            `Oi ${user.nome} ${user.sobrenome}
-
-            Bem vindo a Placeet.
-            
-            Clique no link abaixo para confirmar seu email:
-            
-            https://placeet.com/confirm-email?token=${user.email_token}
-            
-            Caso você não tenha criado conta na Placeet e está recebendo este email por engano, por favor ignore-o.
-            
-            Abraços,
-            
-            Equipe Placeet`);
+            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.SIGIN.subject, constants.EMAILS_USUARIO.SIGIN.email(user));
         } catch (error) {
             console.log("Error: ", error);
             // return res.status(400).send({ error });
@@ -436,6 +412,19 @@ router.put('/:id/validar-perfil', authMiddleware([perfis.ADMIN]), async (req, re
 
     let update = { status_cadastro };
     if (observacao) update.observacao = observacao;
+
+    const user = await Usuario.getById(id);
+    if(!user) return res.status(404).send({ error: "User not found" });
+
+    try {
+        if (status_cadastro === constants.USUARIO_STATUS.DISAPPROVED) {
+            shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.ON_REPROVED.subject, constants.EMAILS_USUARIO.ON_REPROVED.email(user, observacao));
+        } else if (status_cadastro === constants.USUARIO_STATUS.APPROVED) {
+            shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.ON_APPROVED.subject, constants.EMAILS_USUARIO.ON_APPROVED.email(user));
+        }
+    } catch (error) {
+        console.log("Error: ", error);
+    }
 
     const response = await Usuario.update(id, { status_cadastro, observacao });
     return res.status(200).send({ response });
