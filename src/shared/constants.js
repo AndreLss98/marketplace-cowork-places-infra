@@ -94,11 +94,49 @@ const EMAILS_USUARIO = {
     }
 }
 
+const EMAILS_ANUNCIO = {
+    ON_APPROVED: {
+        email: (user, anuncio) => {
+            return`
+            Olá ${user.nome} ${user.sobrenome}
+
+            Seu anúncio foi aprovado, ele pode ser visualizado em:
+
+            https://placeet.com/spaces/${anuncio.id}
+            
+            Abraços,
+            
+            Equipe Placeet`
+        },
+        subject: "Anúncio aprovado"
+    },
+    ON_REPROVED: {
+        email: (user, anuncio, comment) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            Motivos: ${comment}
+
+            Ele pode ser visualizado em:
+
+            https://placeet.com/spaces/${anuncio.id}
+            
+            Para mais informaçoes entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Anúncio reprovado"
+    }
+}
+
 module.exports = {
     TAXA_ALUGAVEL,
     NO_REPLY_EMAIL,
     USUARIO_STATUS,
     ALUGUEL_STATUS,
     ALUGAVEL_STATUS,
-    EMAILS_USUARIO
+    EMAILS_USUARIO,
+    EMAILS_ANUNCIO
 }

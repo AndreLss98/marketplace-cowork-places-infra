@@ -388,24 +388,22 @@ router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next)
             const { descricao } = await Tipo.getById(alugavel.tipo.id);
 
             await PAYPAL.createProduct(alugavel, img.url, descricao);
-            const user = await Usuario.getById(alugavel.anunciante_id);
-
-            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Anúncio aprovado',
-            `Olá ${user.nome} ${user.sobrenome}
-
-            Seu anúncio foi aprovado, ele pode ser visualizado em:
-
-            https://placeet.com/spaces/${alugavel.id}
-            
-            Abraços,
-            
-            Equipe Placeet`);
-
         } catch (error) {
             return res.status(400).send({ error: "Error on save product in paypal api" });
         }
     }
-
+    
+    try {
+        const user = await Usuario.getById(alugavel.anunciante_id);
+        if (status === constants.ALUGAVEL_STATUS.APPROVED) {
+            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_ANUNCIO.ON_APPROVED.subject, constants.EMAILS_ANUNCIO.ON_APPROVED.email(user, alugavel));
+        } else if (status === constants.ALUGAVEL_STATUS.DISAPPROVED) {
+            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_ANUNCIO.ON_REPROVED.subject, constants.EMAILS_ANUNCIO.ON_REPROVED.email(user, alugavel, observacao));
+        }
+    } catch (error) {
+        console.log(error);
+    }
+    
     let update = { status };
     if (observacao) update.observacao = observacao;
     const response = await Alugavel.update(id, update);
