@@ -67,7 +67,7 @@ async function getMoreInfo(alugavel) {
     alugavel.local = await Local.getByAlugavelId(alugavel.id);
     alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
     alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
-    alugavel.anunciante_avaliado = (await Usuario.getById(alugavel.anunciante_id)).cadastro_validado;
+    alugavel.anunciante_avaliado = (await Usuario.getById(alugavel.anunciante_id)).status_cadastro;
 
     let caracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
     for (let caracteristica of caracteristicas) {
