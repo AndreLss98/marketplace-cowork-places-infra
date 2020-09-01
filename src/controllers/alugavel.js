@@ -228,7 +228,8 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
         taxa, imagens, documentos
     } = req.body;
 
-    const update = {tipo_id, descricao, valor, titulo, taxa};
+    const status = 'waiting'
+    const update = {tipo_id, descricao, valor, titulo, taxa, status};
     
     await Documentos.relacionar(id, documentos);
     await AlugavelImagem.relacionar(id, imagens);
