@@ -161,5 +161,8 @@ module.exports = {
         } catch (error) {
             throw error;
         }
+    },
+    async getLocadorByAlugavel(id) {
+        return await db.select('anunciante_id').from(TABLE).where({ id }).first();
     }
 }

@@ -12,6 +12,8 @@ const PayPal = require('./../shared/paypal');
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
 const { ALUGUEL_STATUS } = require('./../shared/constants');
+const constants = require('./../shared/constants');
+const { use } = require('passport');
 
 router.post('/checkout', authMiddleware(), async (req, res, next) => {
     let tempAluguel = req.body;
@@ -54,16 +56,34 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
 
 router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
-    const { comentario } = req.body;
+    const { comentario, canceled_by_locador } = req.body;
+    
+    if (canceled_by_locador === undefined || canceled_by_locador === null) return res.status(400).send({ error: "Who canceled this reservation?" });
+
     const aluguel = await Aluguel.getById(id);
     if (!aluguel) return res.status(400).send({ error: "Not found" });
 
-    let update = { status: ALUGUEL_STATUS.CANCELED };
+    let update = { status: ALUGUEL_STATUS.CANCELED, canceled_by_locador };
     if (comentario) update.comentario = comentario;
+
+    const espaco = await Alugavel.getById(aluguel.alugavel_id);
+    const locador = await Usuario.getById(espaco.anunciante_id);
+    const locatario = await Usuario.getById(aluguel.usuario_id);
+
+    try {
+        if (canceled_by_locador) {
+            shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locador, espaco));
+            shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.email(locatario, locador, espaco, comentario));
+        } else {
+            shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locatario, espaco));
+            shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.email(locador, locatario, espaco, comentario));
+        }
+    } catch (error) {
+        console.log(error);
+    }
     
     //Todo: Cancelar o aluguel na paypal
     const response = await Aluguel.update(aluguel.id, update);
-
     return res.status(200).send({ response });
 });
 

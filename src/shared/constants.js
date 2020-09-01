@@ -115,11 +115,9 @@ const EMAILS_ANUNCIO = {
             return `
             Olá ${user.nome} ${user.sobrenome}
 
+            Seu anúncio foi reprovado.
+
             Motivos: ${comment}
-
-            Ele pode ser visualizado em:
-
-            https://placeet.com/spaces/${anuncio.id}
             
             Para mais informaçoes entre em contato conosco diretamente pela plataforma.
             
@@ -131,6 +129,74 @@ const EMAILS_ANUNCIO = {
     }
 }
 
+const  EMAILS_CONTRATO = {
+    ON_ACCEPT: {
+        email: (user, espaco, dias_reservados) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            Sua reserva do espaço: ${espaco.titulo} foi aceita pelo locador.
+            Ela inicia ${dias_reservados.data_entrada} e finaliza ${dias_reservados.data_saida}
+
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Reserva aceita"
+    },
+    ON_REFUSED: {
+        email: (user, espaco) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            Sua reserva do espaço: ${espaco.titulo} foi cancelada.
+
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Reserva cancelada"
+    },
+    ON_REFUSED_FOR_LOCADOR: {
+        email: (user, locatario, espaco, comment) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            O locatário ${locatario.nome} ${locatario.sobrenome} cancelou a reserva do seu espaço ${espaco.titulo}.
+
+            Motivos: ${comment}
+
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Reserva cancelada"
+    },
+    ON_REFUSED_FOR_LOCATARIO: {
+        email: (user, locador, espaco, comment) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            O locador ${locador.nome} ${locador.sobrenome} cancelou a reserva do espaço ${espaco.titulo}.
+
+            Motivos: ${comment}
+
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Reserva cancelada"
+    }
+}
+
 module.exports = {
     TAXA_ALUGAVEL,
     NO_REPLY_EMAIL,
@@ -138,5 +204,6 @@ module.exports = {
     ALUGUEL_STATUS,
     ALUGAVEL_STATUS,
     EMAILS_USUARIO,
-    EMAILS_ANUNCIO
+    EMAILS_ANUNCIO,
+    EMAILS_CONTRATO
 }
