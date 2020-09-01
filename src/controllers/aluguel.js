@@ -52,12 +52,18 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
     }
 });
 
-router.delete('/cancel/:id', async (req, res, next) => {
+router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
+    const { comentario } = req.body;
     const aluguel = await Aluguel.getById(id);
     if (!aluguel) return res.status(400).send({ error: "Not found" });
+
+    let update = { status: ALUGUEL_STATUS.CANCELED };
+    if (comentario) update.comentario = comentario;
+    console.log(update);
     //Todo: Cancelar o aluguel na paypal
-    const response = await Alugavel.update(aluguel.id, { status: ALUGUEL_STATUS.CANCELED });
+
+    const response = await Aluguel.update(aluguel.id, update);
 
     return res.status(200).send({ response });
 });
