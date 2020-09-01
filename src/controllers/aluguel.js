@@ -67,6 +67,16 @@ router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
     return res.status(200).send({ response });
 });
 
+router.post('/accept/:id', authMiddleware(), async (req, res, next) => {
+    const { id } = req.params;
+    const aluguel = await Aluguel.getById(id);
+    if (!aluguel) return res.status(400).send({ error: "Not found" });
+
+    const response = await Aluguel.update(aluguel.id, { status: ALUGUEL_STATUS.ACTIVE });
+
+    return res.status(200).send({ response });
+});
+
 router.put('/:id', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const { nota, comentario, subscription_id, paypal_order_id } = req.body;
