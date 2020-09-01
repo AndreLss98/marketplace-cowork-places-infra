@@ -60,9 +60,8 @@ router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
 
     let update = { status: ALUGUEL_STATUS.CANCELED };
     if (comentario) update.comentario = comentario;
-    console.log(update);
+    
     //Todo: Cancelar o aluguel na paypal
-
     const response = await Aluguel.update(aluguel.id, update);
 
     return res.status(200).send({ response });
