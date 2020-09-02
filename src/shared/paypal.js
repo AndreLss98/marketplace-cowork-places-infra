@@ -1,11 +1,14 @@
 const axios = require('axios');
+const {
+    PAYPAL_CLIENT_ID,
+    PAYPAL_URL_OAUTH,
+    PAYPAL_URL_PLANS,
+    PAYPAL_URL_PRODUCTS,
+    PAYPAL_CLIENT_SECRET,
+    PAYPAL_URL_SUBSCRIPTION,
+} = process.env;
 
 const Alugavel = require('./../repositorys/alugavel');
-
-const url_oauth = 'https://api.sandbox.paypal.com/v1/oauth2/token';
-const url_plans = 'https://api.sandbox.paypal.com/v1/billing/plans';
-const url_products = 'https://api.sandbox.paypal.com/v1/catalogs/products';
-const url_subscription = 'https://api.sandbox.paypal.com/v1/billing/subscriptions';
 
 const PAYPAL_PRODUCT_TYPE = {
     SERVICO: 'SERVICE',
@@ -38,14 +41,14 @@ const PAYPAL_PLAN_TENURE_TYPES = {
 async function getAccessToken() {
     return await axios({
         method: 'POST',
-        url: url_oauth,
+        url: PAYPAL_URL_OAUTH,
         headers: {
             'Accept': 'application/json',
             'Accept-Language': 'en_US'
         },
         auth: {
-            username: `${process.env.PAYPAL_CLIENT_ID}`,
-            password: `${process.env.PAYPAL_CLIENT_SECRET}`
+            username: `${PAYPAL_CLIENT_ID}`,
+            password: `${PAYPAL_CLIENT_SECRET}`
         },
         data: "grant_type=client_credentials"
     }).then(response => {
@@ -66,7 +69,7 @@ module.exports = {
         }
         return await axios({
             method: 'POST',
-            url: url_products,
+            url: PAYPAL_URL_PRODUCTS,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authorization.access_token}`
@@ -98,7 +101,7 @@ module.exports = {
 
         return await axios({
             method: 'POST',
-            url: url_plans,
+            url: PAYPAL_URL_PLANS,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authorization.access_token}`
@@ -147,7 +150,7 @@ module.exports = {
 
         return await axios({
             method: 'GET',
-            url: `${url_subscription}/${subscription_id}`,
+            url: `${PAYPAL_URL_SUBSCRIPTION}/${subscription_id}`,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authorization.access_token}`
