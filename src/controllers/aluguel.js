@@ -66,11 +66,11 @@ router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
     let update = { status: ALUGUEL_STATUS.CANCELED, canceled_by_locador };
     if (comentario) update.comentario = comentario;
 
-    const espaco = await Alugavel.getById(aluguel.alugavel_id);
-    const locador = await Usuario.getById(espaco.anunciante_id);
-    const locatario = await Usuario.getById(aluguel.usuario_id);
-
     try {
+        const espaco = await Alugavel.getById(aluguel.alugavel_id);
+        const locador = await Usuario.getById(espaco.anunciante_id);
+        const locatario = await Usuario.getById(aluguel.usuario_id);
+
         if (canceled_by_locador) {
             shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locador, espaco));
             shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.email(locatario, locador, espaco, comentario));
@@ -94,8 +94,21 @@ router.post('/accept/:id', authMiddleware(), async (req, res, next) => {
     const aluguel = await Aluguel.getById(id);
     if (!aluguel) return res.status(400).send({ error: "Not found" });
 
-    const response = await Aluguel.update(aluguel.id, { status: ALUGUEL_STATUS.ACTIVE });
+    try {
+        const locatario = await Usuario.getById(aluguel.usuario_id);
+        const espaco = await Alugavel.getById(aluguel.alugavel_id);
+        const locador = await Usuario.getById(espaco.anunciante_id);
+        const dias_reservados = await DiasReservados.getByAluguelId(aluguel.id);
 
+        shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.email(locador, espaco, dias_reservados));
+        shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.email(locatario, espaco, dias_reservados));
+
+        shared.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.email(locador, locatario, espaco, dias_reservados));
+    } catch(error) {
+        console.log(error);
+    }
+
+    const response = await Aluguel.update(aluguel.id, { status: ALUGUEL_STATUS.ACTIVE });
     return res.status(200).send({ response });
 });
 

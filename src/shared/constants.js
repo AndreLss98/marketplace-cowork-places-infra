@@ -1,3 +1,5 @@
+const aluguel = require("../repositorys/aluguel");
+
 const TAXA_ALUGAVEL = 13;
 const NO_REPLY_EMAIL = 'noreply@placeet.com';
 
@@ -130,7 +132,7 @@ const EMAILS_ANUNCIO = {
 }
 
 const  EMAILS_CONTRATO = {
-    ON_ACCEPT: {
+    ON_ACCEPT_FOR_LOCATARIO: {
         email: (user, espaco, dias_reservados) => {
             return `
             Olá ${user.nome} ${user.sobrenome}
@@ -145,6 +147,32 @@ const  EMAILS_CONTRATO = {
             Equipe Placeet`;
         },
         subject: "Reserva aceita"
+    },
+    ON_ACCEPT_FOR_LOCADOR: {
+        email: (user, espaco, dias_reservados) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            Parabéns pelo contrato de reserva do espaço: ${espaco.titulo}. Ele inicia dia ${dias_reservados.data_entrada} e vai até o dia ${dias_reservados.data_saida}
+
+            Certifique-se de deixar o local em ordem para que tudo ocorra bem.
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Contrato realizado"
+    },
+    ON_ACCEPT_FOR_ADMIN: {
+        email: (locador, locatario, espaco, dias_reservados) => {
+            return `
+            Um contrato entre o locador ${locador.nome} ${locador.sobrenome} e o locatário ${locatario.nome} ${locatario.sobrenome} foi firmado com sucesso.
+            Valor do contrato: R$ ${aluguel.valor}
+            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}
+            Espaço: ${espaco.titulo}`;
+        },
+        subject: "Contrato realizado pela plataforma"
     },
     ON_REFUSED: {
         email: (user, espaco) => {
