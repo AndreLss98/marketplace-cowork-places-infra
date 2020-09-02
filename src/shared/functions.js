@@ -2,8 +2,11 @@ const crypto = require('crypto');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const sendGrid = require('@sendgrid/mail');
+const constants = require('./constants');
 
 const tokenDuration = 86400;
+
+const Usuario = require('./../repositorys/usuario');
 
 sendGrid.setApiKey(process.env.SENDGRID_TOKEN);
 
@@ -31,6 +34,16 @@ module.exports = {
     },
     async sendEmail(to, from, subject, text) {
         return await sendGrid.send({to, from, subject, text});
+    },
+    async sendEmailForAdmins(subject, text) {
+        const admins = await Usuario.getAllAdmin();
+        for (let admin of admins) {
+            try {
+                await sendGrid.send(admin.email, constants.NO_REPLY_EMAIL, subject, text);
+            } catch(error) {
+                console.log(error);
+            }
+        }
     },
     totalMonths(firstDate, lastDate) {
         lastDate = moment(lastDate);

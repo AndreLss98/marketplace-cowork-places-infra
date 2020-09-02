@@ -194,6 +194,17 @@ const  EMAILS_CONTRATO = {
             Equipe Placeet`;
         },
         subject: "Reserva cancelada"
+    },
+    ON_REFUSED_FOR_ADMIN: {
+        email: (locador, locatario, aluguel, comment, canceledByLocador) => {
+            return `
+            Contrato cancelado pelo ${canceledByLocador? "locador": "locatário"}
+
+            O contrato entre ${locador.nome} ${locador.sobrenome} e ${locatario.nome} ${locatario.sobrenome} no valor: R$ ${aluguel.valor}
+
+            Motivos: ${comment}`;
+        },
+        subject: "Contrato cancelado"
     }
 }
 

@@ -78,6 +78,8 @@ router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
             shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locatario, espaco));
             shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.email(locador, locatario, espaco, comentario));
         }
+
+        shared.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.email(locador, locatario, aluguel, comentario, canceled_by_locador));
     } catch (error) {
         console.log(error);
     }

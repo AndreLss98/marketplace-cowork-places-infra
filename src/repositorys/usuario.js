@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const db = require('./../configs/knex');
+const perfis = require('./../shared/perfis');
 const TABLE = 'usuario';
 
 module.exports = {
@@ -20,6 +21,9 @@ module.exports = {
     },
     async getBySearchKey(key) {
         return await db(TABLE).where(key).first();
+    },
+    async getAllAdmin() {
+        return await db(TABLE).where({ perfil_id: perfis.ADMIN });
     },
     async save(user) {
         if (user.senha) {
