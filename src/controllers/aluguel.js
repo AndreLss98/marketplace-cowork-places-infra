@@ -10,15 +10,15 @@ const DiasReservados = require('./../repositorys/dias_reservados');
 const PayPal = require('./../shared/paypal');
 
 const perfis = require('./../shared/perfis');
-const shared = require('./../shared/functions');
-const { ALUGUEL_STATUS } = require('./../shared/constants');
+const sharedFunctions = require('./../shared/functions');
 const constants = require('./../shared/constants');
-const { use } = require('passport');
+const { ALUGUEL_STATUS } = require('./../shared/constants');
+const aluguel = require('./../repositorys/aluguel');
 
 router.post('/checkout', authMiddleware(), async (req, res, next) => {
     let tempAluguel = req.body;
 
-    const userToken = shared.decodeToken(req.headers.authorization);
+    const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
     if (!user) res.status(400).send({ error: "User not found" });
     tempAluguel.usuario_id = user.id;
@@ -38,7 +38,7 @@ router.post('/checkout', authMiddleware(), async (req, res, next) => {
         return res.status(400).send({ error: "Failed to reserve" });
     }
 
-    const qtd_months = shared.totalMonths(dias_reservados.data_entrada, dias_reservados.data_saida);
+    const qtd_months = sharedFunctions.totalMonths(dias_reservados.data_entrada, dias_reservados.data_saida);
     
     if (qtd_months > 1) {
         try {
@@ -72,14 +72,14 @@ router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
         const locatario = await Usuario.getById(aluguel.usuario_id);
 
         if (canceled_by_locador) {
-            shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locador, espaco));
-            shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.email(locatario, locador, espaco, comentario));
+            sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locador, espaco));
+            sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.email(locatario, locador, espaco, comentario));
         } else {
-            shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locatario, espaco));
-            shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.email(locador, locatario, espaco, comentario));
+            sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locatario, espaco));
+            sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.email(locador, locatario, espaco, comentario));
         }
 
-        shared.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.email(locador, locatario, aluguel, comentario, canceled_by_locador));
+        sharedFunctions.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.email(locador, locatario, aluguel, comentario, canceled_by_locador));
     } catch (error) {
         console.log(error);
     }
@@ -100,10 +100,10 @@ router.post('/accept/:id', authMiddleware(), async (req, res, next) => {
         const locador = await Usuario.getById(espaco.anunciante_id);
         const dias_reservados = await DiasReservados.getByAluguelId(aluguel.id);
 
-        shared.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.email(locador, espaco, dias_reservados));
-        shared.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.email(locatario, espaco, dias_reservados));
+        sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.email(locador, espaco, dias_reservados));
+        sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.email(locatario, espaco, dias_reservados));
 
-        shared.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.email(locador, locatario, espaco, dias_reservados));
+        sharedFunctions.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.email(locador, locatario, espaco, dias_reservados));
     } catch(error) {
         console.log(error);
     }
@@ -122,6 +122,8 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     ) {
         return res.status(400).send({ error: "Note or Comment or subscription id or order id is required" });
     }
+    const aluguel = await Aluguel.getById(id);
+    if(!aluguel) return res.status(404).send({ error: "Not found" });
 
     let avaliacao = {};
     if (nota !== undefined && nota !== null) avaliacao.nota = nota;
@@ -132,10 +134,25 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     if (avaliacao.subscription_id) {
         const details = await PayPal.showSubscriptionDetails(avaliacao.subscription_id);
         avaliacao.subscription_status = details.status;
-        return res.status(200).send({ response: await Aluguel.update(id, avaliacao) });
-    } else {
-        return res.status(200).send({ response: await Aluguel.update(id, avaliacao) });
     }
+
+    if (subscription_id || paypal_order_id) {
+        try {
+            const locatario = await Usuario.getById(aluguel.usuario_id);
+            const espaco = await Alugavel.getById(aluguel.alugavel_id);
+            const locador = await Usuario.getById(espaco.anunciante_id);
+            const dias_reservados = await DiasReservados.getByAluguelId(aluguel.id);
+
+            sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCADOR.email(locador, espaco, aluguel, dias_reservados));
+            sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCATARIO.email(locatario, espaco, aluguel, dias_reservados));
+
+            sharedFunctions.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_PAYED_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_PAYED_FOR_ADMIN.email(espaco, aluguel, dias_reservados))
+        } catch(error) {
+            console.log(error);
+        }
+    }
+
+    return res.status(200).send({ response: await Aluguel.update(id, avaliacao) });
 });
 
 router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Aluguel.getAll), async (req, res, next) => {

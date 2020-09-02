@@ -132,6 +132,52 @@ const EMAILS_ANUNCIO = {
 }
 
 const  EMAILS_CONTRATO = {
+    ON_PAYED_FOR_LOCATARIO: {
+        email: (user, espaco, aluguel, dias_reservados) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            Recebemos o seu pagamento referente a reserva do espaço: ${espaco.titulo}
+            
+            Valor total do contrato: R$ ${aluguel.valor}
+            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}
+            
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Pagamento efetuado com sucesso"
+    },
+    ON_PAYED_FOR_LOCADOR: {
+        email: (user, espaco, aluguel, dias_reservados) => {
+            return `
+            Olá ${user.nome} ${user.sobrenome}
+
+            Você recebeu uma nova solicitação de reserva para o espaço: ${espaco}. Acesse seu painel de locações e revise os detalhes da solicitação.
+            
+            Valor total do contrato: R$ ${aluguel.valor}
+            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}
+            
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Nova solicitação de reserva"
+    },
+    ON_PAYED_FOR_ADMIN: {
+        email: (espaco, aluguel, dias_reservados) => {
+            return `
+            Uma nova solicitação de reserva foi paga para o espaço: ${espaco.titulo}.
+
+            Valor do contrato: R$ ${aluguel.valor}
+            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}`;
+        },
+        subject: "Nova reserva foi paga"
+    },
     ON_ACCEPT_FOR_LOCATARIO: {
         email: (user, espaco, dias_reservados) => {
             return `
