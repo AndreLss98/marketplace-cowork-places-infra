@@ -10,6 +10,10 @@ router.get('/', async (req, res, next) => {
     res.status(200).send(await Feedback.getAll());
 });
 
+router.get('/users', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
+    return res.status(200).send(await Feedback.getAllByUsers());
+});
+
 router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const feedback = await Feedback.save(req.body);
     res.status(200).send(feedback);

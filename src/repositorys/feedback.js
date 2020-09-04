@@ -1,7 +1,6 @@
 const db = require('./../configs/knex');
 
 const TipoCampo = require('./tipo_campo');
-const { table } = require('./../configs/knex');
 
 const  TABLE = 'feedback';
 const  RELATION_TABLE = 'feedback_usuario';
@@ -21,7 +20,6 @@ module.exports = {
     },
     async getAllByUser(usuario_id) {
         const relations = await db(RELATION_TABLE).where({ usuario_id });
-        const relationsIds = relations.map(relation => relation.feedback_id);
         const feedbacks = await db(TABLE);
         for (let feedback of feedbacks) {
             if (!feedback.fixa && relations.find(relation => relation.feedback_id === feedback.id)) {
@@ -31,6 +29,26 @@ module.exports = {
             delete feedback.tipo_campo_id;
         }
         return feedbacks;
+    },
+    async getAllByUsers() {
+        const users_ids = await db.select('usuario_id').from(RELATION_TABLE).groupBy('usuario_id');
+        let users = [];
+        for (let user of users_ids) {
+            let moreInfoOfUser = await db.column('nome', 'sobrenome', 'img_perfil').select().from('usuario').where({ id: user.usuario_id }).first();
+            user = { ...user, ...moreInfoOfUser };
+            const perguntas_temp = await db.column('feedback_id', 'resposta').select().from(RELATION_TABLE);
+            let perguntas = [];
+            for (let pergunta of perguntas_temp) {
+                let temp = await db.column('pergunta').select().from(TABLE).where({ id: pergunta.feedback_id }).first();
+                pergunta = { ...pergunta, ...temp };
+                delete pergunta.feedback_id;
+                perguntas.push(pergunta);
+            }
+            user.perguntas = perguntas;
+            users.push(user);
+        }
+        
+        return users;
     },
     async reply(usuario_id, feedbacks) {
         for (let feedback of feedbacks) {
