@@ -32,4 +32,4 @@ router.delete('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => 
     return res.status(200).send({ response });
 });
 
-module.exports = app => app.use('/feedback', router);
+module.exports = app => app.use('/feedbacks', router);

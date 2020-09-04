@@ -36,7 +36,7 @@ module.exports = {
         for (let user of users_ids) {
             let moreInfoOfUser = await db.column('nome', 'sobrenome', 'img_perfil').select().from('usuario').where({ id: user.usuario_id }).first();
             user = { ...user, ...moreInfoOfUser };
-            const perguntas_temp = await db.column('feedback_id', 'resposta').select().from(RELATION_TABLE);
+            const perguntas_temp = await db.column('feedback_id', 'resposta').select().from(RELATION_TABLE).where({ usuario_id: user.usuario_id });
             let perguntas = [];
             for (let pergunta of perguntas_temp) {
                 let temp = await db.column('pergunta').select().from(TABLE).where({ id: pergunta.feedback_id }).first();
