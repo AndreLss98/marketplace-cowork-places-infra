@@ -279,6 +279,48 @@ const  EMAILS_CONTRATO = {
             Motivos: ${comment}`;
         },
         subject: "Contrato cancelado"
+    },
+    ON_CHECKIN_FOR_LOCATARIO: {
+        email: (locatario, espaco) => {
+            return `
+            Olá ${locatario.nome} ${locatario.sobrenome}
+            
+            Você acabou de fazer checkin no local: ${espaco.titulo}
+            ${espaco.local.rua} - ${espaco.local.bairro} - ${espaco.local.numero? espaco.local.numero + ' - ' : ''} - ${espaco.local.cidade} - ${espaco.local.estado} - CEP: ${espaco.local.cep}
+            
+            Conte com nosso apoio durante todo o periodo do contrato, para mais informações do seu anfitrião entre na plataforma e visualize os detalhes do seu contato.
+            
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Checkin realizado"
+    },
+    ON_CHECKIN_FOR_LOCADOR: {
+        email: (locador, locatario, espaco) => {
+            return `
+            Olá ${locador.nome} ${locador.sobrenome}
+            
+            O locatário: ${locatario.nome} ${locatario.sobrenome} realizou o checkin do espaço: ${espaco.titulo}
+            
+            Por favor confirme a entrada na plataforma no seu painel de alocações na aba ativos.
+            
+            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
+        },
+        subject: "Checkin realizado no seu espaço"
+    },
+    ON_CHECKIN_FOR_ADMIN: {
+        email: (locador, locatario, espaco) => {
+            return `
+            O locatário: ${locatario.nome} ${locatario.sobrenome} realizou o checkin no espaço: ${espaco.titulo} do locador: ${locador.nome} ${locador.sobrenome}`;
+        },
+        subject: "Checkin realizado"
     }
 }
 

@@ -7,13 +7,12 @@ const Aluguel = require('./../repositorys/aluguel');
 const Usuario = require('./../repositorys/usuario');
 const Alugavel = require('./../repositorys/alugavel');
 const DiasReservados = require('./../repositorys/dias_reservados');
-const PayPal = require('./../shared/paypal');
 
+const PayPal = require('./../shared/paypal');
 const perfis = require('./../shared/perfis');
-const sharedFunctions = require('./../shared/functions');
 const constants = require('./../shared/constants');
+const sharedFunctions = require('./../shared/functions');
 const { ALUGUEL_STATUS } = require('./../shared/constants');
-const aluguel = require('./../repositorys/aluguel');
 
 router.post('/checkout', authMiddleware(), async (req, res, next) => {
     let tempAluguel = req.body;
@@ -148,6 +147,44 @@ router.post('/accept/:id', authMiddleware(), async (req, res, next) => {
     }
 
     const response = await Aluguel.update(aluguel.id, { status: ALUGUEL_STATUS.ACTIVE });
+    return res.status(200).send({ response });
+});
+
+router.put('/checkin/:id', authMiddleware(), async (req, res, next) => {
+    const { id } = req.params;
+    const aluguel = await Aluguel.getById(id);
+    if (!aluguel) return res.status(400).send({ error: "Not found" });
+    const update = { checkin: true };
+
+    try {
+        const locatario = await Usuario.getById(aluguel.usuario_id);
+        const espaco = await Alugavel.getById(aluguel.alugavel_id);
+        const locador = await Usuario.getById(espaco.anunciante_id);
+
+        // Envia email para o locador
+        sharedFunctions.sendEmail(
+            locatario.email,
+            constants.NO_REPLY_EMAIL,
+            constants.EMAILS_CONTRATO.ON_CHECKIN_FOR_LOCATARIO.subject,
+            constants.EMAILS_CONTRATO.ON_CHECKIN_FOR_LOCATARIO.email(locatario, espaco));
+
+        // Enviar email para o locatario
+        sharedFunctions.sendEmail(
+            locador.email,
+            constants.NO_REPLY_EMAIL,
+            constants.EMAILS_CONTRATO.ON_CHECKIN_FOR_LOCADOR.subject,
+            constants.EMAILS_CONTRATO.ON_CHECKIN_FOR_LOCADOR.email(locador, locatario, espaco));
+        
+        sharedFunctions.sendEmailForAdmins(
+            constants.NO_REPLY_EMAIL,
+            constants.EMAILS_CONTRATO.ON_CHECKIN_FOR_ADMIN.subject,
+            constants.EMAILS_CONTRATO.ON_CHECKIN_FOR_ADMIN.email(locador, locatario, espaco));
+
+    } catch (error) {
+        console.log(error);
+    }
+
+    const response = await Aluguel.update(aluguel.id, update);
     return res.status(200).send({ response });
 });
 
