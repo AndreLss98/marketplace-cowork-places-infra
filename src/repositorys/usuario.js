@@ -19,8 +19,8 @@ module.exports = {
     async getByGoogleId(google_id) {
         return await db(TABLE).where({ google_id }).first();
     },
-    async getBySearchKey(key) {
-        return await db(TABLE).where(key).first();
+    async getBySearchKey(search_key, keys = ['*']) {
+        return await db.column(keys).from(TABLE).where(search_key).first();
     },
     async getAllAdmin() {
         return await db(TABLE).where({ perfil_id: perfis.ADMIN });

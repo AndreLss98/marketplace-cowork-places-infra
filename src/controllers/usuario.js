@@ -174,7 +174,7 @@ router.post('/create', async (req, res, next) => {
         delete user.email_token;
         
         return res
-        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'none', secure: true })
+        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'none', secure: sharedFunctions.changeStringBoolToBool(process.env.HTTP_SECURE) })
         .status(200)
         .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
     } catch (err) {

@@ -55,5 +55,9 @@ module.exports = {
             return Math.round(qtd_days / 31);
         }
         return qtd_months;
+    },
+    changeStringBoolToBool(string_bool)  {
+        if (string_bool === 'false' || string_bool === 'FALSE') return false;
+        return true;
     }
 }
