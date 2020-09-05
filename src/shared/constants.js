@@ -1,4 +1,4 @@
-const aluguel = require("../repositorys/aluguel");
+const sharedFunctions = require('./functions');
 
 const TAXA_ALUGAVEL = 13;
 const NO_REPLY_EMAIL = 'noreply@placeet.com';
@@ -140,7 +140,7 @@ const  EMAILS_CONTRATO = {
             Recebemos o seu pagamento referente a reserva do espaço: ${espaco.titulo}
             
             Valor total do contrato: R$ ${aluguel.valor}
-            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}
+            Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
             
             Qualquer dúvida entre em contato conosco diretamente pela plataforma.
             
@@ -158,7 +158,7 @@ const  EMAILS_CONTRATO = {
             Você recebeu uma nova solicitação de reserva para o espaço: ${espaco}. Acesse seu painel de locações e revise os detalhes da solicitação.
             
             Valor total do contrato: R$ ${aluguel.valor}
-            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}
+            Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
             
             Qualquer dúvida entre em contato conosco diretamente pela plataforma.
             
@@ -174,7 +174,7 @@ const  EMAILS_CONTRATO = {
             Uma nova solicitação de reserva foi paga para o espaço: ${espaco.titulo}.
 
             Valor do contrato: R$ ${aluguel.valor}
-            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}`;
+            Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}`;
         },
         subject: "Nova reserva foi paga"
     },
@@ -184,7 +184,7 @@ const  EMAILS_CONTRATO = {
             Olá ${user.nome} ${user.sobrenome}
 
             Sua reserva do espaço: ${espaco.titulo} foi aceita pelo locador.
-            Ela inicia ${dias_reservados.data_entrada} e finaliza ${dias_reservados.data_saida}
+            Ela inicia ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} e finaliza ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
 
             Qualquer dúvida entre em contato conosco diretamente pela plataforma.
             
@@ -199,7 +199,7 @@ const  EMAILS_CONTRATO = {
             return `
             Olá ${user.nome} ${user.sobrenome}
 
-            Parabéns pelo contrato de reserva do espaço: ${espaco.titulo}. Ele inicia dia ${dias_reservados.data_entrada} e vai até o dia ${dias_reservados.data_saida}
+            Parabéns pelo contrato de reserva do espaço: ${espaco.titulo}. Ele inicia dia ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} e vai até o dia ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
 
             Certifique-se de deixar o local em ordem para que tudo ocorra bem.
             Qualquer dúvida entre em contato conosco diretamente pela plataforma.
@@ -211,11 +211,11 @@ const  EMAILS_CONTRATO = {
         subject: "Contrato realizado"
     },
     ON_ACCEPT_FOR_ADMIN: {
-        email: (locador, locatario, espaco, dias_reservados) => {
+        email: (locador, locatario, aluguel, espaco, dias_reservados) => {
             return `
             Um contrato entre o locador ${locador.nome} ${locador.sobrenome} e o locatário ${locatario.nome} ${locatario.sobrenome} foi firmado com sucesso.
             Valor do contrato: R$ ${aluguel.valor}
-            Período: ${dias_reservados.data_entrada} - ${dias_reservados.data_saida}
+            Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
             Espaço: ${espaco.titulo}`;
         },
         subject: "Contrato realizado pela plataforma"

@@ -72,14 +72,39 @@ router.post('/cancel/:id', authMiddleware(), async (req, res, next) => {
         const locatario = await Usuario.getById(aluguel.usuario_id);
 
         if (canceled_by_locador) {
-            sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locador, espaco));
-            sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.email(locatario, locador, espaco, comentario));
+            
+            // Envia email para o locador
+            sharedFunctions.sendEmail(
+                locador.email,
+                constants.NO_REPLY_EMAIL,
+                constants.EMAILS_CONTRATO.ON_REFUSED.subject,
+                constants.EMAILS_CONTRATO.ON_REFUSED.email(locador, espaco));
+
+            // Envia email para o locatario
+            sharedFunctions.sendEmail(
+                locatario.email,
+                constants.NO_REPLY_EMAIL,
+                constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.subject,
+                constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCATARIO.email(locatario, locador, espaco, comentario));
+
         } else {
-            sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED.subject, constants.EMAILS_CONTRATO.ON_REFUSED.email(locatario, espaco));
-            sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.email(locador, locatario, espaco, comentario));
+
+            // Envia email para o locatario
+            sharedFunctions.sendEmail(
+                locatario.email,
+                constants.NO_REPLY_EMAIL,
+                constants.EMAILS_CONTRATO.ON_REFUSED.subject,
+                constants.EMAILS_CONTRATO.ON_REFUSED.email(locatario, espaco));
+            
+            // Envia email para o locador
+            sharedFunctions.sendEmail(
+                locador.email,
+                constants.NO_REPLY_EMAIL,
+                constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.subject,
+                constants.EMAILS_CONTRATO.ON_REFUSED_FOR_LOCADOR.email(locador, locatario, espaco, comentario));
         }
 
-        sharedFunctions.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.email(locador, locatario, aluguel, comentario, canceled_by_locador));
+        sharedFunctions.sendEmailForAdmins(constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_REFUSED_FOR_ADMIN.email(locador, locatario, aluguel, comentario, canceled_by_locador));
     } catch (error) {
         console.log(error);
     }
@@ -100,10 +125,24 @@ router.post('/accept/:id', authMiddleware(), async (req, res, next) => {
         const locador = await Usuario.getById(espaco.anunciante_id);
         const dias_reservados = await DiasReservados.getByAluguelId(aluguel.id);
 
-        sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.email(locador, espaco, dias_reservados));
-        sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.email(locatario, espaco, dias_reservados));
-
-        sharedFunctions.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.email(locador, locatario, espaco, dias_reservados));
+        // Envia email para o locador
+        sharedFunctions.sendEmail(
+            locador.email,
+            constants.NO_REPLY_EMAIL,
+            constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.subject,
+            constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCADOR.email(locador, espaco, dias_reservados));
+        
+        // Enviar email para o locatario
+        sharedFunctions.sendEmail(
+            locatario.email,
+            constants.NO_REPLY_EMAIL,
+            constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.subject,
+            constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_LOCATARIO.email(locatario, espaco, dias_reservados));
+        
+        sharedFunctions.sendEmailForAdmins(
+            constants.NO_REPLY_EMAIL,
+            constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.subject,
+            constants.EMAILS_CONTRATO.ON_ACCEPT_FOR_ADMIN.email(locador, locatario, aluguel, espaco, dias_reservados));
     } catch(error) {
         console.log(error);
     }
@@ -143,10 +182,24 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
             const locador = await Usuario.getById(espaco.anunciante_id);
             const dias_reservados = await DiasReservados.getByAluguelId(aluguel.id);
 
-            sharedFunctions.sendEmail(locador.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCADOR.subject, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCADOR.email(locador, espaco, aluguel, dias_reservados));
-            sharedFunctions.sendEmail(locatario.email, constants.NO_REPLY_EMAIL, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCATARIO.subject, constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCATARIO.email(locatario, espaco, aluguel, dias_reservados));
+            // Envia email para o locador
+            sharedFunctions.sendEmail(
+                locador.email,
+                constants.NO_REPLY_EMAIL,
+                constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCADOR.subject,
+                constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCADOR.email(locador, espaco, aluguel, dias_reservados));
+            
+            // Enviar email para o locatario
+            sharedFunctions.sendEmail(
+                locatario.email,
+                constants.NO_REPLY_EMAIL,
+                constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCATARIO.subject,
+                constants.EMAILS_CONTRATO.ON_PAYED_FOR_LOCATARIO.email(locatario, espaco, aluguel, dias_reservados));
 
-            sharedFunctions.sendEmailForAdmins(constants.EMAILS_CONTRATO.ON_PAYED_FOR_ADMIN.subject, constants.EMAILS_CONTRATO.ON_PAYED_FOR_ADMIN.email(espaco, aluguel, dias_reservados))
+            sharedFunctions.sendEmailForAdmins(
+                constants.NO_REPLY_EMAIL,
+                constants.EMAILS_CONTRATO.ON_PAYED_FOR_ADMIN.subject,
+                constants.EMAILS_CONTRATO.ON_PAYED_FOR_ADMIN.email(espaco, aluguel, dias_reservados));
         } catch(error) {
             console.log(error);
         }
