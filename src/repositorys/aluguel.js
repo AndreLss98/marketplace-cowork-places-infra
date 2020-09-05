@@ -22,7 +22,7 @@ module.exports = {
         return await getMoreDetails(aluguel);
     },
     async getAllByUsuarioId(usuario_id) {
-        let alugueis = await db(TABLE).where({ usuario_id });
+        let alugueis = await db(TABLE).where({ usuario_id }).orderBy('data_criacao');
         for (let aluguel of alugueis) {
             aluguel = await getMoreDetails(aluguel);
         }
@@ -32,7 +32,7 @@ module.exports = {
         let alugueis = await db.select(`${TABLE}.*`).from(TABLE)
             .innerJoin('dias_reservados', 'dias_reservados.aluguel_id', `${TABLE}.id`)
             .innerJoin('alugavel', 'alugavel.id', `dias_reservados.alugavel_id`)
-            .where(`alugavel.anunciante_id`, anunciante_id);
+            .where(`alugavel.anunciante_id`, anunciante_id).orderBy(`dias_reservados.data_entrada`, 'desc');
             
         for (let aluguel of alugueis) {
             aluguel = await getMoreDetails(aluguel);

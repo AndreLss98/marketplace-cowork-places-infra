@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const router = require('express').Router();
 
@@ -12,8 +11,8 @@ const Usuario = require('../repositorys/usuario');
 const Duvida = require('./../repositorys/duvida');
 const Termos = require('./../repositorys/termos');
 const Perfil = require('./../repositorys/perfil');
-const Alugavel = require('./../repositorys/alugavel');
 const Aluguel = require('./../repositorys/aluguel');
+const Alugavel = require('./../repositorys/alugavel');
 const Feedback = require('./../repositorys/feedback');
 const Documento = require('./../repositorys/documento');
 const Questionario = require('./../repositorys/questionario');
@@ -21,8 +20,21 @@ const Favoritos = require('./../repositorys/usuario_favoritos');
 const ContaBancaria = require('./../repositorys/conta_bancaria');
 
 const perfis = require('./../shared/perfis');
-const shared = require('./../shared/functions');
 const constants = require('./../shared/constants');
+const sharedFunctions = require('./../shared/functions');
+
+function filterUserSensibleFields(user) {
+    delete user.senha;
+    delete user.saldo;
+    delete user.perfil_id;
+    delete user.google_id;
+    delete user.expires_at;
+    delete user.email_token;
+    delete user.refresh_token;
+    delete user.email_validado;
+    delete user.cadastro_validado;
+    return user;
+}
 
 router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Usuario.getAll), async (req, res, next) => {
     res.result.results.forEach(user => {
@@ -35,7 +47,7 @@ router.get('/', authMiddleware([perfis.ADMIN]), paginationMiddleware(Usuario.get
 });
 
 router.put('/', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { numero_1, numero_2, cpf, data_nascimento } = req.body;
 
     let info = { numero_1, numero_2, cpf };
@@ -46,7 +58,7 @@ router.put('/', authMiddleware(), async (req, res, next) => {
 });
 
 router.put('/alter-password', authMiddleware(), async (req, res, next) => {
-    const {id} = shared.decodeToken(req.headers.authorization);
+    const {id} = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(id);
     const { senha_antiga, senha_nova } = req.body;
     if (!senha_antiga) return res.status(400).send({ error: "Old password is required" });
@@ -61,10 +73,10 @@ router.post('/recover-password', async (req, res, next) => {
     const { email } = req.body;
     const user = await Usuario.getByEmail(email);
     if (!user) return res.status(404).send({ error: "Email not found" });
-    const senha = shared.generateRandoString();
+    const senha = sharedFunctions.generateRandoString();
     const response = await Usuario.update(user.id, { senha });
     try {
-        await shared.sendEmail(email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.RESET_PASSWORD.subject, constants.EMAILS_USUARIO.RESET_PASSWORD.email(user));
+        await sharedFunctions.sendEmail(email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.RESET_PASSWORD.subject, constants.EMAILS_USUARIO.RESET_PASSWORD.email(user));
         return res.status(200).send({ response });
     } catch (error) {
         console.log("Error: ", error);
@@ -73,53 +85,35 @@ router.post('/recover-password', async (req, res, next) => {
 });
 
 router.get('/duvidas', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization)
+    const user = sharedFunctions.decodeToken(req.headers.authorization)
     const duvidas = await Duvida.getAllByUserId(user.id);
     return res.status(200).send(duvidas);
 });
 
 router.get('/alugueis', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { locacoes } = req.query;
     if (locacoes) {
         const alugueis = await Aluguel.getAllAlocacoesByUsuarioId(user.id);
         for (let aluguel of alugueis) {
             aluguel.alugavel = await Alugavel.getById(aluguel.alugavel_id);
             aluguel.locatario = await Usuario.getById(aluguel.usuario_id);
-        
-            delete aluguel.locatario.perfil_id;
-            delete aluguel.locatario.senha;
-            delete aluguel.locatario.saldo;
-            delete aluguel.locatario.google_id;
-            delete aluguel.locatario.refresh_token;
-            delete aluguel.locatario.expires_at;
-            delete aluguel.locatario.cadastro_validado;
-            delete aluguel.locatario.email_token;
-            delete aluguel.locatario.email_validado;
+            aluguel.locatario = filterUserSensibleFields(aluguel.locatario);
+        }
+        return res.status(200).send(alugueis);
+    } else {
+        const alugueis = await Aluguel.getAllByUsuarioId(user.id);
+        for (let aluguel of alugueis) {
+            aluguel.alugavel = await Alugavel.getById(aluguel.alugavel_id);
+            aluguel.locador = await Usuario.getById(aluguel.alugavel.anunciante_id);
+            aluguel.locador = filterUserSensibleFields(aluguel.locador);
         }
         return res.status(200).send(alugueis);
     }
-    
-    const alugueis = await Aluguel.getAllByUsuarioId(user.id);
-    for (let aluguel of alugueis) {
-        aluguel.alugavel = await Alugavel.getById(aluguel.alugavel_id);
-        aluguel.locador = await Usuario.getById(aluguel.alugavel.anunciante_id);
-
-        delete aluguel.locador.perfil_id;
-        delete aluguel.locador.senha;
-        delete aluguel.locador.saldo;
-        delete aluguel.locador.google_id;
-        delete aluguel.locador.refresh_token;
-        delete aluguel.locador.expires_at;
-        delete aluguel.locador.cadastro_validado;
-        delete aluguel.locador.email_token;
-        delete aluguel.locador.email_validado;
-    }
-    return res.status(200).send(alugueis);
 });
 
 router.post('/duvidas', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     req.body.usuario_id = user.id;
     const { alugavel_id, pergunta } = req.body;
     if (!alugavel_id) return res.status(400).send({ error: "Rentable id is required" });
@@ -152,9 +146,9 @@ router.post('/create', async (req, res, next) => {
     if (!req.body.numero_1) return res.status(400).send({ error: "Invalid object!" });
 
     try {
-        req.body.email_token = shared.generateRefreshToken();
-        req.body.refresh_token = shared.generateRefreshToken();
-        req.body.expires_at = shared.generateExpirationTime();
+        req.body.email_token = sharedFunctions.generateRefreshToken();
+        req.body.refresh_token = sharedFunctions.generateRefreshToken();
+        req.body.expires_at = sharedFunctions.generateExpirationTime();
         
         const user = await Usuario.save(req.body);
         delete user.senha;
@@ -166,7 +160,7 @@ router.post('/create', async (req, res, next) => {
         delete user.expires_at;
 
         try {
-            await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.SIGIN.subject, constants.EMAILS_USUARIO.SIGIN.email(user));
+            await sharedFunctions.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.SIGIN.subject, constants.EMAILS_USUARIO.SIGIN.email(user));
         } catch (error) {
             console.log("Error: ", error);
             // return res.status(400).send({ error });
@@ -176,7 +170,7 @@ router.post('/create', async (req, res, next) => {
         return res
         .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'none', secure: sharedFunctions.changeStringBoolToBool(process.env.HTTP_SECURE) })
         .status(200)
-        .send({ user, token: shared.generateToken({ id: user.id }), expires_at });
+        .send({ user, token: sharedFunctions.generateToken({ id: user.id }), expires_at });
     } catch (err) {
         console.log("Error: ", err);
         return res.status(400).send({ error: "Registrarion Failed!" });
@@ -184,10 +178,10 @@ router.post('/create', async (req, res, next) => {
 });
 
 router.get('/resend-confirm-email', authMiddleware(), async (req, res, next) => {
-    const userToken = shared.decodeToken(req.headers.authorization);
+    const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
     try {
-        await shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Confirme seu email',
+        await sharedFunctions.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Confirme seu email',
         `Oi ${user.nome} ${user.sobrenome}
 
         Bem vindo a Placeet.
@@ -210,7 +204,7 @@ router.get('/resend-confirm-email', authMiddleware(), async (req, res, next) => 
 });
 
 router.post('/payment', authMiddleware(), async (req, res, next) => {
-    const userToken = shared.decodeToken(req.headers.authorization);
+    const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
 
     if (parseFloat(user.saldo) === 0) return res.status(400).send({ error: "Insufficient funds" });
@@ -219,7 +213,7 @@ router.post('/payment', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/conta-bancaria', authMiddleware(), async (req, res, next) => {
-    const userToken = shared.decodeToken(req.headers.authorization);
+    const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
     const { codigo_banco, agencia, numero, tipo } = req.body;
 
@@ -237,7 +231,7 @@ router.post('/conta-bancaria', authMiddleware(), async (req, res, next) => {
 });
 
 router.put('/conta-bancaria', authMiddleware(), async (req, res, next) => {
-    const userToken = shared.decodeToken(req.headers.authorization);
+    const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
     const { codigo_banco, agencia, numero, tipo } = req.body;
 
@@ -255,7 +249,7 @@ router.put('/conta-bancaria', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });
     await Usuario.update(user.id, { img_perfil: req.file.key });
 
@@ -263,7 +257,7 @@ router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single(
 });
 
 router.post('/assinar-termos', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { versao } = req.body;
     if (!versao) return res.status(400).send({ error: "Version of terms is required" });
     const response = await Termos.save(user.id, versao);
@@ -271,19 +265,19 @@ router.post('/assinar-termos', authMiddleware(), async (req, res, next) => {
 });
 
 router.put('/assinar-termos', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { versao } = req.body;
     const response = await Termos.update(user.id, versao);
     return res.status(200).send({ response });
 });
 
 router.get('/feedbacks', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     res.status(200).send(await Feedback.getAllByUser(user.id));
 });
 
 router.post('/feedbacks', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const feedback = await Feedback.reply(user.id, req.body);
     res.status(200).send(feedback);
 });
@@ -312,7 +306,7 @@ router.post('/validar-email', async (req, res, next) => {
 });
 
 router.get('/favoritos', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const favoritosIds = await Favoritos.getAllByUserId(user.id);
 
     let favoritos = [];
@@ -326,7 +320,7 @@ router.get('/favoritos', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/favoritos', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { alugavel_id } = req.body;
 
     try {
@@ -339,7 +333,7 @@ router.post('/favoritos', authMiddleware(), async (req, res, next) => {
 
 router.post('/check-admin', authMiddleware(), async (req, res, next) => {
 
-    const userToken = shared.decodeToken(req.headers.authorization);
+    const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
     const perfil = await Perfil.getById(user.perfil_id);
 
@@ -349,14 +343,14 @@ router.post('/check-admin', authMiddleware(), async (req, res, next) => {
 });
 
 router.get('/doc', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });
     const response = await Documento.getAllSendByUser(user.id);
     return res.status(200).send(response);
 });
 
 router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file'), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });
     const { documento_id } = req.body;
     if (!documento_id) return res.status(400).send({ error: "Document id is required" });
@@ -372,7 +366,7 @@ router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file')
 router.post('/perguntas', authMiddleware(), async (req, res, next) => {
     const { perguntas } = req.body;
     if (!perguntas || perguntas.length == 0) return res.status(400).send({ error: "Answers is required" });
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
 
     try {
         const response = await Questionario.answer(user.id, perguntas);
@@ -383,7 +377,7 @@ router.post('/perguntas', authMiddleware(), async (req, res, next) => {
 });
 
 router.delete('/favoritos/:alugavelId', authMiddleware(), async (req, res, next) => {
-    const user = shared.decodeToken(req.headers.authorization);
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { alugavelId } = req.params;
     const response = await Favoritos.desfavoritar(user.id, alugavelId);
     return res.status(200).send({response});
@@ -418,9 +412,9 @@ router.put('/:id/validar-perfil', authMiddleware([perfis.ADMIN]), async (req, re
 
     try {
         if (status_cadastro === constants.USUARIO_STATUS.DISAPPROVED) {
-            shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.ON_REPROVED.subject, constants.EMAILS_USUARIO.ON_REPROVED.email(user, observacao));
+            sharedFunctions.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.ON_REPROVED.subject, constants.EMAILS_USUARIO.ON_REPROVED.email(user, observacao));
         } else if (status_cadastro === constants.USUARIO_STATUS.APPROVED) {
-            shared.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.ON_APPROVED.subject, constants.EMAILS_USUARIO.ON_APPROVED.email(user));
+            sharedFunctions.sendEmail(user.email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.ON_APPROVED.subject, constants.EMAILS_USUARIO.ON_APPROVED.email(user));
         }
     } catch (error) {
         console.log("Error: ", error);
