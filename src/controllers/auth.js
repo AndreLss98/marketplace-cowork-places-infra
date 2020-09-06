@@ -73,7 +73,7 @@ router.post('/refresh-token', async (req, res, next) => {
     let refresh_token = req.cookies.refresh_token;
     if (!refresh_token) return res.status(400).send({ error: "Invalid refresh token" });
     const user = await Usuario.getBySearchKey({ refresh_token });
-    if (!user || sharedFunctions.verifyTokenExpires(user.expires_at)) return res.status(401).send({ error: "Invalid refresh token" });
+    if (!user || sharedFunctions.verifyTokenExpires(user.expires_at)) return res.status(400).send({ error: "Invalid refresh token" });
 
     refresh_token = sharedFunctions.generateRefreshToken();
     const expires_at = sharedFunctions.generateExpirationTime();
