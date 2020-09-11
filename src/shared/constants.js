@@ -28,7 +28,8 @@ const EMAILS_USUARIO = {
             return `
             Oi ${user.nome} ${user.sobrenome}
     
-            Bem vindo a Placeet.
+            Seja bem vindo a Placeet!
+            Uma plataforma inovadora capaz de integrar negócios e pessoas.
             
             Clique no link abaixo para confirmar seu email:
             
@@ -63,11 +64,13 @@ const EMAILS_USUARIO = {
             return `
             Olá ${user.nome} ${user.sobrenome}
             
-            Seu cadastro na plataforma Placeet foi aprovado com sucesso.
+            Seu cadastro em nossa plataforma foi aprovado com sucesso.
             
-            Aproveite e faça o seu primeiro contrato ou cadastre o seu espaço.
-            
-            Para mais informaçoes entre em contato conosco diretamente pela plataforma.
+            Explore nosso ambiente, faça seu primeiro contrato ou cadastre o seu espaço.
+
+            Temos a certeza que o(a) ajudaremos a encontrar o melhor negócio.
+
+            Para mais informações entre em contato conosco diretamente pela plataforma.
             Caso você não tenha criado conta na Placeet e está recebendo este email por engano, por favor ignore-o.
             
             Abraços,
@@ -81,11 +84,12 @@ const EMAILS_USUARIO = {
             return `
             Olá ${user.nome} ${user.sobrenome}
             
-            Seu cadastro na plataforma Placeet foi reprovado em nossa analise.
+            Seu cadastro na plataforma Placeet foi reprovado em nossa análise.
             
-            Motivos: ${comment}
+            O(s) motivo(s) que nos levaram a reprová-lo: ${comment}
             
-            Para mais informaçoes entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
+
             Caso você não tenha criado conta na Placeet e está recebendo este email por engano, por favor ignore-o.
             
             Abraços,
@@ -100,9 +104,11 @@ const EMAILS_ANUNCIO = {
     ON_APPROVED: {
         email: (user, anuncio) => {
             return`
-            Olá ${user.nome} ${user.sobrenome}
+            Oi ${user.nome} ${user.sobrenome}
 
-            Seu anúncio foi aprovado, ele pode ser visualizado em:
+            É bom tê-lo por aqui.
+
+            Seu anúncio foi aprovado e está disponível para visualização em:
 
             https://placeet.com/spaces/${anuncio.id}
             
@@ -117,11 +123,13 @@ const EMAILS_ANUNCIO = {
             return `
             Olá ${user.nome} ${user.sobrenome}
 
-            Seu anúncio foi reprovado.
+            Algumas informações/dados estão faltando em seu cadastro o que nos leva a reprovar seu(s) anúncio(s).
 
-            Motivos: ${comment}
+            O(s) motivo(s) está(ão) relatado(s) aqui: ${comment}
             
-            Para mais informaçoes entre em contato conosco diretamente pela plataforma.
+            Pedimos a gentileza que o(s) corrija(m) para que possamos validá-lo(s) e publicar o quanto antes.
+
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
@@ -142,7 +150,7 @@ const  EMAILS_CONTRATO = {
             Valor total do contrato: R$ ${aluguel.valor}
             Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
             
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
@@ -160,7 +168,7 @@ const  EMAILS_CONTRATO = {
             Valor total do contrato: R$ ${aluguel.valor}
             Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
             
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
@@ -174,7 +182,13 @@ const  EMAILS_CONTRATO = {
             Uma nova solicitação de reserva foi paga para o espaço: ${espaco.titulo}.
 
             Valor do contrato: R$ ${aluguel.valor}
-            Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}`;
+            Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
+
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
+
+            Abraços,
+
+            Equipe Placeet`;
         },
         subject: "Nova reserva foi paga"
     },
@@ -186,7 +200,7 @@ const  EMAILS_CONTRATO = {
             Sua reserva do espaço: ${espaco.titulo} foi aceita pelo locador.
             Ela inicia ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} e finaliza ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
 
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
@@ -201,9 +215,10 @@ const  EMAILS_CONTRATO = {
 
             Parabéns pelo contrato de reserva do espaço: ${espaco.titulo}. Ele inicia dia ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} e vai até o dia ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
 
-            Certifique-se de deixar o local em ordem para que tudo ocorra bem.
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
-            
+            Certifique-se de deixar o local em ordem e com todos os requisitos do anúncio em ordem. Essa pequena tarefa melhorará a avaliação do seu espaço e gerará, em breve, novas locações.
+
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
+
             Abraços,
             
             Equipe Placeet`;
@@ -213,10 +228,19 @@ const  EMAILS_CONTRATO = {
     ON_ACCEPT_FOR_ADMIN: {
         email: (locador, locatario, aluguel, espaco, dias_reservados) => {
             return `
-            Um contrato entre o locador ${locador.nome} ${locador.sobrenome} e o locatário ${locatario.nome} ${locatario.sobrenome} foi firmado com sucesso.
+            O contrato entre o locador ${locador.nome} ${locador.sobrenome} e o locatário ${locatario.nome} ${locatario.sobrenome} foi firmado com sucesso.
+
             Valor do contrato: R$ ${aluguel.valor}
+
             Período: ${sharedFunctions.convertDate(new Date(dias_reservados.data_entrada))} - ${sharedFunctions.convertDate(new Date(dias_reservados.data_saida))}
-            Espaço: ${espaco.titulo}`;
+
+            Espaço: ${espaco.titulo}
+            
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
+
+            Abraços,
+            
+            Equipe Placeet`;
         },
         subject: "Contrato realizado pela plataforma"
     },
@@ -225,9 +249,9 @@ const  EMAILS_CONTRATO = {
             return `
             Olá ${user.nome} ${user.sobrenome}
 
-            Sua reserva do espaço: ${espaco.titulo} foi cancelada.
+             Desculpe-nos mas sua reserva do espaço: ${espaco.titulo} foi cancelada.
 
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
@@ -244,7 +268,7 @@ const  EMAILS_CONTRATO = {
 
             Motivos: ${comment}
 
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
@@ -261,7 +285,7 @@ const  EMAILS_CONTRATO = {
 
             Motivos: ${comment}
 
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
@@ -274,9 +298,15 @@ const  EMAILS_CONTRATO = {
             return `
             Contrato cancelado pelo ${canceledByLocador? "locador": "locatário"}
 
-            O contrato entre ${locador.nome} ${locador.sobrenome} e ${locatario.nome} ${locatario.sobrenome} no valor: R$ ${aluguel.valor}
+            O contrato entre ${locador.nome} ${locador.sobrenome} e ${locatario.nome} ${locatario.sobrenome} no valor: R$ ${aluguel.valor} está encerrado.
 
-            Motivos: ${comment}`;
+            Motivos: ${comment}
+            
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
+            
+            Abraços,
+            
+            Equipe Placeet`;
         },
         subject: "Contrato cancelado"
     },
@@ -285,18 +315,18 @@ const  EMAILS_CONTRATO = {
             return `
             Olá ${locatario.nome} ${locatario.sobrenome}
             
-            Você acabou de fazer checkin no local: ${espaco.titulo}
+            Você acabou de fazer check-in no local: ${espaco.titulo}
             ${espaco.local.rua} - ${espaco.local.bairro} - ${espaco.local.numero? espaco.local.numero + ' - ' : ''} - ${espaco.local.cidade} - ${espaco.local.estado} - CEP: ${espaco.local.cep}
             
             Conte com nosso apoio durante todo o periodo do contrato, para mais informações do seu anfitrião entre na plataforma e visualize os detalhes do seu contato.
             
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
             Equipe Placeet`;
         },
-        subject: "Checkin realizado"
+        subject: "Check-in realizado"
     },
     ON_CHECKIN_FOR_LOCADOR: {
         email: (locador, locatario, espaco) => {
@@ -305,22 +335,22 @@ const  EMAILS_CONTRATO = {
             
             O locatário: ${locatario.nome} ${locatario.sobrenome} realizou o checkin do espaço: ${espaco.titulo}
             
-            Por favor confirme a entrada na plataforma no seu painel de alocações na aba ativos.
+            Por favor, confirme a entrada na plataforma no seu painel de locações na aba ativos.
             
-            Qualquer dúvida entre em contato conosco diretamente pela plataforma.
+            Para mais informações entre em contato conosco diretamente pelos canais disponíveis em nossa plataforma.
             
             Abraços,
             
             Equipe Placeet`;
         },
-        subject: "Checkin realizado no seu espaço"
+        subject: "Check-in realizado no seu espaço"
     },
     ON_CHECKIN_FOR_ADMIN: {
         email: (locador, locatario, espaco) => {
             return `
-            O locatário: ${locatario.nome} ${locatario.sobrenome} realizou o checkin no espaço: ${espaco.titulo} do locador: ${locador.nome} ${locador.sobrenome}`;
+            O locatário: ${locatario.nome} ${locatario.sobrenome} realizou o check-in no espaço: ${espaco.titulo} do locador: ${locador.nome} ${locador.sobrenome}`;
         },
-        subject: "Checkin realizado"
+        subject: "Check-in realizado"
     }
 }
 
