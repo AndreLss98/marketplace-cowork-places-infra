@@ -5,6 +5,10 @@ services:
         image: postgres
         container_name: placeet-db-dev
         restart: always
+        logging:
+            options:
+              max-size: "10m"
+              max-file: "3"
         environment:
             POSTGRES_PASSWORD: ${DB_PASSWORD_DEV}
             PGDATA: /var/lib/postgresql/data/pgdata
