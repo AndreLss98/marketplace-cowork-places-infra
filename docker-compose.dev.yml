@@ -20,6 +20,10 @@ services:
             dockerfile: Dockerfile-dev
         container_name: placeet-api-dev
         restart: always
+        logging:
+            options:
+              max-size: "10m"
+              max-file: "3"
         environment:
             - ENV=dev
         volumes:
@@ -33,6 +37,10 @@ services:
         container_name: placeet-server-dev
         hostname: placeet-server-dev
         restart: always
+        logging:
+            options:
+              max-size: "10m"
+              max-file: "3"
         ports:
             - "80:80"
         depends_on:
