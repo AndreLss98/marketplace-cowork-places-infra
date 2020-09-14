@@ -44,7 +44,7 @@ const EMAILS_USUARIO = {
         subject: 'Confirme seu email'
     },
     RESET_PASSWORD: {
-        email: (user) => {
+        email: (user, senha) => {
             return `Caro(a) ${user.nome} ${user.sobrenome},
         
             Você solicitou a recuperação de sua senha de acesso a nossa plataforma.

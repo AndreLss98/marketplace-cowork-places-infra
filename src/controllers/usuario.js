@@ -76,7 +76,7 @@ router.post('/recover-password', async (req, res, next) => {
     const senha = sharedFunctions.generateRandoString();
     const response = await Usuario.update(user.id, { senha });
     try {
-        await sharedFunctions.sendEmail(email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.RESET_PASSWORD.subject, constants.EMAILS_USUARIO.RESET_PASSWORD.email(user));
+        sharedFunctions.sendEmail(email, constants.NO_REPLY_EMAIL, constants.EMAILS_USUARIO.RESET_PASSWORD.subject, constants.EMAILS_USUARIO.RESET_PASSWORD.email(user, senha));
         return res.status(200).send({ response });
     } catch (error) {
         console.log("Error: ", error);
