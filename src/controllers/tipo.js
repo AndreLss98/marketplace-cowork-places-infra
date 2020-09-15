@@ -22,13 +22,15 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
-    if (!req.body.nome) return res.status(400).send({ error: "Name is required" });
-    if (!req.body.icone) return res.status(400).send({ error: "Icon is required" });
-    if (!req.body.descricao) return res.status(400).send({ error: "Description is required" });
-
+    const { nome, icone, descricao, caracteristicas } = req.body;
+    if (!nome) return res.status(400).send({ error: "Name is required" });
+    if (!icone) return res.status(400).send({ error: "Icon is required" });
+    if (!descricao) return res.status(400).send({ error: "Description is required" });
+    let tipo = { nome, icone, descricao };
+    if (caracteristicas) tipo = { ...tipo, caracteristicas };
     try {
-        const tipo = await Tipo.save(req.body);
-        return res.status(200).send(tipo)
+        const response = await Tipo.save(tipo);
+        return res.status(200).send(response);
     } catch (error) {
         return res.status(400).send({ error: "Registration failed"});
     }

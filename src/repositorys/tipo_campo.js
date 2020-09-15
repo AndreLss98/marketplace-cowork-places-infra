@@ -1,5 +1,4 @@
 const db = require('./../configs/knex');
-const { getAll } = require('./perfil');
 
 const TABLE = 'tipo_campo';
 const TYPES_TABLES = {
@@ -22,7 +21,8 @@ module.exports = {
 
             const type_id = await db(TYPES_TABLES[tipo_campo.tipo]).insert(propriedades).returning('id');
             const id = await db(TABLE).insert(JSON.parse(`{"${tipo_campo.tipo}": ${type_id[0]}}`)).returning('id');
-            if (tipo_campo.tipo === 'selecao' && possibilidades && possibilidades.length > 0) {
+
+            if (tipo_campo.tipo === 'selecao' && possibilidades && possibilidades.length) {
                 for (let possibilidade of possibilidades) {
                     possibilidade.campo_selecao_id = type_id[0];
                     await db(POSSIBILIDADES_TABLE).insert(possibilidade);

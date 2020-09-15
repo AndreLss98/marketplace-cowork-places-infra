@@ -1,5 +1,6 @@
 const db = require('./../configs/knex');
 const TABLE = 'tipo';
+const RELATION_TABLE_CARACTERISTICA = 'tipo_caracteristicas';
 
 const { ALUGAVEL_STATUS } = require('./../shared/constants');
 
@@ -16,8 +17,16 @@ module.exports = {
         return await db(TABLE).where({ id }).first();
     },
     async save(tipo) {
+        const { caracteristicas } = tipo;
+        delete tipo.caracteristicas;
+
         try {
             const id = await db(TABLE).insert(tipo).returning('id');
+            if (caracteristicas && caracteristicas.length) {
+                for (let caracteristica of caracteristicas) {
+                    await db(RELATION_TABLE_CARACTERISTICA).insert({ tipo_id: id[0], caracteristica_id: caracteristica.id });
+                }
+            }
             return await db(TABLE).where({ id: id[0] }).first();
         } catch(error) {
             throw error
