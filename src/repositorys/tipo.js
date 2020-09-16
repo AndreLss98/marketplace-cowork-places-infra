@@ -24,7 +24,7 @@ module.exports = {
             const id = await db(TABLE).insert(tipo).returning('id');
             if (caracteristicas && caracteristicas.length) {
                 for (let caracteristica of caracteristicas) {
-                    await db(RELATION_TABLE_CARACTERISTICA).insert({ tipo_id: id[0], caracteristica_id: caracteristica.id });
+                    await db(RELATION_TABLE_CARACTERISTICA).insert({ tipo_id: id[0], caracteristica_id: caracteristica });
                 }
             }
             return await db(TABLE).where({ id: id[0] }).first();
