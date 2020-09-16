@@ -3,9 +3,17 @@ const TABLE = 'caracteristica';
 
 const TipoCampo = require('./tipo_campo');
 
+async function getMoreDetails(tipo_campo_id) {
+    return await TipoCampo.getOne(tipo_campo_id);
+}
+
 module.exports = {
     async getAll() {
-        return db(TABLE).orderBy('id', 'asc');
+        let caracteristicas = await db(TABLE).orderBy('id', 'asc');
+        for (let caracteristica of caracteristicas) {
+            caracteristica.tipo_campo = await getMoreDetails(caracteristica.tipo_campo_id);
+        }
+        return caracteristicas;
     }, 
     async getById(id) {
         return db(TABLE).where({ id }).first();
