@@ -13,6 +13,9 @@ module.exports = {
         }
         return await db(TABLE).orderBy('id', 'asc');
     },
+    async getAllCaracteristicas(id) {
+        return await db(RELATION_TABLE_CARACTERISTICA).where({ tipo_id: id });
+    },
     async getById(id) {
         return await db(TABLE).where({ id }).first();
     },
