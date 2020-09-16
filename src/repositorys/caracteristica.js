@@ -16,7 +16,9 @@ module.exports = {
         return caracteristicas;
     }, 
     async getById(id) {
-        return db(TABLE).where({ id }).first();
+        let caracteristica = await db(TABLE).where({ id }).first();
+        caracteristica.tipo_campo = await getMoreDetails(caracteristica.tipo_campo_id);
+        return caracteristica;
     },
     async save(caracteristica) {
         let { tipo_campo } = caracteristica;
@@ -33,6 +35,9 @@ module.exports = {
         }
     },
     async update(id, caracteristica) {
+        let { tipo_campo } = caracteristica;
+        delete caracteristica.tipo_campo;
+        
         try {
             return await db(TABLE).where({ id }).update(caracteristica);
         } catch(error) {

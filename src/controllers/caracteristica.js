@@ -39,7 +39,7 @@ router.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const caracteristica = await Caracteristica.getById(req.params.id);
 
     if (!caracteristica) return res.status(404).send({ error: "Not found" });
-    if (!req.body.nome) return res.status(400).send({ error: "Name is required" }); 
+    if (!req.body.nome) return res.status(400).send({ error: "Name is required" });
 
     try {
         return res.status(200).send({ response: await Caracteristica.update(req.params.id, req.body) });
