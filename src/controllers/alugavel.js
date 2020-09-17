@@ -128,17 +128,18 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
 router.post('/', authMiddleware(), async (req, res, next) => {
     const {
         caracteristicas,
-        infos, local, anunciante_id,
+        infos, local,
         tipo_id, descricao, valor, valor_mes, titulo,
         proprietario, taxa, imagens, documentos
     } = req.body;
 
-    let tempAlugavel = { anunciante_id, tipo_id, descricao, valor, valor_mes, titulo };
+    const user = shared.decodeToken(req.headers.authorization);
+
+    let tempAlugavel = { tipo_id, descricao, valor, valor_mes, titulo, anunciante_id: user.id };
     if (proprietario) tempAlugavel.proprietario = proprietario;
     if (taxa) tempAlugavel.taxa = taxa;
 
     if (!local) return res.status(400).send({ error: "Invalid address" });
-    if (!anunciante_id) return res.status(400).send({ error: "Advertiser id is required" });
     if (!tipo_id) return res.status(400).send({ error: "Type id is required" });
     if (!titulo) return res.status(400).send({ error: "Title is required" });
     if (!imagens || imagens.length === 0) return res.status(400).send({ error: "Images is required" });
