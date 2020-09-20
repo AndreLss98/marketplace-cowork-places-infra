@@ -94,5 +94,8 @@ module.exports = {
         } catch (error) {
             throw error;
         }
+    },
+    async deletePossibilidade(id) {
+        return await db(POSSIBILIDADES_TABLE).where({ id }).delete();
     }
 }
