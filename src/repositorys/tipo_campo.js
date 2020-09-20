@@ -1,3 +1,4 @@
+const { update } = require('./../configs/knex');
 const db = require('./../configs/knex');
 
 const TABLE = 'tipo_campo';
@@ -28,10 +29,32 @@ module.exports = {
                     await db(POSSIBILIDADES_TABLE).insert(possibilidade);
                 }
             }
+
             return await db(TABLE).where({ id: id[0] }).first();
         } catch (error) {
             throw error;
         }
+    },
+    async update(tipo_campo) {
+        let { propriedades } = tipo_campo;
+        let { possibilidades } = propriedades;
+        delete propriedades.possibilidades;
+
+        try {
+            if (tipo_campo.tipo === 'selecao' && possibilidades && possibilidades.length) {
+                for (let possibilidade of possibilidades) {
+                    if (!possibilidade.id) {
+                        possibilidade.campo_selecao_id = propriedades.id;
+                        await db(POSSIBILIDADES_TABLE).insert(possibilidade);
+                    }
+                }
+            }
+
+            return await db(TYPES_TABLES[tipo_campo.tipo]).where({ id: propriedades.id }).update(propriedades);
+        } catch (error) {
+            throw error;
+        }
+
     },
     async getOne(id) {
         try {

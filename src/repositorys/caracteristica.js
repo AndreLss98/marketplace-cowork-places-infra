@@ -1,4 +1,5 @@
 const db = require('./../configs/knex');
+const tipo_campo = require('./tipo_campo');
 const TABLE = 'caracteristica';
 
 const TipoCampo = require('./tipo_campo');
@@ -39,6 +40,7 @@ module.exports = {
         delete caracteristica.tipo_campo;
         
         try {
+            await TipoCampo.update(tipo_campo);
             return await db(TABLE).where({ id }).update(caracteristica);
         } catch(error) {
             throw error;

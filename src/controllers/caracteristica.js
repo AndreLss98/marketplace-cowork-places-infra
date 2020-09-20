@@ -43,8 +43,8 @@ router.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
 
     try {
         return res.status(200).send({ response: await Caracteristica.update(req.params.id, req.body) });
-    } catch(err) {
-        return res.status(400).send({ error: "Name already exists" });
+    } catch(error) {
+        return res.status(400).send(error);
     }
 });
 
