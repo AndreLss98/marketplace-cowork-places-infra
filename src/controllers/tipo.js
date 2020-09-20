@@ -57,7 +57,7 @@ router.put('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     try {
         return res.status(200).send({ response: await Tipo.update(id, req.body) });
     } catch(err) {
-        return res.status(400).send({ error: "Name already exists" });
+        return res.status(400).send({ error: err });
     }
 });
 
