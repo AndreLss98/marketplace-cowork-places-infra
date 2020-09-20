@@ -26,6 +26,8 @@ module.exports = {
         }
     },
     async salvarDocumento(documento) {
+        await db(RELATION_TABLE).where({ usuario_id: documento.usuario_id, documento_id: documento.documento_id }).delete();
+
         try {
             await db(RELATION_TABLE).insert(documento);
             return await db(RELATION_TABLE).where({ url: documento.url }).first();
@@ -34,7 +36,7 @@ module.exports = {
         }
     },
     async getAllSendByUser(usuario_id) {
-        return await db(RELATION_TABLE).where({ usuario_id }).innerJoin(TABLE, 'usuario_documento.documento_id', 'documento.id');
+        return await db.select('*').from((RELATION_TABLE)).where({ usuario_id }).innerJoin(TABLE, 'usuario_documento.documento_id', 'documento.id');
     },
     async delete(id) {
         await db(RELATION_TABLE).where({ documento_id: id });
