@@ -1,3 +1,7 @@
+const {
+    FRONT_END_URL
+} = process.env;
+
 const sharedFunctions = require('./functions');
 
 const TAXA_ALUGAVEL = 13;
@@ -33,7 +37,7 @@ const EMAILS_USUARIO = {
             
             Clique no link abaixo para confirmar seu email:
             
-            https://placeet.com/confirm-email?token=${user.email_token}
+            ${FRONT_END_URL}/confirm-email?token=${user.email_token}
             
             Caso você não tenha criado conta na Placeet e está recebendo este email por engano, por favor ignore-o.
             
