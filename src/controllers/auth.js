@@ -1,3 +1,8 @@
+const {
+    SAME_SITE,
+    HTTP_SECURE,
+} = process.env;
+
 require('../middlewares/passport');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
@@ -28,7 +33,7 @@ router.post('/', async (req, res) => {
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
     
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: sharedFunctions.changeStringBoolToBool(process.env.HTTP_SECURE) })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: SAME_SITE, secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE) })
     .status(200)
     .send({ user, token: sharedFunctions.generateToken({ id: user.id }), expires_at });
 });
@@ -65,7 +70,7 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     req.user.conta_bancaria = await ContaBancaria.getByUserId(req.user.id);
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: sharedFunctions.changeStringBoolToBool(process.env.HTTP_SECURE) })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: SAME_SITE, secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE) })
     .redirect(process.env.FRONT_END_URL);
 });
 
@@ -87,7 +92,7 @@ router.post('/refresh-token', async (req, res, next) => {
     user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
     res
-    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: 'lax', secure: sharedFunctions.changeStringBoolToBool(process.env.HTTP_SECURE) })
+    .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: SAME_SITE, secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE) })
     .status(200)
     .send({ user, token: sharedFunctions.generateToken({ id: user.id }), expires_at });
 });
