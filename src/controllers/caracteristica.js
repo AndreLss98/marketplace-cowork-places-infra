@@ -19,13 +19,14 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
 
-    const { tipo_campo, nome, icone } = req.body;
+    const { tipo_campo, nome, icone, unidade_medida } = req.body;
 
     if (!tipo_campo) return res.status(400).send({ error: "Type of characteristic is required" });
     if (!nome) return res.status(400).send({ error: "Name of characteristic is required" });
 
     let caracteristica = { nome, tipo_campo };
     if (icone) caracteristica = { ...caracteristica, icone };
+    if (unidade_medida) caracteristica = { ...caracteristica, unidade_medida };
 
     try {
         const response = await Caracteristica.save(caracteristica);

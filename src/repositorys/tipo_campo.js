@@ -16,7 +16,7 @@ const POSSIBILIDADES_TABLE = 'possibilidade_campo_selecao';
 module.exports = {
     async save(tipo_campo) {
         try {
-            let { propriedades } = tipo_campo;
+            let { propriedades } = tipo_campo;  
             let { possibilidades } = propriedades;
             delete propriedades.possibilidades;
 
