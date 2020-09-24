@@ -3,7 +3,7 @@ const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const sendGrid = require('@sendgrid/mail');
 
-const tokenDuration = 86400;
+const tokenDuration = 900;
 
 const Usuario = require('./../repositorys/usuario');
 
