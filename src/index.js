@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const boydParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app_port = process.env.PORT || 3000;
+const compression = require('compression');
 
 const whitelist = [
     'https://placeet.com',
@@ -20,6 +21,7 @@ const whitelist = [
     'https://api.sandbox.paypal.com',
 ];
 
+app.use(compression());
 app.use(cors({
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1 || !origin) {
