@@ -390,8 +390,8 @@ router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next)
             const { descricao } = await Tipo.getById(alugavel.tipo.id);
 
             await PAYPAL.createProduct(alugavel, img.url, descricao);
-        } catch (err) {
-            return res.status(400).send({ error: "Error on save product in paypal api", paypalError: err });
+        } catch (error) {
+            return res.status(400).send({ error, message: "Erro ao criar objeto na paypal" });
         }
     }
     

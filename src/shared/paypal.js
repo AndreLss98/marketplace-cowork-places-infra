@@ -87,7 +87,7 @@ module.exports = {
             return await Alugavel.update(product.id, {paypal_id: response.id});
         }).catch((error) => {
             console.log('Paypal error: ', error);
-            throw error.data;
+            throw error;
         });
     },
     async createPlan(product, qtd_month, value) {
