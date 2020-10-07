@@ -17,6 +17,8 @@ const { ALUGUEL_STATUS } = require('./../shared/constants');
 router.post('/checkout', authMiddleware(), async (req, res, next) => {
     let tempAluguel = req.body;
 
+    console.log(req.body);
+
     const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
     if (!user) res.status(400).send({ error: "User not found" });

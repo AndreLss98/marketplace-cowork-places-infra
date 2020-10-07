@@ -99,7 +99,6 @@ module.exports = {
             console.log('Erro no token: ', error);
             throw error;
         }
-
         return await axios({
             method: 'POST',
             url: PAYPAL_URL_PLANS,
