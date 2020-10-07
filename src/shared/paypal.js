@@ -86,7 +86,7 @@ module.exports = {
             response = response.data;
             return await Alugavel.update(product.id, {paypal_id: response.id});
         }).catch((error) => {
-            console.log('Paypal error: ', error.data);
+            console.log('Paypal error: ', error);
             throw error.data;
         });
     },
