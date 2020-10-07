@@ -8,13 +8,13 @@ const storageType = {
             cb(null, path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads', folder))
         },
         filename: (req, file, cb) => {
+            file.originalname = file.originalname.replace(/\s/g, '');
             if (randomName) {
                 crypto.randomBytes(16, (error, hash) => {
                     if (error) cb (error);
                     file.key = `${hash.toString('hex')}-${file.originalname}`;
-    
                     cb(null, file.key);
-                })
+                });
             } else {
                 cb(null, file.originalname);
             }
