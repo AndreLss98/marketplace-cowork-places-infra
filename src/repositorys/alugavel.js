@@ -137,6 +137,20 @@ module.exports = {
     async update(id, alugavel, caracteristicas, infos, local) {
         try {
             await db(TABLE).update(alugavel).where({ id });
+            const oldCaracteristicas = (await AlugavelCaracteristica.getAllCaracteristicas(id)).map(caracteristica => caracteristica.caracteristica_id);
+
+            let newCaracteristicas = [];
+
+            if (caracteristicas) {
+                newCaracteristicas = caracteristicas.filter(caracteristica => !oldCaracteristicas.includes(caracteristica.caracteristica_id));
+            }
+
+            if (newCaracteristicas && newCaracteristicas.length > 0) {
+                newCaracteristicas.forEach(async (caracteristica) => {
+                    await AlugavelCaracteristica.relacionar(id, caracteristica.caracteristica_id, caracteristica.valor);
+                });
+            }
+
             if (caracteristicas && caracteristicas.length > 0) {
                 caracteristicas.forEach(async (caracteristica) => {
                     await AlugavelCaracteristica.atualizarValor(id, caracteristica.caracteristica_id, caracteristica.valor);
