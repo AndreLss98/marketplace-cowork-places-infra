@@ -6,6 +6,8 @@ const {
     PAYPAL_URL_PRODUCTS,
     PAYPAL_CLIENT_SECRET,
     PAYPAL_URL_SUBSCRIPTION,
+    FRONT_END_URL,
+    BACK_END_URL
 } = process.env;
 
 const Alugavel = require('./../repositorys/alugavel');
@@ -79,15 +81,14 @@ module.exports = {
                 description,
                 type: PAYPAL_PRODUCT_TYPE.SERVICO,
                 category: PAYPAL_PRODUCT_CATEGORY.RENTAL_PROPERTY_MANAGEMENT,
-                image_url: `https://spotted-br.com/imgs/${image_url}`,
-                home_url: `https://placeet.com/spaces/${product.id}`
+                image_url: `${BACK_END_URL}/imgs/${image_url}`,
+                home_url: `${FRONT_END_URL}/spaces/${product.id}`
             }
         }).then(async (response) => {
             response = response.data;
             return await Alugavel.update(product.id, {paypal_id: response.id});
         }).catch(async (error) => {
-            console.log('Paypal error: ', error);
-            throw error.response;
+            throw error.response.data;
         });
     },
     async createPlan(product, qtd_month, value) {
