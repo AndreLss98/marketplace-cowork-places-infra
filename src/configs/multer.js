@@ -11,8 +11,6 @@ const crypto = require('crypto');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 
-const storageS3 = new aws.S3();
-
 function processFileName(file, randomName) {
     file.originalname = file.originalname.replace(/\s/g, '');
     try {
