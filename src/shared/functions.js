@@ -1,13 +1,25 @@
+const {
+    STORAGE_TYPE,
+    AWS_ACCESS_KEY,
+    SENDGRID_TOKEN,
+    AWS_BUCKET_NAME,
+    AWS_SECRET_ACCESS_KEY,
+} = process.env;
+
+const fs = require('fs');
+const path = require('path');
+const aws = require('aws-sdk');
 const crypto = require('crypto');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const sendGrid = require('@sendgrid/mail');
 
 const tokenDuration = 900;
 
 const Usuario = require('./../repositorys/usuario');
 
-sendGrid.setApiKey(process.env.SENDGRID_TOKEN);
+sendGrid.setApiKey(SENDGRID_TOKEN);
 
 module.exports = {
     generateToken(params = {}) {
@@ -61,5 +73,23 @@ module.exports = {
     },
     convertDate(date) {
         return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
+    },
+    async deleteFile(folder, key) {
+        const s3 = new aws.S3({
+            accessKeyId: AWS_ACCESS_KEY,
+            secretAccessKey: AWS_SECRET_ACCESS_KEY
+        });
+
+        switch(STORAGE_TYPE) {
+            case 's3':
+                await s3.deleteObject({
+                    Bucket: AWS_BUCKET_NAME,
+                    Key: `${folder}/${key}`
+                }).promise();
+            break;
+            
+            default:
+                await promisify(fs.unlink)(path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads', folder, key));
+        }
     }
 }
