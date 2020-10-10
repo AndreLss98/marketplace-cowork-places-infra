@@ -36,7 +36,12 @@ const storageType = {
             cb(null, path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads', folder))
         },
         filename: (req, file, cb) => {
-            cb(null, processFileName(file, randomName));
+            try {
+                const fileUrl = processFileName(file, randomName);
+                cb (null, fileUrl);
+            } catch (error) {
+                cb(error);
+            }
         }
     }),
     s3: (folder, randomName) => {
