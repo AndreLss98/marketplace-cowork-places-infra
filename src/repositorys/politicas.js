@@ -22,7 +22,6 @@ module.exports = {
         }
     },
     async update(id, politica) {
-        console.log('Politica: ', politica);
         try {
             return await db(TABLE).update(politica).where({ id });
         } catch(error) {
@@ -31,7 +30,7 @@ module.exports = {
     },
     async delete(id) {
         const politica = await db(TABLE).where({ id }).first();
-        await sharedFunctions.deleteFile('md', politica.sluq);
+        await sharedFunctions.deleteFile('md', politica.url.substr(politica.url.lastIndexOf('/') + 1));
         return db(TABLE).where({ id }).delete();
     }
 };
