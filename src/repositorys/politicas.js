@@ -1,4 +1,6 @@
 const db = require('./../configs/knex');
+const sharedFunctions = require('./../shared/functions');
+
 const TABLE = 'politicas';
 
 module.exports = {
@@ -22,13 +24,14 @@ module.exports = {
     async update(id, politica) {
         console.log('Politica: ', politica);
         try {
-            const response = await db(TABLE).update(politica).where({ id });
-            return response
+            return await db(TABLE).update(politica).where({ id });
         } catch(error) {
             throw error;
         }
     },
     async delete(id) {
+        const politica = await db(TABLE).where({ id }).first();
+        await sharedFunctions.deleteFile('md', politica.sluq);
         return db(TABLE).where({ id }).delete();
     }
 };

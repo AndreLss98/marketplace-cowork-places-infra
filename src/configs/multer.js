@@ -2,7 +2,7 @@ const {
     STORAGE_TYPE,
     AWS_ACCESS_KEY,
     AWS_BUCKET_NAME,
-    AWS_SECRET_ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY
 } = process.env;
 
 const path = require('path');
@@ -43,23 +43,28 @@ const storageType = {
         }
     }),
     s3: (folder, randomName) => {
-        return multerS3({
-            s3: new aws.S3({
-                accessKeyId: AWS_ACCESS_KEY,
-                secretAccessKey: AWS_SECRET_ACCESS_KEY
-            }),
-            bucket: AWS_BUCKET_NAME,
-            contentType: multerS3.AUTO_CONTENT_TYPE,
-            acl: 'public-read',
-            key: (req, file, cb) => {
-                try {
-                    const fileUrl = processFileName(file, randomName);
-                    cb(null, `${folder}/${fileUrl}`);
-                } catch (error) {
-                    cb(error);
+        try {
+            return multerS3({
+                s3: new aws.S3({
+                    accessKeyId: AWS_ACCESS_KEY,
+                    secretAccessKey: AWS_SECRET_ACCESS_KEY
+                }),
+                bucket: AWS_BUCKET_NAME,
+                contentType: multerS3.AUTO_CONTENT_TYPE,
+                acl: 'public-read',
+                key: (req, file, cb) => {
+                    try {
+                        const fileUrl = processFileName(file, randomName);
+                        cb(null, `${folder}/${fileUrl}`);
+                    } catch (error) {
+                        console.log('Errro na aws: ', error);
+                        cb(error);
+                    }
                 }
-            }
-        })
+            });
+        } catch(error) {
+            throw error;
+        }
     }
 }
 

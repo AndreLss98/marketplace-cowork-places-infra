@@ -8,7 +8,6 @@ const authMiddleware = require('./../middlewares/auth');
 const Politica = require('./../repositorys/politicas');
 
 const perfis = require('./../shared/perfis');
-const auth = require('./../middlewares/auth');
 
 router.get('/', async (req, res, next) => {
     return res.status(200).send(await Politica.getAll());
@@ -16,12 +15,13 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', authMiddleware([perfis.ADMIN]), multer(multerConfig('md', false)).single('file'), async (req, res, next) => {
     const { nome } = req.body;
+    const { location, originalname } = req.file
     if (!nome) return res.status(400).send({ error: "Nome is required" });
 
-    const sluq = req.file.originalname;
+    const url = location? location : `${process.env.BACK_END_URL}/md/${originalname}`;
 
     try {
-        const politica = await Politica.save({ sluq, nome });
+        const politica = await Politica.save({ url, nome });
         return res.status(201).send(politica);
     } catch(error) {
         return res.status(400).send({ error: "Register failed" });
