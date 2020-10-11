@@ -1,6 +1,8 @@
 const db = require('./../configs/knex');
 const TABLE = 'alugavel_imagem';
 
+const sharedFunction = require('./../shared/functions');
+
 module.exports = {
     async save(url) {
         const id = await db(TABLE).insert({ url }).returning('id');
@@ -13,6 +15,8 @@ module.exports = {
         }
     },
     async delete(id) {
+        const img = await db(TABLE).where({ id }).first();
+        await sharedFunction.deleteFile('img', img.url.substr(img.url.lastIndexOf('/') + 1));
         return await db(TABLE).where({ id }).delete();
     },
     async getAllByAlugavelId(alugavel_id) {
