@@ -81,7 +81,7 @@ module.exports = {
                 description,
                 type: PAYPAL_PRODUCT_TYPE.SERVICO,
                 category: PAYPAL_PRODUCT_CATEGORY.RENTAL_PROPERTY_MANAGEMENT,
-                image_url: `${BACK_END_URL}/imgs/${image_url}`,
+                image_url: image_url,
                 home_url: `${FRONT_END_URL}/spaces/${product.id}`
             }
         }).then(async (response) => {

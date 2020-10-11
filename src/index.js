@@ -41,7 +41,7 @@ app.use(boydParser.json());
 app.use(boydParser.urlencoded({ extended: true }));
 
 app.use('/md', express.static('public/tmp/uploads/md'));
-app.use('/imgs', express.static('public/tmp/uploads/img'));
+app.use('/img', express.static('public/tmp/uploads/img'));
 app.use('/docs', express.static('public/tmp/uploads/doc'));
 
 require('./controllers')(app);
