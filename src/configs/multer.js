@@ -15,11 +15,9 @@ function processFileName(file, randomName) {
     file.originalname = file.originalname.replace(/\s/g, '');
     try {
         if (randomName) {
-            crypto.randomBytes(16, (error, hash) => {
-                if (error) throw error;
-                file.key = `${hash.toString('hex')}-${file.originalname}`;
-                return file.key;
-            });
+            const hash = crypto.randomBytes(16);
+            file.key = `${hash.toString('hex')}-${file.originalname}`;
+            return file.key;
         } else {
             return file.originalname;
         }

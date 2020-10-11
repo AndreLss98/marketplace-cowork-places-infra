@@ -22,7 +22,7 @@ const PAYPAL = require('./../shared/paypal');
 const perfis = require('./../shared/perfis');
 const shared = require('./../shared/functions');
 const constants = require('./../shared/constants');
-const { ALUGUEL_STATUS, ALUGAVEL_STATUS } = require('./../shared/constants');
+const { ALUGAVEL_STATUS } = require('./../shared/constants');
 
 async function validateDates(idAlugavel, dataEntrada) {
     let dataSaida = (await DiasReservados.getLastDateOfRent(idAlugavel)).data_saida;
@@ -195,7 +195,8 @@ router.get('/:id/imagem', async (req, res, next) => {
  * Salva uma imagem de um alugavel
  */
 router.post('/imagem', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
-    const img = await AlugavelImagem.save(req.file.key);
+    const { location, key } = req.file;
+    const img = await AlugavelImagem.save(location? location : `${process.env.BACK_END_URL}/img/${key}`);
     delete img.alugavel_id;
     res.status(200).send({ img });
 });
