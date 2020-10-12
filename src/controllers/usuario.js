@@ -1,6 +1,7 @@
 const {
     SAME_SITE,
     HTTP_SECURE,
+    BACK_END_URL
 } = process.env;
 
 const bcrypt = require('bcryptjs');
@@ -353,11 +354,17 @@ router.get('/doc', authMiddleware(), async (req, res, next) => {
 router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file'), async (req, res, next) => {
     const user = sharedFunctions.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });
+    
     const { documento_id } = req.body;
     if (!documento_id) return res.status(400).send({ error: "Document id is required" });
+    const { location, key } = req.file;
 
     try {
-        const response = await Documento.salvarDocumento({ usuario_id: user.id, documento_id, url: req.file.key });
+        const response = await Documento.salvarDocumento({
+            usuario_id: user.id,
+            documento_id,
+            url: location? location : `${BACK_END_URL}/${key}`
+        });
         res.status(200).send(response);
     } catch(error) {
         return res.status(400).send({ error: "Register failed", trace: error });

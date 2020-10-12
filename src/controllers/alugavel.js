@@ -196,7 +196,7 @@ router.get('/:id/imagem', async (req, res, next) => {
  */
 router.post('/imagem', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
     const { location, key } = req.file;
-    const img = await AlugavelImagem.save(location? location : `${process.env.BACK_END_URL}/img/${key}`);
+    const img = await AlugavelImagem.save(location? location : `${process.env.BACK_END_URL}/${key}`);
     delete img.alugavel_id;
     res.status(200).send({ img });
 });
