@@ -82,14 +82,25 @@ module.exports = {
 
         switch(STORAGE_TYPE) {
             case 's3':
-                await s3.deleteObject({
-                    Bucket: AWS_BUCKET_NAME,
-                    Key: `${folder}/${key}`
-                }).promise();
+                try {
+                    await s3.deleteObject({
+                        Bucket: AWS_BUCKET_NAME,
+                        Key: `${folder}/${key}`
+                    }).promise().catch(error => {
+                        throw error;
+                    });
+                } catch (error) {
+                    console.log('Error on delete file from s3: ', error);
+                    throw error;
+                }
             break;
             
             default:
-                await promisify(fs.unlink)(path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads', folder, key));
+                try {
+                    await promisify(fs.unlink)(path.resolve(__dirname, '..', '..', 'public', 'tmp', 'uploads', folder, key));
+                } catch (error) {
+                    throw error;
+                }
         }
     }
 }

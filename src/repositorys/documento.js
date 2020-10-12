@@ -3,6 +3,8 @@ const db = require('../configs/knex');
 const TABLE = 'documento';
 const RELATION_TABLE = 'usuario_documento';
 
+const sharedFunction = require('./../shared/functions');
+
 module.exports = {
     async getAll() {
         return await db(TABLE);
@@ -26,7 +28,20 @@ module.exports = {
         }
     },
     async salvarDocumento(documento) {
-        await db(RELATION_TABLE).where({ usuario_id: documento.usuario_id, documento_id: documento.documento_id }).delete();
+        const oldDocument = await db(RELATION_TABLE)
+            .where({ usuario_id: documento.usuario_id, documento_id: documento.documento_id }).first();
+
+        if (oldDocument) {
+            try {
+                await db(RELATION_TABLE)
+                    .where({ usuario_id: documento.usuario_id, documento_id: documento.documento_id }).delete();
+                await sharedFunction
+                    .deleteFile('doc', oldDocument.url.substr(oldDocument.url.lastIndexOf('/') + 1))
+                    .catch(error => { console.log(error); throw error });
+            } catch (error) {
+                throw error;
+            }
+        }
 
         try {
             await db(RELATION_TABLE).insert(documento);
