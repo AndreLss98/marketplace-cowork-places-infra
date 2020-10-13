@@ -1,12 +1,17 @@
 const db = require('./../configs/knex');
 const TABLE = 'tipo';
+const RELATION_TABLE_DOCUMENTO = 'tipo_alugavel_documento_tipo';
 const RELATION_TABLE_CARACTERISTICA = 'tipo_caracteristicas';
+
+const TIPO_ALUGAVEL_DOCUMENTO = require('./../repositorys/tipo_alugavel_documento');
 
 const { ALUGAVEL_STATUS } = require('./../shared/constants');
 
 async function getMoreDetails(tipo) {
-    let caracteristicas = await db.select('caracteristica_id').from('tipo_caracteristicas').where({ tipo_id: tipo.id });
+    let caracteristicas = await db.select('caracteristica_id').from(RELATION_TABLE_CARACTERISTICA).where({ tipo_id: tipo.id });
+    let documentos = await db.select('tipo_alugavel_documento_id').from(RELATION_TABLE_DOCUMENTO).where({ tipo_id: tipo.id });
     tipo.caracteristicas = caracteristicas.map(caracteristica => caracteristica.caracteristica_id);
+    tipo.documentos = documentos.map(doc => doc.tipo_alugavel_documento_id);
     return tipo;
 }
 
@@ -33,8 +38,9 @@ module.exports = {
         return await db(TABLE).where({ id }).first();
     },
     async save(tipo) {
-        const { caracteristicas } = tipo;
+        const { caracteristicas, documentos } = tipo;
         delete tipo.caracteristicas;
+        delete tipo.documentos;
 
         try {
             const id = await db(TABLE).insert(tipo).returning('id');
@@ -43,13 +49,20 @@ module.exports = {
                     await db(RELATION_TABLE_CARACTERISTICA).insert({ tipo_id: id[0], caracteristica_id: caracteristica });
                 }
             }
+
+            if (documentos && documentos.length) {
+                for (let documento of documentos) {
+                    await db(RELATION_TABLE_DOCUMENTO).insert({ tipo_id: id[0], tipo_alugavel_documento_id: documento });
+                }
+            }
             return await db(TABLE).where({ id: id[0] }).first();
         } catch(error) {
             throw error
         }
     },
     async update(id, tipo) {
-        const { caracteristicas } = tipo;
+        const { caracteristicas, documentos } = tipo;
+        delete tipo.documentos;
         delete tipo.caracteristicas;
 
         const oldCaracteristicas = (await db(RELATION_TABLE_CARACTERISTICA).where({ tipo_id: id })).map(element => element.caracteristica_id);
@@ -69,6 +82,7 @@ module.exports = {
         }
 
         try {
+            await TIPO_ALUGAVEL_DOCUMENTO.relacionar(id, documentos);
             return await db(TABLE).where({ id }).update(tipo);
         } catch (error) {
             throw error;

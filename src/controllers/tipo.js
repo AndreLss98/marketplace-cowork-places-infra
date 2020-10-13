@@ -34,12 +34,13 @@ router.get('/:id/caracteristicas', async (req, res, next) => {
 });
 
 router.post('/', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
-    const { nome, icone, descricao, caracteristicas } = req.body;
+    const { nome, icone, descricao, caracteristicas, documentos } = req.body;
     if (!nome) return res.status(400).send({ error: "Name is required" });
     if (!descricao) return res.status(400).send({ error: "Description is required" });
 
     let tipo = { nome, icone, descricao };
     if (caracteristicas) tipo = { ...tipo, caracteristicas };
+    if (documentos) tipo = { ...tipo, documentos };
     
     try {
         const response = await Tipo.save(tipo);
