@@ -1,4 +1,5 @@
 const db = require('./../configs/knex');
+
 const TABLE = 'alugavel';
 
 const Info = require('./info');
@@ -8,7 +9,7 @@ const Aluguel = require('./aluguel');
 const Usuario = require('./usuario');
 const Caracteristica = require('./caracteristica');
 const AlugavelImagem = require('./alugavel_imagem');
-// const Documentos = require('./tipo_alugavel_documento');
+const Documentos = require('./tipo_alugavel_documento');
 const AlugavelCaracteristica = require('./alugavel_caracteristica');
 
 async function createQuery(filters = {}) {
@@ -65,7 +66,7 @@ async function getMoreInfo(alugavel) {
     alugavel.infos = await Info.getAll(alugavel.id);
     alugavel.tipo = await Tipo.getById(alugavel.tipo_id);
     alugavel.local = await Local.getByAlugavelId(alugavel.id);
-    // alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
+    alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
     alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
     alugavel.anunciante_avaliado = (await Usuario.getById(alugavel.anunciante_id)).status_cadastro;
 
@@ -133,6 +134,9 @@ module.exports = {
         } catch (error) {
             throw error;
         }
+    },
+    async saveDoc() {
+
     },
     async update(id, alugavel, caracteristicas, infos, local) {
         try {

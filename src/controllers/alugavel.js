@@ -1,3 +1,4 @@
+const { BACK_END_URL } = process.env;
 const router = require('express').Router();
 
 const multer = require('multer');
@@ -11,7 +12,7 @@ const Alugavel = require('../repositorys/alugavel');
 const Usuario = require('./../repositorys/usuario');
 const Caracteristica = require('./../repositorys/caracteristica');
 
-// const Documentos = require('./../repositorys/documentos_alugavel');
+const Documentos = require('./../repositorys/tipo_alugavel_documento');
 
 const AlugavelImagem = require('./../repositorys/alugavel_imagem');
 const DiasReservados = require('./../repositorys/dias_reservados');
@@ -150,7 +151,7 @@ router.post('/', authMiddleware(), async (req, res, next) => {
     try {
         const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local);
         await AlugavelImagem.relacionar(alugavel.id, imagens);
-        // await Documentos.relacionar(alugavel.id, documentos);
+        await Documentos.relacionarAlugavel(alugavel.id, documentos);
         
         return res.status(200).send(alugavel);
     } catch(error) {
@@ -172,19 +173,16 @@ router.get('/:id/documentos', async (req, res, next) => {
  * Salva um documento de um alugavel
  */
 router.post('/documentos', authMiddleware(), multer(multerConfig('doc')).single('file'), async (req, res, next) => {
-    // const url = req.file.key;
-    // const { nome } = req.body;
+    const { location, key } = req.file;
+    const { tipo_alugavel_documento_id } = req.body;
+    if (!tipo_alugavel_documento_id) return res.status(400).send({ error: "Document type id is required" });
 
-    // if (!nome) return res.status(400).send({ error: "Document name is required" });
-
-    // const documento = { url, nome };
-    // try {
-    //     const doc = await Documentos.save(documento);
-    //     return res.status(200).send(doc);
-    // } catch(error) {
-    //     return res.status(400).send({ error: "Register failed", trace: error });
-    // }
-    return res.status(200).send({ response: 'Ok' });
+    try {
+        const doc = await Documentos.saveDoc(tipo_alugavel_documento_id, location? location : `${BACK_END_URL}/${key}`);
+        return res.status(200).send(doc);
+    } catch(error) {
+        return res.status(400).send({ error, message: "Save doc failed" });
+    }
 });
 
 /**
@@ -230,13 +228,12 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     const {
         caracteristicas,
         infos, local,
-        tipo_id, descricao, valor, titulo,
+        descricao, valor, valor_mes, titulo,
         taxa, imagens, documentos
     } = req.body;
 
     const status = 'waiting'
-    const update = {tipo_id, descricao, valor, titulo, taxa, status};
-    
+    const update = {descricao, valor, valor_mes, titulo, taxa, status};
     // await Documentos.relacionar(id, documentos);
     await AlugavelImagem.relacionar(id, imagens);
 
