@@ -1,7 +1,10 @@
 const bcrypt = require('bcryptjs');
 const db = require('./../configs/knex');
 const perfis = require('./../shared/perfis');
+
 const TABLE = 'usuario';
+const TABLE_ADDRESS = 'endereco';
+const TABLE_JURIDIC = 'pessoa_juridica';
 
 module.exports = {
     async getAll(filters = { }) {
@@ -43,6 +46,30 @@ module.exports = {
             user.senha = hash;
         }
         return await db(TABLE).update(user).where({ id });
+    },
+    async updateDadosJuridico(id, juridico, local) {
+
+        try {
+            await db(TABLE_JURIDIC).insert({ id, ...juridico });
+        } catch (error) {
+            try {
+                await db(TABLE_JURIDIC).update(juridico).where({ id });
+            } catch (error) {
+                throw (error);
+            }
+        }
+
+        try {
+            console.log('Vai inserir o endereco');
+            await db(TABLE_ADDRESS).insert({ pessoa_juridica_id: id, ...local });
+        } catch (error) {
+            console.log('Deu ruim', error)
+            try {
+                await db(TABLE_ADDRESS).update(local).where({pessoa_juridica_id: id});
+            } catch (error) {
+                throw error;
+            }
+        }
     },
     async atualizarSaldo(id, deposito) {
         let { saldo } = await db.select('saldo').from(TABLE).where({ id }).first();

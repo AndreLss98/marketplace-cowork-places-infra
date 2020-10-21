@@ -59,6 +59,14 @@ router.put('/', authMiddleware(), async (req, res, next) => {
     return res.status(200).send({ response });
 });
 
+router.put('/dados-juridicos', authMiddleware(), async (req, res, next) => {
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
+    delete req.body.id;
+    const { cnpj, razao_social, local } = req.body;
+    const response = await Usuario.updateDadosJuridico(user.id, {cnpj, razao_social}, local);
+    return res.status(200).send({ response });
+});
+
 router.put('/alter-password', authMiddleware(), async (req, res, next) => {
     const {id} = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(id);
