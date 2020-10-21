@@ -6,15 +6,26 @@ const TABLE = 'usuario';
 const TABLE_ADDRESS = 'endereco';
 const TABLE_JURIDIC = 'pessoa_juridica';
 
+const ContaBancaria = require('./../repositorys/conta_bancaria');
+
+async function getMoreInfo(user) {
+    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
+    user.pessoa_juridica = await db(TABLE_JURIDIC).where({ id: user.id }).first();
+    if (user.pessoa_juridica) user.pessoa_juridica.local = await db(TABLE_ADDRESS).where({ pessoa_juridica_id: user.id }).first();
+    return user;
+}
+
 module.exports = {
     async getAll(filters = { }) {
         return await db(TABLE).where(filters);
     },
     async getById(id) {
-        return await db(TABLE).where({ id }).first();
+        let user = await db(TABLE).where({ id }).first();
+        return await getMoreInfo(user);
     },
     async getByEmail(email) {
-        return await db(TABLE).where({ email }).first();
+        let user = await db(TABLE).where({ email }).first();
+        return await getMoreInfo(user);
     },
     async getByCpf(cpf) {
         return await db(TABLE).where({ cpf }).first();
@@ -23,7 +34,8 @@ module.exports = {
         return await db(TABLE).where({ google_id }).first();
     },
     async getBySearchKey(search_key, keys = ['*']) {
-        return await db.column(keys).from(TABLE).where(search_key).first();
+        let user = await db.column(keys).from(TABLE).where(search_key).first();
+        return await getMoreInfo(user);
     },
     async getAllAdmin() {
         return await db(TABLE).where({ perfil_id: perfis.ADMIN });
@@ -60,7 +72,6 @@ module.exports = {
         }
 
         try {
-            console.log('Vai inserir o endereco');
             await db(TABLE_ADDRESS).insert({ pessoa_juridica_id: id, ...local });
         } catch (error) {
             console.log('Deu ruim', error)

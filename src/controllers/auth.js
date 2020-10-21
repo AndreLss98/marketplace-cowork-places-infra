@@ -29,8 +29,6 @@ router.post('/', async (req, res) => {
     delete user.refresh_token;
     delete user.expires_at;
     delete user.email_token;
-
-    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
     
     res.cookie('refresh_token', refresh_token, {
         maxAge: expires_at,
@@ -84,6 +82,7 @@ router.post('/refresh-token', async (req, res, next) => {
     let refresh_token = req.cookies.refresh_token;
     if (!refresh_token) return res.status(400).send({ error: "Invalid refresh token" });
     const user = await Usuario.getBySearchKey({ refresh_token });
+    
     if (!user || sharedFunctions.verifyTokenExpires(user.expires_at)) return res.status(400).send({ error: "Invalid refresh token" });
 
     refresh_token = sharedFunctions.generateRefreshToken();
@@ -94,8 +93,6 @@ router.post('/refresh-token', async (req, res, next) => {
     delete user.expires_at;
     delete user.email_token;
     delete user.refresh_token;
-
-    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
 
     res.cookie('refresh_token', refresh_token, {
         maxAge: expires_at,
