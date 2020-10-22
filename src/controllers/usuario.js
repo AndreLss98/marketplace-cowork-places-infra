@@ -259,11 +259,20 @@ router.put('/conta-bancaria', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
+    const { location, key } = req.file;
     const user = sharedFunctions.decodeToken(req.headers.authorization);
-    if (!user) return res.status(400).send({ error: "User not found!" });
-    await Usuario.update(user.id, { img_perfil: req.file.key });
+    
+    const oldImg = await Usuario.getBySearchKey({ id: user.id }, ['img_perfil']);
+    
+    if (oldImg.img_perfil) {
+        console.log(oldImg);
+        await sharedFunctions.deleteFile('img', oldImg.img_perfil.substr(oldImg.img_perfil.lastIndexOf('/') + 1));
+    }
 
-    res.status(200).send({ image_name: req.file.key });
+    if (!user) return res.status(400).send({ error: "User not found!" });
+    await Usuario.update(user.id, { img_perfil: location? location : `${BACK_END_URL}/img/${key}` });
+
+    res.status(200).send({ image_name: location? location : `${BACK_END_URL}/img/${key}` });
 });
 
 router.post('/assinar-termos', authMiddleware(), async (req, res, next) => {

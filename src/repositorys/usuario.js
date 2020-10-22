@@ -9,9 +9,11 @@ const TABLE_JURIDIC = 'pessoa_juridica';
 const ContaBancaria = require('./../repositorys/conta_bancaria');
 
 async function getMoreInfo(user) {
-    user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
-    user.pessoa_juridica = await db(TABLE_JURIDIC).where({ id: user.id }).first();
-    if (user.pessoa_juridica) user.pessoa_juridica.local = await db(TABLE_ADDRESS).where({ pessoa_juridica_id: user.id }).first();
+    if (user.id) {
+        user.conta_bancaria = await ContaBancaria.getByUserId(user.id);
+        user.pessoa_juridica = await db(TABLE_JURIDIC).where({ id: user.id }).first();
+        if (user.pessoa_juridica) user.pessoa_juridica.local = await db(TABLE_ADDRESS).where({ pessoa_juridica_id: user.id }).first();
+    }
     return user;
 }
 
