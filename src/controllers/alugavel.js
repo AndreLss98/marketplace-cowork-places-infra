@@ -245,6 +245,9 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
     }
 });
 
+/**
+ * Atualiza status de disponibilidade de um anúncio
+ */
 router.put('/:id/disponibilidade', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const { status } = req.body;
