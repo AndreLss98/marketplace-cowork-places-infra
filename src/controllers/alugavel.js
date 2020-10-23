@@ -378,6 +378,9 @@ router.post('/:id/dias-reservados/validate', async (req, res, next) => {
     return res.status(200).send({ reservado });
 });
 
+/**
+ * Atualiza status de um anúncio
+ */
 router.put('/:id/status', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { id } = req.params;
     const { status, observacao } = req.body;
