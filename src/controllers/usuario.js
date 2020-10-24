@@ -266,7 +266,11 @@ router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single(
     
     if (oldImg.img_perfil) {
         console.log(oldImg);
-        await sharedFunctions.deleteFile('img', oldImg.img_perfil.substr(oldImg.img_perfil.lastIndexOf('/') + 1));
+        try {
+            await sharedFunctions.deleteFile('img', oldImg.img_perfil.substr(oldImg.img_perfil.lastIndexOf('/') + 1));
+        } catch (error) {
+            
+        }
     }
 
     if (!user) return res.status(400).send({ error: "User not found!" });

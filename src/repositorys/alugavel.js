@@ -1,6 +1,8 @@
 const db = require('./../configs/knex');
 
 const TABLE = 'alugavel';
+const TABLE_ENDERECO = 'endereco';
+const TABLE_CADASTRO_TERCEIRO = 'cadastro_terceiro';
 
 const Info = require('./info');
 const Tipo = require('./tipo');
@@ -112,9 +114,10 @@ module.exports = {
         if (!alugavel) return alugavel;
         return await getMoreInfo(alugavel);
     },
-    async save(alugavel, caracteristicas, infos, local) {
+    async save(alugavel, caracteristicas, infos, local, cadastro_terceiro) {
         try {
             const id = await db(TABLE).insert(alugavel).returning('id');
+
             if (caracteristicas) {
                 caracteristicas.forEach(async (caracteristica) => {
                     await AlugavelCaracteristica.relacionar(id[0], caracteristica.caracteristica_id, caracteristica.valor);
@@ -128,15 +131,45 @@ module.exports = {
                 });
             }
 
+            if (cadastro_terceiro) {
+                const cadastro_terceiro_local = cadastro_terceiro.local;
+                delete cadastro_terceiro.local;
+                let id_cadastro_terceiro;
+                try {
+
+                    if (!alugavel.pessoajuridica) {
+                       id_cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).insert({
+                            cpf: cadastro_terceiro.cpf,
+                            nome: cadastro_terceiro.nome,
+                            alugavel_id: id[0]
+                        }).returning('id');
+                    } else {
+                        id_cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).insert({
+                            cnpj: cadastro_terceiro.cnpj,
+                            razao_social: cadastro_terceiro.razao_social,
+                            alugavel_id: id[0]
+                        }).returning('id');
+                    }
+                } catch (error) {
+                    throw error;
+                }
+
+                try {
+                    await db(TABLE_ENDERECO).insert({ 
+                        ...cadastro_terceiro_local,
+                        cadastro_terceiro_id: id_cadastro_terceiro[0]
+                    });
+                } catch (error) {
+                    throw error;
+                }
+            }
+
             await Local.save(local, id[0]);
 
             return await db(TABLE).where({ id: id[0] }).first();
         } catch (error) {
             throw error;
         }
-    },
-    async saveDoc() {
-
     },
     async update(id, alugavel, caracteristicas, infos, local) {
         try {

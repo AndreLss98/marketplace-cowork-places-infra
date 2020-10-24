@@ -133,23 +133,24 @@ router.post('/', authMiddleware(), async (req, res, next) => {
         caracteristicas,
         infos, local,
         tipo_id, descricao, valor, valor_mes, titulo,
-        proprietario, taxa, imagens, documentos
+        proprietario, taxa, imagens, documentos, cadastro_terceiro,
+        qtd_maxima_reservas, pessoajuridica
     } = req.body;
 
     const user = shared.decodeToken(req.headers.authorization);
 
-    let tempAlugavel = { tipo_id, descricao, valor, valor_mes, titulo, anunciante_id: user.id };
-    if (proprietario) tempAlugavel.proprietario = proprietario;
-    if (taxa) tempAlugavel.taxa = taxa;
-
+    let tempAlugavel = {
+        tipo_id, descricao, valor, valor_mes, titulo,
+        anunciante_id: user.id, qtd_maxima_reservas, pessoajuridica };
+    
     if (!local) return res.status(400).send({ error: "Invalid address" });
     if (!tipo_id) return res.status(400).send({ error: "Type id is required" });
     if (!titulo) return res.status(400).send({ error: "Title is required" });
     if (!imagens || imagens.length === 0) return res.status(400).send({ error: "Images is required" });
-    // if (!documentos || documentos.length === 0) return res.status(400).send({ error: "Documents is required" });
+    if (!proprietario && !cadastro_terceiro) return res.status(400).send({ error: "Third registration is required if you are not the owner." });
 
     try {
-        const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local);
+        const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local, cadastro_terceiro);
         await AlugavelImagem.relacionar(alugavel.id, imagens);
         await Documentos.relacionarAlugavel(alugavel.id, documentos);
         
@@ -211,6 +212,23 @@ router.delete('/imagem/:imgId', authMiddleware(), async (req, res, next) => {
     imgId = parseInt(imgId);
     const response = await AlugavelImagem.delete(imgId);
     res.status(200).send({ response });
+});
+
+/**
+ * Apaga arquivos enviados ao abandonar um formulario de anuncio
+ */
+router.delete('/clear', (req, res, next) => {
+    const { imgs, docs } = req.body;
+
+    for (let img of imgs) {
+        AlugavelImagem.delete(img);
+    }
+
+    for (let doc of docs) {
+        Documentos.delete(doc);
+    }
+
+    return res.status(200).send({ response: 1 });
 });
 
 /**
