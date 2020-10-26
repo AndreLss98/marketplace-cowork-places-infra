@@ -311,7 +311,11 @@ router.post('/feedbacks', authMiddleware(), async (req, res, next) => {
 router.post('/email', async(req, res, next) => {
     const { email } = req.body;
     if (!email) return res.status(400).send({ error: "Email is required" });
-    const user = await Usuario.getByEmail(email);
+    let user;
+    
+    try {
+        user = await Usuario.getByEmail(email);
+    } catch (error) { }
 
     if (!user) return res.status(404).send({ error: "Email not found" });
     return res.status(200).send({ response: "Email already registered" })

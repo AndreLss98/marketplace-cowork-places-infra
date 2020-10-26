@@ -19,7 +19,10 @@ passport.use(
         callbackURL: `${process.env.BACK_END_URL}/auth/google/redirect`
     }, async (accessToken, refreshToken, profile, done) => {
         let googleUser = null;
-        const user = await Usuario.getByEmail(profile.emails[0].value);
+        let user;
+        try {
+            user = await Usuario.getByEmail(profile.emails[0].value);
+        } catch (error) { }
 
         if(user) googleUser = await Usuario.getByGoogleId(profile.id);
         
