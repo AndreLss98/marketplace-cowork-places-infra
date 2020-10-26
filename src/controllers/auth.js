@@ -15,7 +15,11 @@ const ContaBancaria = require('./../repositorys/conta_bancaria');
 
 router.post('/', async (req, res) => {
     const { email, senha } = req.body;
-    const user = await Usuario.getByEmail(email);
+    try {
+        const user = await Usuario.getByEmail(email);
+    } catch (error) {
+        return res.status(400).send({ error: "Login failed" })
+    }
 
     if (!user) return res.status(404).send({ error: "User not found" });
     if (user && !user.senha) return res.status(405).send({ error: "User by Google Oauth" });

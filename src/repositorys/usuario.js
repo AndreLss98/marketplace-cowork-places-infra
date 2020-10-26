@@ -26,8 +26,12 @@ module.exports = {
         return await getMoreInfo(user);
     },
     async getByEmail(email) {
-        let user = await db(TABLE).where({ email }).first();
-        return await getMoreInfo(user);
+        try {
+            let user = await db(TABLE).where({ email }).first();
+            return await getMoreInfo(user);
+        } catch (error) {
+            throw error;
+        }
     },
     async getByCpf(cpf) {
         return await db(TABLE).where({ cpf }).first();
