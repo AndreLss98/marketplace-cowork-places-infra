@@ -41,24 +41,7 @@ async function createQuery(filters = {}) {
         query = query.select(`${TABLE}.*`).innerJoin('local', `${TABLE}.id`, `local.alugavel_id`).where(bairro? 'bairro': 'cidade', 'like', `%${bairro || cidade}%`);
     }
 
-    if (minArea || maxArea) {
-        if (minArea && maxArea) {
-            query = query.whereIn('id', function () {
-                this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) between ${minArea} and ${maxArea}`);
-            });
-        } else if (minArea && !maxArea) {
-            query = query.whereIn('id', function () {
-                this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) >= ${minArea}`);
-            });
-        } else {
-            query = query.whereIn('id', function () {
-                this.select('alugavel_id').from('alugavel_caracteristica').whereRaw(`caracteristica_id = 1 and cast(valor as integer) <= ${maxArea}`);
-            });
-        }
-    }
-
     if (limit) query = query.limit(limit);
-
     return query;
 };
 
@@ -84,6 +67,12 @@ async function getMoreInfo(alugavel) {
     delete alugavel.tipo_id;
     for (let info of alugavel.infos) {
         delete info.alugavel_id;
+    }
+
+    if (!alugavel.proprietario) {
+        alugavel.cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).where({alugavel_id: alugavel.id}).first();
+        delete alugavel.cadastro_terceiro.alugavel_id;
+        alugavel.cadastro_terceiro.local = await db(TABLE_ENDERECO).where({cadastro_terceiro_id: alugavel.id}).first();
     }
 
     return alugavel;
@@ -171,7 +160,8 @@ module.exports = {
             throw error;
         }
     },
-    async update(id, alugavel, caracteristicas, infos, local) {
+    async update(id, alugavel, caracteristicas, infos, local, cadastro_terceiro) {
+        
         try {
             await db(TABLE).update(alugavel).where({ id });
             const oldCaracteristicas = (await AlugavelCaracteristica.getAllCaracteristicas(id)).map(caracteristica => caracteristica.caracteristica_id);
@@ -204,10 +194,42 @@ module.exports = {
                     }
                 });
             }
+
             if (local) {
                 local.alugavel_id = id;
                 await Local.update(local);
             }
+
+            if (cadastro_terceiro) {
+                const cadastro_terceiro_local = cadastro_terceiro.local;
+                delete cadastro_terceiro.local;
+
+                try {
+                    if (!alugavel.pessoajuridica) {
+                        await db(TABLE_CADASTRO_TERCEIRO).update({
+                            cnpj: '',
+                            razao_social: '',
+                            cpf: cadastro_terceiro.cpf,
+                            nome: cadastro_terceiro.nome
+                        }).where({ id: cadastro_terceiro.id });
+                    } else {
+                        await db(TABLE_CADASTRO_TERCEIRO).update({
+                            cpf: '',
+                            nome: '',
+                            cnpj: cadastro_terceiro.cnpj,
+                            razao_social: cadastro_terceiro.razao_social
+                        }).where({ id: cadastro_terceiro.id });
+                    }
+                } catch (error) {
+                    console.log(error);
+                    throw error;
+                }
+                
+                await db(TABLE_ENDERECO).update({ 
+                    ...cadastro_terceiro_local
+                }).where({ cadastro_terceiro_id: cadastro_terceiro.id });
+            }
+
             return 1;
         } catch (error) {
             throw error;

@@ -140,7 +140,7 @@ router.post('/', authMiddleware(), async (req, res, next) => {
     const user = shared.decodeToken(req.headers.authorization);
 
     let tempAlugavel = {
-        tipo_id, descricao, valor, valor_mes, titulo,
+        tipo_id, descricao, valor, valor_mes, titulo, taxa,
         anunciante_id: user.id, qtd_maxima_reservas, pessoajuridica };
     
     if (!local) return res.status(400).send({ error: "Invalid address" });
@@ -247,16 +247,21 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
         caracteristicas,
         infos, local,
         descricao, valor, valor_mes, titulo,
-        taxa, imagens, documentos
+        taxa, imagens, documentos, qtd_maxima_reservas,
+        cadastro_terceiro, pessoajuridica
     } = req.body;
 
     const status = 'waiting'
-    const update = {descricao, valor, valor_mes, titulo, taxa, status};
-    // await Documentos.relacionar(id, documentos);
+    const update = { 
+        descricao, valor, valor_mes, pessoajuridica,
+        titulo, taxa, status, qtd_maxima_reservas
+    };
+    
     await AlugavelImagem.relacionar(id, imagens);
+    await Documentos.relacionarAlugavel(id, documentos);
 
     try {
-        const response = await Alugavel.update(id, update, caracteristicas, infos, local);
+        const response = await Alugavel.update(id, update, caracteristicas, infos, local, cadastro_terceiro);
         return res.status(200).send({ response });
     } catch(err) {
         return res.status(400).send({ error: "Update failed" });
