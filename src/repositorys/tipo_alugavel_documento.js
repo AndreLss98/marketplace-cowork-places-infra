@@ -27,11 +27,10 @@ module.exports = {
     },
     async delete(id) {
         const doc = await db(TABLE).where({ id }).first();
-        console.log(doc);
+        
         try {
             const response = await db(TABLE).where({ id }).delete();
             if (doc.url_arq_exemplo) {
-                console.log('Vai deletar o seguinte arquivo: ', doc.url_arq_exemplo.substr(doc.url_arq_exemplo.lastIndexOf('/') + 1));
                 sharedFunctions.deleteFile('doc', doc.url_arq_exemplo.substr(doc.url_arq_exemplo.lastIndexOf('/') + 1));
             }
             return response;
