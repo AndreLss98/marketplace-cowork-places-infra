@@ -4,6 +4,8 @@ const TABLE = 'tipo_alugavel_documento';
 const RELATION_TABLE_TIPO = 'tipo_alugavel_documento_tipo';
 const RELATION_TABLE_ALUGAVEL = 'tipo_alugavel_documento_alugavel';
 
+const sharedFunctions = require('./../shared/functions');
+
 module.exports = {
     async getAll() {
         return await db(TABLE);
@@ -24,8 +26,15 @@ module.exports = {
         }
     },
     async delete(id) {
+        const doc = await db(TABLE).where({ id }).first();
+        console.log(doc);
         try {
-            return await db(TABLE).where({ id }).delete();
+            const response = await db(TABLE).where({ id }).delete();
+            if (doc.url_arq_exemplo) {
+                console.log('Vai deletar o seguinte arquivo: ', doc.url_arq_exemplo.substr(doc.url_arq_exemplo.lastIndexOf('/') + 1));
+                sharedFunctions.deleteFile('doc', doc.url_arq_exemplo.substr(doc.url_arq_exemplo.lastIndexOf('/') + 1));
+            }
+            return response;
         } catch(error) {
             throw error;
         }
