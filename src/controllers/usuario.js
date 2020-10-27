@@ -147,7 +147,12 @@ router.put('/duvidas/:id', authMiddleware(), async (req, res, next) => {
 });
 
 router.post('/create', async (req, res, next) => {
-    const teste = await Usuario.getByEmail(req.body.email);
+    let teste;
+
+    try {
+        teste = await Usuario.getByEmail(req.body.email);
+    } catch (error) { }
+
     // const teste_cpf = await Usuario.getByCpf(req.body.cpf);
 
     if (teste) return res.status(400).send({ error: "Email already used!" , item : 'Email'});
