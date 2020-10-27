@@ -48,7 +48,6 @@ router.get('/usuario', async (req, res, next) => {
     if (anunciante_id) return res.status(200).send(await Alugavel.getAll({anunciante_id}));
 
     const user = shared.decodeToken(req.headers.authorization);
-    if (!user) return res.status(401).send({ error: "User not identified" });
 
     return res.status(200).send(await Alugavel.getAll({anunciante_id: user.id}));
 });
