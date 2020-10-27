@@ -337,7 +337,7 @@ router.post('/validar-email', async (req, res, next) => {
     return res.status(200).send({ response });
 });
 
-router.get('/favoritos', authMiddleware(), async (req, res, next) => {
+router.get('/favoritos', async (req, res, next) => {
     const user = sharedFunctions.decodeToken(req.headers.authorization);
     const favoritosIds = await Favoritos.getAllByUserId(user.id);
 
