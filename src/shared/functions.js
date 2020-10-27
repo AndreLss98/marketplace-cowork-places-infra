@@ -15,7 +15,7 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const sendGrid = require('@sendgrid/mail');
 
-const tokenDuration = 900;
+const tokenDuration = 3600;
 
 const Usuario = require('./../repositorys/usuario');
 
