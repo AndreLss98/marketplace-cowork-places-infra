@@ -100,7 +100,7 @@ router.get('/duvidas', authMiddleware(), async (req, res, next) => {
     return res.status(200).send(duvidas);
 });
 
-router.get('/alugueis', authMiddleware(), async (req, res, next) => {
+router.get('/alugueis', async (req, res, next) => {
     const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { locacoes } = req.query;
     if (locacoes) {
