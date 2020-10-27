@@ -3,6 +3,7 @@ const db = require('./../configs/knex');
 const TABLE = 'alugavel';
 const TABLE_ENDERECO = 'endereco';
 const TABLE_CADASTRO_TERCEIRO = 'cadastro_terceiro';
+const TABLE_PUBLICO_ALVO = 'publico_alvo_alugavel';
 
 const Info = require('./info');
 const Tipo = require('./tipo');
@@ -54,6 +55,7 @@ async function getMoreInfo(alugavel) {
     alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
     alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
     alugavel.anunciante_avaliado = (await Usuario.getById(alugavel.anunciante_id)).status_cadastro;
+    alugavel.publico_alvo = (await db.select('publico_alvo_id').from(TABLE_PUBLICO_ALVO).where({ alugavel_id: alugavel.id })).map(el => el.publico_alvo_id);
 
     let caracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
     for (let caracteristica of caracteristicas) {
@@ -103,7 +105,7 @@ module.exports = {
         if (!alugavel) return alugavel;
         return await getMoreInfo(alugavel);
     },
-    async save(alugavel, caracteristicas, infos, local, cadastro_terceiro) {
+    async save(alugavel, caracteristicas, infos, local, cadastro_terceiro, publico_alvo) {
         try {
             const id = await db(TABLE).insert(alugavel).returning('id');
 
@@ -153,14 +155,19 @@ module.exports = {
                 }
             }
 
-            await Local.save(local, id[0]);
+            if (publico_alvo) {
+                publico_alvo.forEach(async (pub) => {
+                    await db(TABLE_PUBLICO_ALVO).insert({ publico_alvo_id: pub, alugavel_id: id[0] });
+                });
+            }
 
+            await Local.save(local, id[0]);
             return await db(TABLE).where({ id: id[0] }).first();
         } catch (error) {
             throw error;
         }
     },
-    async update(id, alugavel, caracteristicas, infos, local, cadastro_terceiro) {
+    async update(id, alugavel, caracteristicas, infos, local, cadastro_terceiro, publico_alvo) {
         
         try {
             await db(TABLE).update(alugavel).where({ id });
@@ -228,6 +235,26 @@ module.exports = {
                 await db(TABLE_ENDERECO).update({ 
                     ...cadastro_terceiro_local
                 }).where({ cadastro_terceiro_id: cadastro_terceiro.id });
+            }
+
+            if (publico_alvo) {
+                const old = (await db.select('publico_alvo_id').from(TABLE_PUBLICO_ALVO).where({ alugavel_id: id })).map(el => el.publico_alvo_id);
+
+                console.log(old);
+
+                const news = publico_alvo.filter(el => !old.includes(el));
+                const rm = old.filter(el => !publico_alvo.includes(el));
+
+                console.log(news);
+                console.log(rm);
+
+                news.forEach(async (el) => {
+                    await db(TABLE_PUBLICO_ALVO).insert({ alugavel_id: id, publico_alvo_id: el });
+                });
+
+                rm.forEach(async (el) => {
+                    await db(TABLE_PUBLICO_ALVO).delete().where({ alugavel_id: id, publico_alvo_id: el });
+                });
             }
 
             return 1;

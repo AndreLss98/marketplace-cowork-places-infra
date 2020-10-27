@@ -134,23 +134,23 @@ router.post('/', authMiddleware(), async (req, res, next) => {
         infos, local,
         tipo_id, descricao, valor, valor_mes, titulo,
         proprietario, taxa, imagens, documentos, cadastro_terceiro,
-        qtd_maxima_reservas, pessoajuridica
+        qtd_maxima_reservas, pessoajuridica, publico_alvo
     } = req.body;
 
     const user = shared.decodeToken(req.headers.authorization);
 
     let tempAlugavel = {
         tipo_id, descricao, valor, valor_mes, titulo, taxa,
-        anunciante_id: user.id, qtd_maxima_reservas, pessoajuridica };
+        anunciante_id: user.id, qtd_maxima_reservas, pessoajuridica, proprietario };
     
     if (!local) return res.status(400).send({ error: "Invalid address" });
     if (!tipo_id) return res.status(400).send({ error: "Type id is required" });
     if (!titulo) return res.status(400).send({ error: "Title is required" });
     if (!imagens || imagens.length === 0) return res.status(400).send({ error: "Images is required" });
-    if (!proprietario && !cadastro_terceiro) return res.status(400).send({ error: "Third registration is required if you are not the owner." });
+    if (!proprietario && !cadastro_terceiro) return res.status(400).send({ error: "Third part registration is required if you are not the owner." });
 
     try {
-        const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local, cadastro_terceiro);
+        const alugavel = await Alugavel.save(tempAlugavel, caracteristicas, infos, local, cadastro_terceiro, publico_alvo);
         await AlugavelImagem.relacionar(alugavel.id, imagens);
         await Documentos.relacionarAlugavel(alugavel.id, documentos);
         
@@ -248,23 +248,24 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
         infos, local,
         descricao, valor, valor_mes, titulo,
         taxa, imagens, documentos, qtd_maxima_reservas,
-        cadastro_terceiro, pessoajuridica
+        cadastro_terceiro, pessoajuridica, publico_alvo, proprietario
     } = req.body;
 
-    const status = 'waiting'
+    const status = 'waiting';
+
     const update = { 
         descricao, valor, valor_mes, pessoajuridica,
-        titulo, taxa, status, qtd_maxima_reservas
+        titulo, taxa, status, qtd_maxima_reservas, proprietario
     };
     
     await AlugavelImagem.relacionar(id, imagens);
     await Documentos.relacionarAlugavel(id, documentos);
 
     try {
-        const response = await Alugavel.update(id, update, caracteristicas, infos, local, cadastro_terceiro);
+        const response = await Alugavel.update(id, update, caracteristicas, infos, local, cadastro_terceiro, publico_alvo);
         return res.status(200).send({ response });
-    } catch(err) {
-        return res.status(400).send({ error: "Update failed" });
+    } catch(trace) {
+        return res.status(400).send({ error: "Update failed", trace });
     }
 });
 
