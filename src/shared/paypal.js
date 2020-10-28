@@ -1,5 +1,6 @@
 const axios = require('axios');
 const {
+    ENV,
     PAYPAL_CLIENT_ID,
     PAYPAL_URL_OAUTH,
     PAYPAL_URL_PLANS,
@@ -69,6 +70,17 @@ module.exports = {
         } catch(error) {
             throw error;
         }
+
+        let data = {
+            name: product.titulo,
+            description,
+            type: PAYPAL_PRODUCT_TYPE.SERVICO,
+            category: PAYPAL_PRODUCT_CATEGORY.RENTAL_PROPERTY_MANAGEMENT,
+            home_url: `${FRONT_END_URL}/spaces/${product.id}`
+        }
+
+        if (ENV !== 'dev') data.image_url = image_url;
+
         return await axios({
             method: 'POST',
             url: PAYPAL_URL_PRODUCTS,
@@ -76,14 +88,7 @@ module.exports = {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authorization.access_token}`
             },
-            data: {
-                name: product.titulo,
-                description,
-                type: PAYPAL_PRODUCT_TYPE.SERVICO,
-                category: PAYPAL_PRODUCT_CATEGORY.RENTAL_PROPERTY_MANAGEMENT,
-                image_url: image_url,
-                home_url: `${FRONT_END_URL}/spaces/${product.id}`
-            }
+            data
         }).then(async (response) => {
             response = response.data;
             return await Alugavel.update(product.id, {paypal_id: response.id});
