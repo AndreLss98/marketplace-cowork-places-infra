@@ -16,14 +16,12 @@ const Documentos = require('./tipo_alugavel_documento');
 const AlugavelCaracteristica = require('./alugavel_caracteristica');
 
 async function createQuery(filters = {}) {
-    const { limit, minValue, maxValue, bairro, cidade, minArea, maxArea } = filters;
+    const { limit, minValue, maxValue, bairro, cidade } = filters;
     delete filters.limit;
-    delete filters.minValue;
-    delete filters.maxValue;
     delete filters.bairro;
     delete filters.cidade;
-    delete filters.minArea;
-    delete filters.maxArea;
+    delete filters.minValue;
+    delete filters.maxValue;
 
     let query = db(TABLE).where(filters);
 
@@ -104,6 +102,13 @@ module.exports = {
         let alugavel = await db(TABLE).where({ id }).first();
         if (!alugavel) return alugavel;
         return await getMoreInfo(alugavel);
+    },
+    async getBySearchKey(search_key, keys = ['*']) {
+        try {
+            return await db.column(keys).from(TABLE).where(search_key).first();
+        } catch (error) {
+            throw error;
+        }
     },
     async save(alugavel, caracteristicas, infos, local, cadastro_terceiro, publico_alvo) {
         try {

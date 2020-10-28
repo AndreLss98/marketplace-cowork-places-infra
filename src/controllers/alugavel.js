@@ -274,14 +274,17 @@ router.put('/:id', authMiddleware(), async (req, res, next) => {
 router.put('/:id/disponibilidade', authMiddleware(), async (req, res, next) => {
     const { id } = req.params;
     const { status } = req.body;
+    
+    const alugavel = await Alugavel.getBySearchKey({ id }, ['status']);
+    
     if (!status) return res.status(400).send({ error: "Status is required" });
-    if (status !== ALUGAVEL_STATUS.WAITING && status !== ALUGAVEL_STATUS.REMOVED) return res.status(401).send({ error: "Action not authorized" });
 
-    const alugavel = await Alugavel.getById(id);
+    if (status === ALUGAVEL_STATUS.APPROVED && alugavel.status === ALUGAVEL_STATUS.WAITING) return res.status(400).send({ error: "Action not authorized" });
+
     if (!alugavel) return res.status(404).send({ error: "Not found" });
 
     //Todo: Adicionar regra de negocio relacionado ao alugueis ativos
-    const response = await Alugavel.update(alugavel.id, { status });
+    const response = await Alugavel.update(id, { status });
 
     return res.status(200).send({ response });
 });
