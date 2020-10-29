@@ -269,5 +269,8 @@ module.exports = {
     },
     async getLocadorByAlugavel(id) {
         return await db.select('anunciante_id').from(TABLE).where({ id }).first();
+    },
+    async getMostUseds() {
+        return await db.select('tipo_id').count('tipo_id', { as: 'qtd' }).from(TABLE).groupBy('tipo_id').orderBy('qtd', 'desc').limit(3);
     }
 }

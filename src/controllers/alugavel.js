@@ -41,6 +41,13 @@ router.get('/', paginationMiddleware(Alugavel.getAll), async (req, res, next) =>
 });
 
 /**
+ * Retorna os tipos de anuncios mais utilizados
+ */
+router.get('/most-used', async (req, res, next) => {
+    return res.status(200).send(await Alugavel.getMostUseds());
+});
+
+/**
  * Retorna todos os alugaveis do usuario
  */
 router.get('/usuario', async (req, res, next) => {
