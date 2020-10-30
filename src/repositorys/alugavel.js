@@ -279,7 +279,6 @@ module.exports = {
             response.push (await Tipo.getById(used.tipo_id))
         }
 
-        console.log(response)
         return response;
     }
 }
