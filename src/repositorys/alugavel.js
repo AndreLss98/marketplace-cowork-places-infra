@@ -271,6 +271,15 @@ module.exports = {
         return await db.select('anunciante_id').from(TABLE).where({ id }).first();
     },
     async getMostUseds() {
-        return await db.select('tipo_id').count('tipo_id', { as: 'qtd' }).from(TABLE).groupBy('tipo_id').orderBy('qtd', 'desc').limit(3);
+        let useds = await db.select('tipo_id').count('tipo_id', { as: 'qtd' }).from(TABLE).groupBy('tipo_id').orderBy('qtd', 'desc').limit(3);
+        
+        let response = []
+
+        for (let used of useds) {
+            response.push (await Tipo.getById(used.tipo_id))
+        }
+
+        console.log(response)
+        return response;
     }
 }
