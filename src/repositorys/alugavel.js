@@ -72,7 +72,7 @@ async function getMoreInfo(alugavel) {
     if (!alugavel.proprietario) {
         alugavel.cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).where({alugavel_id: alugavel.id}).first();
         delete alugavel.cadastro_terceiro.alugavel_id;
-        alugavel.cadastro_terceiro.local = await db(TABLE_ENDERECO).where({cadastro_terceiro_id: alugavel.id}).first();
+        alugavel.cadastro_terceiro.local = await db(TABLE_ENDERECO).where({cadastro_terceiro_id: alugavel.cadastro_terceiro.id}).first();
     }
 
     return alugavel;
