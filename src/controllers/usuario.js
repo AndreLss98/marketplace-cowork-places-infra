@@ -245,10 +245,10 @@ router.post('/conta-bancaria', authMiddleware(), async (req, res, next) => {
     }
 });
 
-router.put('/conta-bancaria', authMiddleware(), async (req, res, next) => {
+router.put('/conta-bancaria/:id', authMiddleware(), async (req, res, next) => {
     const userToken = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(userToken.id);
-    const { codigo_banco, agencia, numero, tipo } = req.body;
+    const { codigo_banco, agencia, numero, tipo, id } = req.body;
 
     if (!codigo_banco) return res.status(400).send({ error: "Cod Bank is required" });
     if (!agencia) return res.status(400).send({ error: "Agency is required" });
@@ -256,7 +256,7 @@ router.put('/conta-bancaria', authMiddleware(), async (req, res, next) => {
     if (!tipo) return res.status(400).send({ error: "Type is required" });
 
     try {
-        const response = await ContaBancaria.update(user.id, { codigo_banco, agencia, numero, tipo });
+        const response = await ContaBancaria.update(user.id, { id, codigo_banco, agencia, numero, tipo });
         return res.status(200).send(response);
     } catch(error) {
         return res.status(400).send({ error: "Update Failed" });

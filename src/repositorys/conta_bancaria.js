@@ -28,8 +28,8 @@ module.exports = {
     },
     async update(usuario_id, conta_bancaria) {
         try {
-            await db(TABLE).update(conta_bancaria).where({ usuario_id });;
-            let account = await db(TABLE).where({ usuario_id }).first();
+            await db(TABLE).update(conta_bancaria).where({ id: conta_bancaria.id });;
+            let account = await db(TABLE).where({ id: conta_bancaria.id }).first();
             return await getBankName(account);
         } catch (error) {
             throw error;
