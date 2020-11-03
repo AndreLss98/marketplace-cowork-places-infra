@@ -1,6 +1,8 @@
 const db = require('../configs/knex');
-const TABLE = 'conta_bancaria';
+
 const BANK_TABLE = 'banco';
+const TABLE = 'conta_bancaria';
+const USER_TABLE = 'usuario';
 
 async function getBankName(account) {
     const { nome } = await db.select('nome').from(BANK_TABLE).where({ codigo: account.codigo_banco }).first();
@@ -9,15 +11,16 @@ async function getBankName(account) {
 }
 
 module.exports = {
-    async getByUserId(usuario_id) {
-        let account = await db(TABLE).where({ usuario_id }).first();
+    async getById(id) {
+        let account = await db(TABLE).where({ id }).first();
         if (account) return await getBankName(account);
         return account;
     },
-    async save(conta_bancaria) {
+    async save(user_id, conta_bancaria) {
         try {
-            await db(TABLE).insert(conta_bancaria);
-            let account = await db(TABLE).where({ usuario_id: conta_bancaria.usuario_id }).first();
+            const id = await db(TABLE).insert(conta_bancaria).returning('id');
+            await db(USER_TABLE).update({ conta_bancaria_id: id[0] }).where({ id: user_id });
+            let account = await db(TABLE).where({ id: id[0] }).first();
             return await getBankName(account);
         } catch (error) {
             throw error;

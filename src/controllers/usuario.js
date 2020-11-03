@@ -232,13 +232,13 @@ router.post('/conta-bancaria', authMiddleware(), async (req, res, next) => {
     const user = await Usuario.getById(userToken.id);
     const { codigo_banco, agencia, numero, tipo } = req.body;
 
-    if (!codigo_banco) return res.status(400).send({ error: "Cod Bank is required" });
+    if (!codigo_banco) return res.status(400).send({ error: "Code of Bank is required" });
     if (!agencia) return res.status(400).send({ error: "Agency is required" });
     if (!numero) return res.status(400).send({ error: "Number is required" });
     if (!tipo) return res.status(400).send({ error: "Type is required" });
 
     try {
-        const response = await ContaBancaria.save({ usuario_id: user.id, codigo_banco, agencia, numero, tipo });
+        const response = await ContaBancaria.save(user.id, { codigo_banco, agencia, numero, tipo });
         return res.status(200).send(response);
     } catch(error) {
         return res.status(400).send({ error: "Register Failed" });
