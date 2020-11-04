@@ -57,9 +57,7 @@ router.delete('/logout', async (req, res, next) => {
     return res.status(200).send({ response: 'Ok' });
 });
 
-router.get('/google', passport.authenticate('google', {
-    scope: ['profile', 'email']
-}));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/redirect', passport.authenticate('google'), async (req, res) => {
     const expires_at = sharedFunctions.generateExpirationTime();
@@ -70,8 +68,6 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     delete req.user.refresh_token;
     delete req.user.expires_at;
     delete req.user.email_token;
-
-    req.user.conta_bancaria = await ContaBancaria.getByUserId(req.user.id);
 
     res.cookie('refresh_token', refresh_token, {
         maxAge: expires_at,
