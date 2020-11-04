@@ -11,11 +11,21 @@ const ContaBancaria = require('./../repositorys/conta_bancaria');
 async function getMoreInfo(user) {
     if (user.id) {
         user.pessoa_juridica = await db(TABLE_JURIDIC).where({ id: user.id }).first();
-        if (user.pessoa_juridica) user.pessoa_juridica.local = await db(TABLE_ADDRESS).where({ pessoa_juridica_id: user.id }).first();
+        if (user.pessoa_juridica) user.pessoa_juridica.local = await db(TABLE_ADDRESS)
+            .where({ pessoa_juridica_id: user.id }).first();
+        
+        if (user.pessoa_juridica.conta_bancaria_id) {
+            user.pessoa_juridica.conta_bancaria = await ContaBancaria
+                .getById(user.pessoa_juridica.conta_bancaria_id);
+            
+            delete user.pessoa_juridica.conta_bancaria_id;
+        }
     }
 
     if (user.conta_bancaria_id) {
         user.conta_bancaria = await ContaBancaria.getById(user.conta_bancaria_id);
+
+        delete user.conta_bancaria_id;
     }
 
     return user;
@@ -84,7 +94,6 @@ module.exports = {
         try {
             await db(TABLE_ADDRESS).insert({ pessoa_juridica_id: id, ...local });
         } catch (error) {
-            console.log('Deu ruim', error)
             try {
                 await db(TABLE_ADDRESS).update(local).where({pessoa_juridica_id: id});
             } catch (error) {
