@@ -22,12 +22,14 @@ passport.use(
         let user;
         try {
             user = await Usuario.getByEmail(profile.emails[0].value);
-        } catch (error) { }
+        } catch (error) {
+            console.log('Deu ruim aqui: ', error);
+        }
 
         if(user) googleUser = await Usuario.getByGoogleId(profile.id);
         console.log('user', user);
         console.log('user google', googleUser);
-        
+
         if (!googleUser && !user) {
             try {
                 const newUser = await Usuario.save({
