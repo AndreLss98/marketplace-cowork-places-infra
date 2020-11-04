@@ -28,7 +28,6 @@ async function getMoreInfo(user) {
         }
     }
 
-
     return user;
 }
 
@@ -43,7 +42,6 @@ module.exports = {
     async getByEmail(email) {
         try {
             let user = await db(TABLE).where({ email }).first();
-            return await getMoreInfo(user);
         } catch (error) {
             throw error;
         }
