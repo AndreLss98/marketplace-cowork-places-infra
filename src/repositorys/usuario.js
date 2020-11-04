@@ -69,6 +69,7 @@ module.exports = {
             const id = await db(TABLE).insert(user).returning('id');
             return await db(TABLE).where({ id: id[0] }).first();
         } catch (error) {
+            console.log(error);
             throw new Error("Registration Failed");
         }
     },
