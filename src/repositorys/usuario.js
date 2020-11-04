@@ -41,7 +41,7 @@ module.exports = {
     },
     async getByEmail(email) {
         try {
-            let user = await db(TABLE).where({ email }).first();
+            return await db(TABLE).where({ email }).first();
         } catch (error) {
             throw error;
         }
