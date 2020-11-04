@@ -27,8 +27,6 @@ passport.use(
         }
 
         if(user) googleUser = await Usuario.getByGoogleId(profile.id);
-        console.log('user', user);
-        console.log('user google', googleUser);
 
         if (!googleUser && !user) {
             try {

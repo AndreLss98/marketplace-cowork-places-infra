@@ -11,7 +11,6 @@ const router = require('express').Router();
 const sharedFunctions = require('./../shared/functions');
 
 const Usuario = require('../repositorys/usuario');
-const ContaBancaria = require('./../repositorys/conta_bancaria');
 
 router.post('/', async (req, res) => {
     const { email, senha } = req.body;
