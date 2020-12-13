@@ -3,7 +3,7 @@ const db = require('./../configs/knex');
 const TABLE = 'alugavel';
 const TABLE_ENDERECO = 'endereco';
 const TABLE_CADASTRO_TERCEIRO = 'cadastro_terceiro';
-const TABLE_PUBLICO_ALVO = 'publico_alvo_alugavel';
+const TABLE_PUBLICO_ALVO_ALUGAVEL = 'publico_alvo_alugavel';
 
 const Info = require('./info');
 const Tipo = require('./tipo');
@@ -37,7 +37,7 @@ async function createQuery(filters = {}) {
 
     if (bairro || cidade) {
         console.log(cidade);
-        query = query.select(`${TABLE}.*`).innerJoin('local', `${TABLE}.id`, `local.alugavel_id`).where(bairro? 'bairro': 'cidade', 'like', `%${bairro || cidade}%`);
+        query = query.select(`${TABLE}.*`).innerJoin('local', `${TABLE}.id`, `local.alugavel_id`).where(bairro ? 'bairro' : 'cidade', 'like', `%${bairro || cidade}%`);
     }
 
     if (limit) query = query.limit(limit);
@@ -53,7 +53,8 @@ async function getMoreInfo(alugavel) {
     alugavel.documentos = await Documentos.getAllByAlugavelId(alugavel.id);
     alugavel.imagens = await AlugavelImagem.getAllByAlugavelId(alugavel.id);
     alugavel.anunciante_avaliado = (await Usuario.getById(alugavel.anunciante_id)).status_cadastro;
-    alugavel.publico_alvo = (await db.select('publico_alvo_id').from(TABLE_PUBLICO_ALVO).where({ alugavel_id: alugavel.id })).map(el => el.publico_alvo_id);
+    alugavel.anunciante_img = (await Usuario.getById(alugavel.anunciante_id)).img_perfil;
+    alugavel.publico_alvo = (await db.select("publico_alvo.nome").table(TABLE_PUBLICO_ALVO_ALUGAVEL).innerJoin("publico_alvo", "publico_alvo.id", "publico_alvo_alugavel.publico_alvo_id"));
 
     let caracteristicas = await AlugavelCaracteristica.getAllCaracteristicas(alugavel.id);
     for (let caracteristica of caracteristicas) {
@@ -70,9 +71,9 @@ async function getMoreInfo(alugavel) {
     }
 
     if (!alugavel.proprietario) {
-        alugavel.cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).where({alugavel_id: alugavel.id}).first();
+        alugavel.cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).where({ alugavel_id: alugavel.id }).first();
         delete alugavel.cadastro_terceiro.alugavel_id;
-        alugavel.cadastro_terceiro.local = await db(TABLE_ENDERECO).where({cadastro_terceiro_id: alugavel.cadastro_terceiro.id}).first();
+        alugavel.cadastro_terceiro.local = await db(TABLE_ENDERECO).where({ cadastro_terceiro_id: alugavel.cadastro_terceiro.id }).first();
     }
 
     return alugavel;
@@ -134,7 +135,7 @@ module.exports = {
                 try {
 
                     if (!alugavel.pessoajuridica) {
-                       id_cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).insert({
+                        id_cadastro_terceiro = await db(TABLE_CADASTRO_TERCEIRO).insert({
                             cpf: cadastro_terceiro.cpf,
                             nome: cadastro_terceiro.nome,
                             alugavel_id: id[0]
@@ -151,7 +152,7 @@ module.exports = {
                 }
 
                 try {
-                    await db(TABLE_ENDERECO).insert({ 
+                    await db(TABLE_ENDERECO).insert({
                         ...cadastro_terceiro_local,
                         cadastro_terceiro_id: id_cadastro_terceiro[0]
                     });
@@ -162,7 +163,7 @@ module.exports = {
 
             if (publico_alvo) {
                 publico_alvo.forEach(async (pub) => {
-                    await db(TABLE_PUBLICO_ALVO).insert({ publico_alvo_id: pub, alugavel_id: id[0] });
+                    await db(TABLE_PUBLICO_ALVO_ALUGAVEL).insert({ publico_alvo_id: pub, alugavel_id: id[0] });
                 });
             }
 
@@ -173,7 +174,7 @@ module.exports = {
         }
     },
     async update(id, alugavel, caracteristicas, infos, local, cadastro_terceiro, publico_alvo) {
-        
+
         try {
             await db(TABLE).update(alugavel).where({ id });
             const oldCaracteristicas = (await AlugavelCaracteristica.getAllCaracteristicas(id)).map(caracteristica => caracteristica.caracteristica_id);
@@ -236,14 +237,14 @@ module.exports = {
                     console.log(error);
                     throw error;
                 }
-                
-                await db(TABLE_ENDERECO).update({ 
+
+                await db(TABLE_ENDERECO).update({
                     ...cadastro_terceiro_local
                 }).where({ cadastro_terceiro_id: cadastro_terceiro.id });
             }
 
             if (publico_alvo) {
-                const old = (await db.select('publico_alvo_id').from(TABLE_PUBLICO_ALVO).where({ alugavel_id: id })).map(el => el.publico_alvo_id);
+                const old = (await db.select('publico_alvo_id').from(TABLE_PUBLICO_ALVO_ALUGAVEL).where({ alugavel_id: id })).map(el => el.publico_alvo_id);
 
                 console.log(old);
 
@@ -254,11 +255,11 @@ module.exports = {
                 console.log(rm);
 
                 news.forEach(async (el) => {
-                    await db(TABLE_PUBLICO_ALVO).insert({ alugavel_id: id, publico_alvo_id: el });
+                    await db(TABLE_PUBLICO_ALVO_ALUGAVEL).insert({ alugavel_id: id, publico_alvo_id: el });
                 });
 
                 rm.forEach(async (el) => {
-                    await db(TABLE_PUBLICO_ALVO).delete().where({ alugavel_id: id, publico_alvo_id: el });
+                    await db(TABLE_PUBLICO_ALVO_ALUGAVEL).delete().where({ alugavel_id: id, publico_alvo_id: el });
                 });
             }
 
@@ -272,11 +273,11 @@ module.exports = {
     },
     async getMostUseds() {
         let useds = await db.select('tipo_id').count('tipo_id', { as: 'qtd' }).from(TABLE).groupBy('tipo_id').orderBy('qtd', 'desc').limit(3);
-        
+
         let response = []
 
         for (let used of useds) {
-            response.push (await Tipo.getById(used.tipo_id))
+            response.push(await Tipo.getById(used.tipo_id))
         }
 
         return response;
