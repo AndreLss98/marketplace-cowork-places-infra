@@ -10,7 +10,9 @@ services:
               max-size: "10m"
               max-file: "3"
         environment:
+            POSTGRES_USER: ${DB_USER_DEV}
             POSTGRES_PASSWORD: ${DB_PASSWORD_DEV}
+            POSTGRES_DB: ${DB_DEV}
             PGDATA: /var/lib/postgresql/data/pgdata
         volumes:
             - ./db_dev:/var/lib/postgresql/data

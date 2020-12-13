@@ -16,13 +16,11 @@ services:
             dockerfile: Dockerfile-prod
         container_name: placeet-api
         restart: always
-        environment:
-            - ENV=prod
         volumes:
             - .:/usr/app
         depends_on:
             - db
-    nginx:
+    server:
         build:
             context: "./nginx/"
             dockerfile: Dockerfile-prod

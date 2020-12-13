@@ -16,8 +16,6 @@ services:
             dockerfile: Dockerfile-prod
         container_name: placeet-api-homolog
         restart: always
-        environment:
-            - ENV=homolog
         volumes:
             - .:/usr/app
         depends_on:
