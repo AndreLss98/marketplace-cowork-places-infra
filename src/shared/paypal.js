@@ -1,6 +1,6 @@
 const axios = require('axios');
 const {
-    ENV,
+    NODE_ENV,
     PAYPAL_CLIENT_ID,
     PAYPAL_URL_OAUTH,
     PAYPAL_URL_PLANS,
@@ -79,7 +79,7 @@ module.exports = {
             home_url: `${FRONT_END_URL}/spaces/${product.id}`
         }
 
-        if (ENV !== 'dev') data.image_url = image_url;
+        if (NODE_ENV !== 'dev') data.image_url = image_url;
 
         return await axios({
             method: 'POST',
