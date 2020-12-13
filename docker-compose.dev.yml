@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
     db-dev:
-        image: postgres
+        image: postgres:13.1
         container_name: placeet-db-dev
         restart: always
         logging:
@@ -24,8 +24,6 @@ services:
             options:
               max-size: "10m"
               max-file: "3"
-        environment:
-            - ENV=dev
         volumes:
             - .:/usr/app
         depends_on:
