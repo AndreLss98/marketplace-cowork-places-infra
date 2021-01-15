@@ -7,6 +7,7 @@
     "start": "node src/index.js",
     "db-up": "npx knex migrate:latest --knexfile src/configs/knexfile.js",
     "db-down": "npx knex migrate:down --knexfile src/configs/knexfile.js",
+    "db-seed": "npx knex seed:run --knexfile src/configs/knexfile.js",
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

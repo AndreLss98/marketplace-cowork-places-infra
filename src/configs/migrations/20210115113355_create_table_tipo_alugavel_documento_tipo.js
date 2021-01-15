@@ -4,4 +4,4 @@ exports.up = knex => knex.schema.createTable('tipo_alugavel_documento_tipo', tab
     table.primary(['tipo_alugavel_documento_id', 'tipo_id']);
 });
 
-exports.down = knex => knex.schema.dropTable('tipo_alugavel_documento_alugavel');
+exports.down = knex => knex.schema.dropTable('tipo_alugavel_documento_tipo');
