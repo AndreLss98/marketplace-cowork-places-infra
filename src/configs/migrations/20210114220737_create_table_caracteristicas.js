@@ -6,4 +6,4 @@ exports.up = knex => knex.schema.createTable('caracteristica', table => {
     table.string('unidade_medida', 100);
 });
 
-exports.down = knex => knex.dropTable('caracteristica');
+exports.down = knex => knex.schema.dropTable('caracteristica');
