@@ -8,7 +8,7 @@ exports.up = knex => knex.schema.createTable('endereco', table => {
     table.string('cidade', 200).notNullable();
     table.string('estado', 200).notNullable();
     table.integer('pessoa_juridica_id').references('id').inTable('pessoa_juridica');
-    table.integer('cadastro_terceiro_id').references('id').inTable('cadastro_terceiro')
+    table.integer('cadastro_terceiro_id').references('id').inTable('cadastro_terceiro').onDelete('CASCADE');
 });
 
 exports.down = knex => knex.schema.dropTable('endereco');
