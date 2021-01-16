@@ -12,7 +12,7 @@ exports.up = knex => knex.schema.createTable('usuario', table => {
     table.string('google_id', 255).default(null);
     table.decimal('saldo', 10, 2).default(0).notNullable();
     table.string('refresh_token', 100);
-    table.bigInteger('experies_at').default(0);
+    table.bigInteger('expires_at').default(0);
     table.string('cpf', 15);
     table.string('status_cadastro', 20).default('waiting').notNullable().comment('Values: waiting, approved, disapproved');
     table.string('email_token', 100);
