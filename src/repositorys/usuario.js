@@ -22,7 +22,7 @@ async function getMoreInfo(user) {
                 
                 delete user.pessoa_juridica.conta_bancaria_id;
             }
-        }        
+        }
         
         if (user.conta_bancaria_id) {
             user.conta_bancaria = await ContaBancaria.getById(user.conta_bancaria_id);
@@ -44,7 +44,8 @@ module.exports = {
     },
     async getByEmail(email) {
         try {
-            return await db(TABLE).where({ email }).first();
+            let user = await db(TABLE).where({ email }).first();
+            return await getMoreInfo(user);
         } catch (error) {
             throw error;
         }
