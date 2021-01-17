@@ -10,6 +10,18 @@ const cookieParser = require('cookie-parser');
 const app_port = process.env.PORT || 3000;
 const compression = require('compression');
 
+const bunyan = require('bunyan');
+
+const log = bunyan.createLogger({
+    name: 'Index',
+    streams: [
+        {
+            level: 'info',
+            path: '/var/tmp/index-info.log'
+        }
+    ]
+})
+
 const whitelist = [
     'https://placeet.com',
     'https://homolog.placeet.com',
@@ -52,6 +64,7 @@ app.get('/', (req, res, next) => {
 
 app.listen(app_port, () => {
     console.log(`Server running on port ${app_port}`);
+    log.info('Server restarted');
     if (!fs.existsSync('./public/tmp/uploads/img')) {
         fs.mkdirSync('./public/tmp/uploads/img', { recursive: true });
     }

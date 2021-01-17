@@ -5,6 +5,7 @@ WORKDIR /usr/app/
 COPY . ./
 
 RUN npm install
+RUN npm install -g bunyan
 
 CMD npm run dev
 
