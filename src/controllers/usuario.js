@@ -63,12 +63,12 @@ router.put('/dados-juridicos', authMiddleware(), async (req, res, next) => {
     const user = sharedFunctions.decodeToken(req.headers.authorization);
     delete req.body.id;
     const { cnpj, razao_social, local } = req.body;
-    const response = await Usuario.updateDadosJuridico(user.id, {cnpj, razao_social}, local);
+    const response = await Usuario.updateDadosJuridico(user.id, { cnpj, razao_social }, local);
     return res.status(200).send({ response });
 });
 
 router.put('/alter-password', authMiddleware(), async (req, res, next) => {
-    const {id} = sharedFunctions.decodeToken(req.headers.authorization);
+    const { id } = sharedFunctions.decodeToken(req.headers.authorization);
     const user = await Usuario.getById(id);
     const { senha_antiga, senha_nova } = req.body;
     if (!senha_antiga) return res.status(400).send({ error: "Old password is required" });
@@ -76,6 +76,12 @@ router.put('/alter-password', authMiddleware(), async (req, res, next) => {
     if (!senha_nova) return res.status(400).send({ error: "New password is required" });
     if (senha_antiga === senha_nova) return res.status(400).send({ error: "New password is equal to old password" });
     const response = await Usuario.update(id, { senha: senha_nova });
+    return res.status(200).send({ response });
+});
+
+router.put('/alter-perfil', async (req, res, next) => {
+    const user = sharedFunctions.decodeToken(req.headers.authorization);
+    const response = await Usuario.update(req.body.id, req.body);
     return res.status(200).send({ response });
 });
 
@@ -130,7 +136,7 @@ router.post('/duvidas', authMiddleware(), async (req, res, next) => {
     if (!pergunta) return res.status(400).send({ error: "Question is required" });
 
     const alugavel = await Duvida.getAllByAlugavelId(alugavel_id);
-    
+
     if (!alugavel) return res.status(404).send({ error: "Rentable not found" });
 
     const duvida = await Duvida.save(req.body);
@@ -155,7 +161,7 @@ router.post('/create', async (req, res, next) => {
 
     // const teste_cpf = await Usuario.getByCpf(req.body.cpf);
 
-    if (teste) return res.status(400).send({ error: "Email already used!" , item : 'Email'});
+    if (teste) return res.status(400).send({ error: "Email already used!", item: 'Email' });
     // if (teste_cpf) return res.status(400).send({ error: "CPF already used!" , item: 'CPF' });
     if (!req.body.senha) return res.status(400).send({ error: "Invalid object!" });
     if (!req.body.numero_1) return res.status(400).send({ error: "Invalid object!" });
@@ -164,7 +170,7 @@ router.post('/create', async (req, res, next) => {
         req.body.email_token = sharedFunctions.generateRefreshToken();
         req.body.refresh_token = sharedFunctions.generateRefreshToken();
         req.body.expires_at = sharedFunctions.generateExpirationTime();
-        
+
         const user = await Usuario.save(req.body);
         delete user.senha;
 
@@ -181,11 +187,11 @@ router.post('/create', async (req, res, next) => {
             // return res.status(400).send({ error });
         }
         delete user.email_token;
-        
+
         return res
-        .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: SAME_SITE, secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE) })
-        .status(200)
-        .send({ user, token: sharedFunctions.generateToken({ id: user.id }), expires_at });
+            .cookie('refresh_token', refresh_token, { maxAge: expires_at, httpOnly: true, sameSite: SAME_SITE, secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE) })
+            .status(200)
+            .send({ user, token: sharedFunctions.generateToken({ id: user.id }), expires_at });
     } catch (err) {
         console.log("Error: ", err);
         return res.status(400).send({ error: "Registrarion Failed!" });
@@ -197,7 +203,7 @@ router.get('/resend-confirm-email', authMiddleware(), async (req, res, next) => 
     const user = await Usuario.getById(userToken.id);
     try {
         await sharedFunctions.sendEmail(user.email, constants.NO_REPLY_EMAIL, 'Confirme seu email',
-        `Oi ${user.nome} ${user.sobrenome}
+            `Oi ${user.nome} ${user.sobrenome}
 
         Bem vindo a Placeet.
         
@@ -241,9 +247,9 @@ router.post('/conta-bancaria', authMiddleware(), async (req, res, next) => {
     if (!codigo_banco) return res.status(400).send({ error: "Code of Bank is required" });
 
     try {
-        const response = await ContaBancaria.save(pessoajuridica? user.pessoa_juridica.id : user.id, { codigo_banco, agencia, numero, tipo }, pessoajuridica);
+        const response = await ContaBancaria.save(pessoajuridica ? user.pessoa_juridica.id : user.id, { codigo_banco, agencia, numero, tipo }, pessoajuridica);
         return res.status(200).send(response);
-    } catch(error) {
+    } catch (error) {
         return res.status(400).send({ error: "Register Failed" });
     }
 });
@@ -261,7 +267,7 @@ router.put('/conta-bancaria/:id', authMiddleware(), async (req, res, next) => {
     try {
         const response = await ContaBancaria.update({ id, codigo_banco, agencia, numero, tipo });
         return res.status(200).send(response);
-    } catch(trace) {
+    } catch (trace) {
         return res.status(400).send({ error: "Update Failed", trace });
     }
 });
@@ -269,22 +275,22 @@ router.put('/conta-bancaria/:id', authMiddleware(), async (req, res, next) => {
 router.post('/img-perfil', authMiddleware(), multer(multerConfig('img')).single('file'), async (req, res, next) => {
     const { location, key } = req.file;
     const user = sharedFunctions.decodeToken(req.headers.authorization);
-    
+
     const oldImg = await Usuario.getBySearchKey({ id: user.id }, ['img_perfil']);
-    
+
     if (oldImg.img_perfil) {
         console.log(oldImg);
         try {
             await sharedFunctions.deleteFile('img', oldImg.img_perfil.substr(oldImg.img_perfil.lastIndexOf('/') + 1));
         } catch (error) {
-            
+
         }
     }
 
     if (!user) return res.status(400).send({ error: "User not found!" });
-    await Usuario.update(user.id, { img_perfil: location? location : `${BACK_END_URL}/img/${key}` });
+    await Usuario.update(user.id, { img_perfil: location ? location : `${BACK_END_URL}/img/${key}` });
 
-    res.status(200).send({ image_name: location? location : `${BACK_END_URL}/img/${key}` });
+    res.status(200).send({ image_name: location ? location : `${BACK_END_URL}/img/${key}` });
 });
 
 router.post('/assinar-termos', authMiddleware(), async (req, res, next) => {
@@ -316,11 +322,11 @@ router.post('/feedbacks', authMiddleware(), async (req, res, next) => {
 /**
  * Valida um email se já está em uso ou não
  */
-router.post('/email', async(req, res, next) => {
+router.post('/email', async (req, res, next) => {
     const { email } = req.body;
     if (!email) return res.status(400).send({ error: "Email is required" });
     let user;
-    
+
     try {
         user = await Usuario.getByEmail(email);
     } catch (error) { }
@@ -361,7 +367,7 @@ router.post('/favoritos', authMiddleware(), async (req, res, next) => {
     try {
         const response = await Favoritos.favoritar(user.id, alugavel_id);
         return res.status(200).send({ response });
-    } catch(error) {
+    } catch (error) {
         return res.status(400).send({ error: "Registration failed" });
     }
 });
@@ -387,7 +393,7 @@ router.get('/doc', authMiddleware(), async (req, res, next) => {
 router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file'), async (req, res, next) => {
     const user = sharedFunctions.decodeToken(req.headers.authorization);
     if (!user) return res.status(400).send({ error: "User not found!" });
-    
+
     const { documento_id } = req.body;
     if (!documento_id) return res.status(400).send({ error: "Document id is required" });
     const { location, key } = req.file;
@@ -396,10 +402,10 @@ router.post('/doc', authMiddleware(), multer(multerConfig('doc')).single('file')
         const response = await Documento.salvarDocumento({
             usuario_id: user.id,
             documento_id,
-            url: location? location : `${BACK_END_URL}/${key}`
+            url: location ? location : `${BACK_END_URL}/${key}`
         });
         res.status(200).send(response);
-    } catch(error) {
+    } catch (error) {
         return res.status(400).send({ error: "Register failed", trace: error });
     }
 });
@@ -421,7 +427,7 @@ router.delete('/favoritos/:alugavelId', authMiddleware(), async (req, res, next)
     const user = sharedFunctions.decodeToken(req.headers.authorization);
     const { alugavelId } = req.params;
     const response = await Favoritos.desfavoritar(user.id, alugavelId);
-    return res.status(200).send({response});
+    return res.status(200).send({ response });
 });
 
 router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
@@ -443,13 +449,13 @@ router.get('/:id', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
 router.put('/:id/validar-perfil', authMiddleware([perfis.ADMIN]), async (req, res, next) => {
     const { status_cadastro, observacao } = req.body;
     const { id } = req.params;
-    if(status_cadastro === undefined || status_cadastro === null) return res.status(400).send({ error: "Validate is required" });
+    if (status_cadastro === undefined || status_cadastro === null) return res.status(400).send({ error: "Validate is required" });
 
     let update = { status_cadastro };
     if (observacao) update.observacao = observacao;
 
     const user = await Usuario.getById(id);
-    if(!user) return res.status(404).send({ error: "User not found" });
+    if (!user) return res.status(404).send({ error: "User not found" });
 
     try {
         if (status_cadastro === constants.USUARIO_STATUS.DISAPPROVED) {
