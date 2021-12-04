@@ -143,7 +143,7 @@ const EMAILS_ANUNCIO = {
     }
 }
 
-const  EMAILS_CONTRATO = {
+const EMAILS_CONTRATO = {
     ON_PAYED_FOR_LOCATARIO: {
         email: (user, espaco, aluguel, dias_reservados) => {
             return `
@@ -358,6 +358,13 @@ const  EMAILS_CONTRATO = {
     }
 }
 
+const COOKIES_CONFIG_OPTIONS = expires_at => ({
+    maxAge: expires_at,
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true
+})
+
 module.exports = {
     TAXA_ALUGAVEL,
     NO_REPLY_EMAIL,
@@ -366,5 +373,6 @@ module.exports = {
     ALUGAVEL_STATUS,
     EMAILS_USUARIO,
     EMAILS_ANUNCIO,
-    EMAILS_CONTRATO
+    EMAILS_CONTRATO,
+    COOKIES_CONFIG_OPTIONS
 }

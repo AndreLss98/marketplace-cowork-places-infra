@@ -1,14 +1,10 @@
-const {
-    SAME_SITE,
-    HTTP_SECURE,
-} = process.env;
-
 require('../middlewares/passport');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const router = require('express').Router();
 
 const sharedFunctions = require('./../shared/functions');
+const { COOKIES_CONFIG_OPTIONS } = require('./../shared/constants')
 
 const Usuario = require('../repositorys/usuario');
 
@@ -32,12 +28,7 @@ router.post('/', async (req, res) => {
     delete user.expires_at;
     delete user.email_token;
     
-    res.cookie('refresh_token', refresh_token, {
-        maxAge: expires_at,
-        httpOnly: true,
-        sameSite: SAME_SITE,
-        secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE)
-    }).status(200)
+    res.cookie('refresh_token', refresh_token, COOKIES_CONFIG_OPTIONS(expires_at)).status(200)
     .send({ user, token: sharedFunctions.generateToken({ id: user.id }), expires_at });
 });
 
@@ -68,12 +59,7 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res)
     delete req.user.expires_at;
     delete req.user.email_token;
 
-    res.cookie('refresh_token', refresh_token, {
-        maxAge: expires_at,
-        httpOnly: true,
-        sameSite: SAME_SITE,
-        secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE)
-    }).redirect(process.env.FRONT_END_URL);
+    res.cookie('refresh_token', refresh_token, COOKIES_CONFIG_OPTIONS(expires_at)).redirect(process.env.FRONT_END_URL);
 });
 
 router.post('/refresh-token', async (req, res, next) => {
@@ -92,12 +78,7 @@ router.post('/refresh-token', async (req, res, next) => {
     delete user.email_token;
     delete user.refresh_token;
 
-    res.cookie('refresh_token', refresh_token, {
-        maxAge: expires_at,
-        httpOnly: true,
-        sameSite: SAME_SITE,
-        secure: sharedFunctions.changeStringBoolToBool(HTTP_SECURE)
-    }).status(200)
+    res.cookie('refresh_token', refresh_token, COOKIES_CONFIG_OPTIONS(expires_at)).status(200)
     .send({ user, token: sharedFunctions.generateToken({ id: user.id }), expires_at });
 });
 

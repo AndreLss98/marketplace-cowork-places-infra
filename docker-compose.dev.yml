@@ -1,6 +1,11 @@
 version: "3.8"
 
 services:
+    jenkins-server:
+        image: jenkins/jenkins:lts-jdk11
+        container_name: placeet-jenkins-dev
+        ports:
+            - "8080:8080"
     db-dev:
         image: postgres:13.1
         container_name: placeet-db-dev
@@ -16,6 +21,8 @@ services:
             PGDATA: /var/lib/postgresql/data/pgdata
         volumes:
             - ./db_dev:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
     api-dev:
         build:
             context: "./"
@@ -30,6 +37,8 @@ services:
             - .:/usr/app
         depends_on:
             - db-dev
+        environment:
+            - NODE_ENV=development
     server-dev:
         build:
             context: "./nginx/"
